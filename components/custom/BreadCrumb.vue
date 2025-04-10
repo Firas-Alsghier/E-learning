@@ -11,7 +11,8 @@ import {
 
 
 <template>
-     <Breadcrumb>
+     <Breadcrumb class="bg-[#F5F5F5] py-3 px-8">
+      <CustomContainer>
       <BreadcrumbList class="flex gap-1 text-sm text-[#555555] whitespace-nowrap">
         <BreadcrumbItem>
           <BreadcrumbLink href="/">Home</BreadcrumbLink>
@@ -31,5 +32,6 @@ import {
           </BreadcrumbPage>
         </BreadcrumbItem>
       </BreadcrumbList>
+    </CustomContainer>
     </Breadcrumb>
 </template>
