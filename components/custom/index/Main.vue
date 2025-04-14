@@ -24,7 +24,7 @@
             <div class="max-sm:w-full max-md:mt-4 max-md:w-full max-md:text-center max-md:order-1 max-sm:h-full text-right w-2/4 max-sm:text-center max-sm:flex max-sm:flex-col max-sm:justify-center max-sm:items-center max-sm:pt-5">
                 <h1 class="text-black  max-xl:text-[40px] text-[48px] font-semibold max-md:text-4xl max-sm:text-4xl">استثمر في نفسك مع أفضل الكورسات عبر الإنترنت</h1>
                 <p class="text-[16px] max-sm:text-lg font-normal text-[#555555] my-3">قم بتطوير مهارة مهنية محددة من خلال سلسلة من الدورات التدريبية المترابطة. جسّد أفكارك على أرض الواقع من خلال مشاريع عمليّة واحصل على شهادة تخصص لإضافتها إلى سيرتك الذاتية.</p>
-                <Button class="bg-[#FF782D]">التسجيل</Button>
+                <Button class="bg-[#FF782D] text-base cursor-pointer">التسجيل</Button>
             </div>
             
         </div>

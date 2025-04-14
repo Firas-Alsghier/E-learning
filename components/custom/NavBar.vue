@@ -38,17 +38,17 @@ onMounted(() => {
 
 const components = [
   {
-    title: 'Alert Dialog',
+    title: 'الأعمال والريادة',
     href: '/docs/components/alert-dialog',
-    description: 'A modal dialog that interrupts the user with important content and expects a response.',
+    description: 'تعلّم مهارات القيادة وبناء المشاريع الناجحة',
   },
   {
-    title: 'Hover Card',
+    title: 'الصحة والتغذية',
     href: '/docs/components/hover-card',
-    description: 'For sighted users to preview content available behind a link.',
+    description: 'اكتشف أساليب الحياة الصحية والتغذية السليمة',
   },
   {
-    title: 'Progress',
+    title: 'تطوير الذات',
     href: '/docs/components/progress',
     description: 'Displays an indicator showing the completion progress of a task.',
   },
@@ -67,6 +67,12 @@ const components = [
     href: '/docs/components/tooltip',
     description: 'Displays info on focus or hover.',
   },
+  {
+    title: 'Tooltip',
+    href: '/docs/components/tooltip',
+    description: 'Displays info on focus or hover.',
+  },
+  
 ];
 </script>
 
@@ -76,7 +82,7 @@ const components = [
       <div class="flex items-center justify-between">
         <!-- Logo & Hamburger -->
         <div class="flex items-center gap-4">
-          <img src="/logo.png" alt="Logo" class="h-20 w-20">
+          <img src="/logo.png" alt="Logo" class="h-20 w-20 -translate-x-7">
           <button @click="toggleMenu" class="lg:hidden">
             <MenuIcon class="w-6 h-6" />
           </button>
@@ -90,17 +96,19 @@ const components = [
             'lg:static lg:w-auto lg:flex'
           ]"
         >
-          <NuxtLink to="#" class="text-gray-700 hover:text-orange-500">FAQ</NuxtLink>
-          <NuxtLink to="#" class="text-gray-700 hover:text-orange-500">عن المنصة</NuxtLink>
-          <NuxtLink to="#" class="text-gray-700 hover:text-orange-500">المدونة</NuxtLink>
+          <NuxtLink to="/faqs" class="text-gray-700 hover:text-orange-500">FAQ</NuxtLink>
+          <NuxtLink to="/about" class="text-gray-700 hover:text-orange-500">عن المنصة</NuxtLink>
+          <NuxtLink to="/articles" class="text-gray-700 hover:text-orange-500">المدونة</NuxtLink>
+          <NuxtLink to="/courses" class="text-gray-700 hover:text-orange-500">الكورسات</NuxtLink>
+          <NuxtLink to="/" class="text-gray-700 hover:text-orange-500">الرئيسية</NuxtLink>
 
           <!-- Dropdown Menu -->
-          <NavigationMenu>
+          <!-- <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
                 <NavigationMenuTrigger class="text-gray-700">الكورسات</NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <ul class="grid max-lg:w-[270px] w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                  <ul class="grid max-lg:w-[270px] text-right w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                     <li v-for="component in components" :key="component.title">
                       <NavigationMenuLink as-child>
                         <a
@@ -108,7 +116,7 @@ const components = [
                           class="block select-none space-y-1 rounded-md p-3 transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                         >
                           <div class="text-sm font-medium">{{ component.title }}</div>
-                          <p class="text-sm text-muted-foreground line-clamp-2">
+                          <p class="text-sm text-muted-foreground text-right line-clamp-2">
                             {{ component.description }}
                           </p>
                         </a>
@@ -118,7 +126,7 @@ const components = [
                 </NavigationMenuContent>
               </NavigationMenuItem>
             </NavigationMenuList>
-          </NavigationMenu>
+          </NavigationMenu> -->
 
           <!-- Search Input -->
           <div class="relative w-full max-md:w-full lg:w-72 mx-auto">

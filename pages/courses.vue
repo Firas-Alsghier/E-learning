@@ -1,5 +1,5 @@
-<script lang="ts">
-import { Search } from 'lucide-vue-next'
+<script setup lang="ts">
+import { Search } from 'lucide-vue-next';
 
 </script>
 <template>
@@ -16,13 +16,18 @@ import { Search } from 'lucide-vue-next'
         <div class="flex-1 w-full space-y-5">
           <!-- Top bar: Title + Search -->
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div class="relative w-full max-w-sm items-center">
-              <Input id="search" type="text" placeholder="Search..." class="pl-10" />
-              <span class="absolute start-0 inset-y-0 flex items-center justify-center px-2">
-                <Search class="size-6 text-muted-foreground" />
+            <div class="relative w-[270px] items-center">
+              <Input id="search" type="text" placeholder="Search..."
+                class="text-right border-0 border-b border-black focus:border-black focus-visible:ring-0 rounded-none pl-10" />
+              <span class="absolute left-0 inset-y-0 flex items-center justify-center">
+                <Search class="size-5 text-muted-foreground" />
               </span>
             </div>
-            <h2 class="text-xl font-semibold">All Courses</h2>
+
+
+
+
+            <h2 class="text-lg font-semibold">كل الكورسات</h2>
           </div>
 
           <!-- Courses -->

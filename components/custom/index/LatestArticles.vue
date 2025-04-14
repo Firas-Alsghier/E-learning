@@ -2,18 +2,16 @@
     <CustomContainer>
     <section class="py-16 text-right">
       <!-- Header Row -->
-      <div class="flex justify-between items-center flex-wrap gap-4 mb-8">
-        <!-- Button -->
-        <Button
-          class="bg-transparent cursor-pointer rounded-2xl hover:bg-[#FF782D] hover:text-white text-black border-2"
-        >
-        <!-- Heading -->
-          عرض المقالات
-        </Button>
+      <div class="flex flex-row-reverse items-start justify-between gap-6 mb-6">
         <div class="text-right">
-        <h2 class="text-2xl sm:text-3xl font-semibold">تصفح مقالاتنا</h2>
-        <p class="text-sm sm:text-base text-[#555]">تصفح مقالاتنا المجانية</p>
-      </div>
+          <h3 class="text-2xl mb-3 font-semibold">تصفح مقالاتنا</h3>
+          <p class="text-lg sm:text-base text-[#555]">
+            تصفح مقالاتنا المجانية.
+          </p>
+        </div>
+        <div>
+          <Button class="bg-transparent text-base cursor-pointer rounded-2xl hover:bg-[#FF782D] hover:text-white text-black border-2">عرض المقالات</Button>
+        </div>
       </div>
   
       <!-- Cards -->

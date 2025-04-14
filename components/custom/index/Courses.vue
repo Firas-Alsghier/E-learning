@@ -2,13 +2,15 @@
   <section class="py-10">
     <CustomContainer>
       <!-- العنوان والزر -->
-      <div class="flex flex-col-reverse sm:flex-row items-center justify-between mb-6 gap-4">
-        <div>
-          <Button class="bg-transparent cursor-pointer rounded-2xl hover:bg-[#FF782D] hover:text-white text-black border-2">كل الكورسات</Button>
-        </div>
+      <div class="flex flex-row-reverse items-start justify-between gap-6 mb-6">
         <div class="text-right">
-          <h3 class="text-3xl font-semibold">اكتشف أفضل الكورسات</h3>
-          <p class="text-gray-600">.اختر من أحد هذه الدورات لتطوير مهاراتك في مجالات مختلفة</p>
+          <h3 class="text-2xl mb-3 font-semibold">أفضل الكورسات</h3>
+          <p class="text-lg sm:text-base text-[#555]">
+            .اختر من أحد هذه الدورات لتطوير مهاراتك في مجالات مختلفة
+          </p>
+        </div>
+        <div>
+          <Button class="bg-transparent text-base cursor-pointer rounded-2xl hover:bg-[#FF782D] hover:text-white text-black border-2">كل الكورسات</Button>
         </div>
       </div>
 
@@ -37,13 +39,13 @@
             <!-- السعر والرابط -->
             <div class="border-t pt-2 mt-2 flex items-center justify-between text-sm">
               <div class="flex items-center gap-2">
-                <span class="line-through text-gray-400" v-if="!course.free">${{ course.oldPrice }}</span>
-                <span :class="course.free ? 'text-green-600' : 'text-red-500'" class="font-bold">
+                <span class="line-through text-gray-400 " v-if="!course.free">${{ course.oldPrice }}</span>
+                <span :class="course.free ? 'text-green-600 font-medium text-lg' : 'text-red-500 font-medium text-lg'" class="font-medium text-lg">
                   {{ course.free ? 'Free' : `$${course.newPrice}` }}
                 </span>
               </div>
-              <NuxtLink :to="`/courses/${course.id}`" class="text-blue-600 hover:underline">
-                View More →
+              <NuxtLink :to="`/courses/${course.id}`" class="text-black font-medium text-lg hover:underline">
+               → المزيد
               </NuxtLink>
             </div>
           </div>
