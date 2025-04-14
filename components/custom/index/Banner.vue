@@ -24,9 +24,9 @@
           <button class="bg-white text-gray-600 text-sm sm:text-base font-medium px-6 py-2 rounded-full hover:bg-gray-100 transition">
             انضم كمعلم
           </button>
-          <button class="border border-white text-white text-sm sm:text-base font-medium px-6 py-2 rounded-full hover:bg-white hover:text-gray-700 transition">
+          <NuxtLink to="signup"><button class="border border-white text-white text-sm sm:text-base font-medium px-6 py-2 rounded-full hover:bg-white hover:text-gray-700 transition">
             أنا طالب
-          </button>
+          </button></NuxtLink>
         </div>
       </div>
   
