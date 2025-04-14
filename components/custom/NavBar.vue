@@ -145,6 +145,7 @@ const components = [
           <!-- Auth Buttons -->
           <NuxtLink to="login" class="text-gray-700 hover:text-orange-500"><Button variant="outline" class="cursor-pointer">تسجيل الدخول</Button></NuxtLink>
           <NuxtLink to="signup" class="text-gray-700 hover:text-orange-500"><Button class="bg-orange-500 text-white hover:bg-orange-600 cursor-pointer">التسجيل</Button></NuxtLink> 
+          <NuxtLink to="signup" class="text-gray-700 hover:text-orange-500">das</NuxtLink> 
         </div>
       </div>
     </CustomContainer>
