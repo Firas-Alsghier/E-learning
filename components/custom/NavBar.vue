@@ -143,8 +143,8 @@ const components = [
           </div>
 
           <!-- Auth Buttons -->
-          <Button variant="outline" class="cursor-pointer">تسجيل الدخول</Button>
-          <Button class="bg-orange-500 text-white hover:bg-orange-600 cursor-pointer">التسجيل</Button>
+          <NuxtLink to="/login" class="text-gray-700 hover:text-orange-500"><Button variant="outline" class="cursor-pointer">تسجيل الدخول</Button></NuxtLink>
+          <NuxtLink to="/signup" class="text-gray-700 hover:text-orange-500"><Button class="bg-orange-500 text-white hover:bg-orange-600 cursor-pointer">التسجيل</Button></NuxtLink> 
         </div>
       </div>
     </CustomContainer>
