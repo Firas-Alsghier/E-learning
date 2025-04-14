@@ -57,7 +57,7 @@ definePageMeta({
             </Card>
         </div>
         <div class="hidden bg-muted lg:block">
-            <img src="/assets/images/course.jpg" alt="Image" width="1920" height="1080"
+            <img src="/assets/images/course-new.jpg" alt="Image" width="1920" height="1080"
                 class="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale">
         </div>
     </div>
