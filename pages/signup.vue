@@ -49,7 +49,7 @@ definePageMeta({
                     </div>
                     <div class="mt-4 text-center text-sm">
                         لديك حساب بالفعل؟
-                        <a href="/login" class="underline">
+                        <a href="login" class="underline">
                             تسجيل الدخول
                         </a>
                     </div>
