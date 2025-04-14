@@ -21,10 +21,10 @@
       <!-- Left side (text + buttons) -->
       <div class="flex flex-col gap-4 items-start sm:items-end z-10">
         <div class="flex gap-4">
-          <button class="bg-white text-gray-600 text-sm sm:text-base font-medium px-6 py-2 rounded-full hover:bg-gray-100 transition">
+          <button class="bg-white cursor-pointer text-gray-600 text-sm sm:text-base font-medium px-6 py-2 rounded-full hover:bg-gray-100 transition">
             انضم كمعلم
           </button>
-          <NuxtLink to="signup"><button class="border border-white text-white text-sm sm:text-base font-medium px-6 py-2 rounded-full hover:bg-white hover:text-gray-700 transition">
+          <NuxtLink to="signup"><button class="border cursor-pointer border-white text-white text-sm sm:text-base font-medium px-6 py-2 rounded-full hover:bg-white hover:text-gray-700 transition">
             أنا طالب
           </button></NuxtLink>
         </div>
