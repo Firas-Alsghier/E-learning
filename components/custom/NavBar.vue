@@ -96,10 +96,10 @@ const components = [
             'lg:static lg:w-auto lg:flex'
           ]"
         >
-          <NuxtLink to="/faqs" class="text-gray-700 hover:text-orange-500">FAQ</NuxtLink>
-          <NuxtLink to="/about" class="text-gray-700 hover:text-orange-500">عن المنصة</NuxtLink>
-          <NuxtLink to="/articles" class="text-gray-700 hover:text-orange-500">المدونة</NuxtLink>
-          <NuxtLink to="/courses" class="text-gray-700 hover:text-orange-500">الكورسات</NuxtLink>
+          <NuxtLink to="faqs" class="text-gray-700 hover:text-orange-500">FAQ</NuxtLink>
+          <NuxtLink to="about" class="text-gray-700 hover:text-orange-500">عن المنصة</NuxtLink>
+          <NuxtLink to="articles" class="text-gray-700 hover:text-orange-500">المدونة</NuxtLink>
+          <NuxtLink to="courses" class="text-gray-700 hover:text-orange-500">الكورسات</NuxtLink>
           <NuxtLink to="/" class="text-gray-700 hover:text-orange-500">الرئيسية</NuxtLink>
 
           <!-- Dropdown Menu -->
@@ -145,7 +145,6 @@ const components = [
           <!-- Auth Buttons -->
           <NuxtLink to="login" class="text-gray-700 hover:text-orange-500"><Button variant="outline" class="cursor-pointer">تسجيل الدخول</Button></NuxtLink>
           <NuxtLink to="signup" class="text-gray-700 hover:text-orange-500"><Button class="bg-orange-500 text-white hover:bg-orange-600 cursor-pointer">التسجيل</Button></NuxtLink> 
-          <NuxtLink to="signup" class="text-gray-700 hover:text-orange-500">das</NuxtLink> 
         </div>
       </div>
     </CustomContainer>
