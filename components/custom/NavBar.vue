@@ -98,7 +98,7 @@ const components = [
         >
           <NuxtLink to="faqs" class="text-gray-700 hover:text-orange-500">FAQ</NuxtLink>
           <NuxtLink to="about" class="text-gray-700 hover:text-orange-500">عن المنصة</NuxtLink>
-          <NuxtLink to="articles" class="text-gray-700 hover:text-orange-500">المدونة</NuxtLink>
+          <NuxtLink to="articles" class="text-gray-700 hover:text-orange-500">المقالات</NuxtLink>
           <NuxtLink to="courses" class="text-gray-700 hover:text-orange-500">الكورسات</NuxtLink>
           <NuxtLink to="/" class="text-gray-700 hover:text-orange-500">الرئيسية</NuxtLink>
 
