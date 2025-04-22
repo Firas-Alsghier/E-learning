@@ -2,7 +2,6 @@
   <CustomBreadCrumb />
   <div class="bg-black h-[290px] text-white pt-8">
     <CustomContainer>
-      <!-- Top Section -->
       <div class="flex flex-col lg:flex-row justify-between gap-6">
         <!-- Left: Course Info -->
         <div class="space-y-4">
@@ -12,7 +11,6 @@
           </div>
           <h1 class="text-4xl font-bold">The Ultimate Guide To The Best WordPress LMS Plugin</h1>
 
-          <!-- Course Meta Info -->
           <div class="flex flex-wrap gap-4 text-sm text-orange-400 mt-4">
             <span>🕒 2Weeks</span>
             <span>🎓 156 Students</span>
@@ -22,7 +20,7 @@
           </div>
         </div>
 
-        <!-- Right: Sidebar Card -->
+        <!-- Sidebar Card -->
         <div class="bg-white text-black rounded-xl p-4 w-full lg:w-[320px] shrink-0">
           <img src="/assets/images/error.png" alt="LMS" class="rounded-lg mb-4" />
           <div class="text-center space-y-2">
@@ -57,12 +55,11 @@
 
         <!-- Tab Content -->
         <div class="mt-4 text-right bg-[#F5F5F5] leading-loose text-gray-800 overflow-y-auto h-[250px] px-4 py-3 rounded-b-xl">
-          <div v-if="selectedTab === 'overview'">
-            <p>على ووردبريس، تُعد واحدة من أفضل إضافات شاملة لنظام إدارة التعلم LearnPress (LMS). يمكنك تصميم مناهج دراسية وبيع الدورات بسهولة عبر الإنترنت.</p>
-            <p>بفضل واجهتها البسيطة، يستطيع المستخدمون التفاعل معها بسهولة. تُستخدم في بناء مدارس إلكترونية وتدعم الدروس، الاختبارات، والشهادات.</p>
-            <p>رغم بساطتها، إلا أنها ما زالت تتمتع بإمكانيات عالية تساعدك على إنشاء موقع تعليمي متكامل.</p>
-          </div>
-          <!-- Add other tab content here -->
+          <CustomCoursesOverviewTab v-if="selectedTab === 'overview'" />
+          <CustomCoursesCurriculumTab v-if="selectedTab === 'curriculum'" />
+          <CustomCoursesInstructorTab v-if="selectedTab === 'instructor'" />
+          <CustomCoursesFaqsTab v-if="selectedTab === 'faq'" />
+          <!-- Add the rest below once created -->
         </div>
       </div>
     </div>
@@ -70,8 +67,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-
 const selectedTab = ref('overview');
 
 const tabs = [
@@ -82,9 +77,3 @@ const tabs = [
   { id: 'reviews', label: 'التقييمات' },
 ];
 </script>
-
-<!-- <style scoped>
-  .tab-btn {
-    @apply px-4 py-2 text-sm text-gray-700 hover:text-orange-500;
-  }
-  </style> -->
