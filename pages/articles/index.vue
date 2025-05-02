@@ -1,9 +1,46 @@
 <script setup lang="ts">
 import { Search } from 'lucide-vue-next';
+import { useRouter } from 'vue-router';
+
+// Fake courses array
+const articles = [
+  {
+    title: 'Create An LMS Website With LearnPress',
+    slug: 'create-an-lms-website',
+    image: 'https://www.filepicker.io/api/file/eYA6E8L3TiGl0GxpQoS6',
+    author: 'Determined-Poitras',
+    students: 156,
+    duration: '2 Weeks',
+    level: 'All levels',
+    lessons: 20,
+    price: 0,
+    oldPrice: 29,
+    category: 'Programming',
+  },
+  {
+    title: 'Mastering Vue 3 Composition API',
+    slug: 'mastering-vue3-composition-api',
+    image: 'https://via.placeholder.com/400x300',
+    author: 'CodeMaster',
+    students: 240,
+    duration: '4 Weeks',
+    level: 'Intermediate',
+    lessons: 32,
+    price: 19,
+    oldPrice: 49,
+    category: 'Web Development',
+  },
+  // Add more courses if you want
+];
 </script>
 <template>
   <div class="w-full bg-white">
-    <CustomBreadCrumb />
+    <CustomBreadCrumb
+      :items="[
+        { label: 'Home', href: '/' },
+        { label: 'Articles', href: '/articles' }, // no href means current page
+      ]"
+    />
     <CustomContainer>
       <div class="flex flex-col lg:flex-row-reverse gap-4 my-14">
         <!-- Filters (Left) -->
@@ -27,7 +64,7 @@ import { Search } from 'lucide-vue-next';
 
           <!-- Courses -->
           <div class="space-y-6">
-            <CustomArticlesCard v-for="i in 6" :key="i" />
+            <CustomArticlesCard v-for="article in articles" :key="article.slug" :article="article" />
           </div>
 
           <!-- Pagination -->

@@ -1,10 +1,14 @@
+<script setup lang="ts">
+import { Facebook, Twitter, Instagram } from 'lucide-vue-next';
+</script>
+
 <template>
-  <div class="text-right space-y-4">
+  <div class="text-left space-y-4">
     <div class="flex items-center gap-4">
-      <img src="/assets/images/faq.png" alt="Instructor" class="w-24 h-24 rounded-xl" />
+      <img src="/assets/images/teacher.png" alt="Instructor" class="w-24 h-24 rounded-xl" />
       <div>
-        <h2 class="font-bold text-lg">ThimPress</h2>
-        <p class="text-sm text-gray-600">
+        <h2 class="font-semibold text-xl">ThimPress</h2>
+        <p class="text-base text-gray-600">
           LearnPress is a comprehensive WordPress LMS Plugin for WordPress. This is one of the best WordPress LMS Plugins which can be used to easily create & sell courses online.
         </p>
         <div class="flex items-center gap-4 mt-2 text-sm text-gray-700">
@@ -14,19 +18,15 @@
       </div>
     </div>
 
-    <p class="text-sm text-gray-700 leading-loose">
+    <p class="text-base text-gray-600">
       LearnPress is a comprehensive WordPress LMS Plugin for WordPress. This is one of the best WordPress LMS Plugins which can be used to easily create & sell courses online.
     </p>
 
-    <div class="flex gap-4 mt-4 justify-end">
-      <a href="#" class="text-gray-500 hover:text-black text-xl"><i class="fab fa-facebook"></i></a>
-      <a href="#" class="text-gray-500 hover:text-black text-xl"><i class="fab fa-pinterest"></i></a>
-      <a href="#" class="text-gray-500 hover:text-black text-xl"><i class="fab fa-wordpress"></i></a>
-      <a href="#" class="text-gray-500 hover:text-black text-xl"><i class="fab fa-youtube"></i></a>
+    <div class="flex gap-3 mt-4 justify-start">
+      <p class="text-base">Follow:</p>
+      <a href="#" class="text-gray-500 hover:text-black"><Facebook /></a>
+      <a href="#" class="text-gray-500 hover:text-black"><Twitter /></a>
+      <a href="#" class="text-gray-500 hover:text-black"><Instagram /></a>
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-// No script logic needed
-</script>

@@ -1,21 +1,17 @@
 <template>
   <CustomContainer>
-  <section class="text-center py-10 ">
+    <section class="text-center py-10">
       <div class="flex flex-row-reverse items-start justify-between gap-6 mb-6">
         <div class="text-right">
           <h3 class="text-2xl mb-3 font-semibold">الدّورات الأكثر طلباً</h3>
-          <p class="text-lg sm:text-base text-[#555]">
-            .اختر من أحد هذه الدورات لتطوير مهاراتك في مجالات مختلفة
-          </p>
+          <p class="text-lg sm:text-base text-[#555]">.اختر من أحد هذه الدورات لتطوير مهاراتك في مجالات مختلفة</p>
         </div>
         <div>
           <Button class="bg-transparent text-base cursor-pointer rounded-2xl hover:bg-[#FF782D] hover:text-white text-black border-2">كل التصنيفات</Button>
         </div>
       </div>
 
-      <div
-        class="grid justify-center sm:justify-between gap-6 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
-      >
+      <div class="grid justify-center sm:justify-between gap-6 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         <div
           v-for="(category, index) in categories"
           :key="index"
@@ -32,15 +28,15 @@
 
 <script setup>
 const categories = [
-  { icon: "🎨", name: "Design", courses: 38 },
-  { icon: "💻", name: "Development", courses: 38 },
-  { icon: "🎭", name: "Art", courses: 38 },
-  { icon: "🎥", name: "Video", courses: 38 },
-  { icon: "📊", name: "Marketing", courses: 38 },
-  { icon: "📄", name: "Business", courses: 38 },
-  { icon: "📡", name: "Networking", courses: 38 },
-  { icon: "🎨", name: "Illustration", courses: 38 },
-  { icon: "🎨", name: "Illustration", courses: 38 },
-  { icon: "🎨", name: "Illustration", courses: 38 },
+  { icon: '🎨', name: 'Design', courses: 38 },
+  { icon: '💻', name: 'Development', courses: 38 },
+  { icon: '🎭', name: 'Art', courses: 38 },
+  { icon: '🎥', name: 'Video', courses: 38 },
+  { icon: '📊', name: 'Marketing', courses: 38 },
+  { icon: '📄', name: 'Business', courses: 38 },
+  { icon: '📡', name: 'Networking', courses: 38 },
+  { icon: '🎨', name: 'Illustration', courses: 38 },
+  { icon: '🎨', name: 'Illustration', courses: 38 },
+  { icon: '🎨', name: 'Illustration', courses: 38 },
 ];
 </script>

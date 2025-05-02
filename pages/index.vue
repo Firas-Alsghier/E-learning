@@ -1,15 +1,14 @@
-<script setup lang="ts">
-
-
-</script>
+<script setup lang="ts"></script>
 
 <template>
-    <CustomIndexMain/>
-    <CustomIndexHighDemandCourses/>
-    <CustomIndexCourses/>
-    <CustomIndexStatsOverview/>
-    <CustomIndexMotivationSection/>
-    <CustomIndexTestimonial/>
-    <CustomIndexBanner/>
-    <CustomIndexLatestArticles/>
+  <div class="home-page">
+    <CustomIndexMain />
+    <CustomIndexHighDemandCourses />
+    <CustomIndexCourses />
+    <CustomIndexStatsOverview />
+    <CustomIndexMotivationSection />
+    <CustomIndexTestimonial />
+    <CustomIndexBanner />
+    <CustomIndexLatestArticles />
+  </div>
 </template>

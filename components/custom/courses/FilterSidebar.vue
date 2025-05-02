@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { Checkbox } from '@/components/ui/checkbox'
+import { ref } from 'vue';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const selected = ref({
   courseCategory: ['Shop', 'Academy'],
   instructors: [],
   price: ['All'],
   review: ['★★★★☆'],
-  level: ['Intermidiate']
-})
+  level: ['Intermidiate'],
+});
 </script>
 
 <template>
@@ -59,11 +59,7 @@ const selected = ref({
     <div>
       <h3 class="font-semibold text-base mb-2">Review</h3>
       <div class="space-y-2">
-        <div
-          class="flex items-center justify-between"
-          v-for="item in ['★★★★★', '★★★★☆', '★★★☆☆', '★★☆☆☆', '★☆☆☆☆']"
-          :key="item"
-        >
+        <div class="flex items-center justify-between" v-for="item in ['★★★★★', '★★★★☆', '★★★☆☆', '★★☆☆☆', '★☆☆☆☆']" :key="item">
           <div class="flex items-center gap-2">
             <Checkbox v-model:checked="selected.review" :value="item" />
             <span class="text-yellow-500">{{ item }}</span>

@@ -1,8 +1,32 @@
 <script setup lang="ts">
 import { Calendar, GraduationCap, Gauge, FileVideo2 } from 'lucide-vue-next';
+import { useRouter } from 'vue-router';
+
+const { article } = defineProps<{
+  article: {
+    title: string;
+    slug: string;
+    image: string;
+    author: string;
+    students: number;
+    duration: string;
+    level: string;
+    lessons: number;
+    price: number;
+    oldPrice: number;
+    category: string;
+  };
+}>();
+
+const router = useRouter();
+
+const goToCourse = () => {
+  router.push(`/articles/${article.slug}`);
+};
 </script>
 <template>
   <div
+    @click="goToCourse"
     class="w-full group hover:-translate-y-2 hover:shadow-lg transition-all duration-300 cursor-pointer max-w-[990px] h-auto sm:h-[250px] flex flex-col sm:flex-row border rounded-[20px] overflow-hidden bg-white"
   >
     <!-- Left: Course Image -->

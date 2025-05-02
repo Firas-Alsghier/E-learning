@@ -1,5 +1,22 @@
+<script setup lang="ts">
+const selectedTab = ref('overview');
+import { useRoute } from 'vue-router';
+import { computed } from 'vue';
+
+const route = useRoute();
+
+// Safer: make slug computed
+const slug = computed(() => route.params.slug as string);
+const tabs = [
+  { id: 'overview', label: 'نظرة عامة' },
+  { id: 'curriculum', label: 'المنهج الدراسي' },
+  { id: 'instructor', label: 'المُدرّس' },
+  { id: 'faq', label: 'الأسئلة الشائعة' },
+  { id: 'reviews', label: 'التقييمات' },
+];
+</script>
 <template>
-  <CustomBreadCrumb />
+  <CustomBreadCrumb :items="[{ label: 'Home', href: '/' }, { label: 'Courses', href: '/courses' }, { label: slug }]" />
   <div class="bg-black h-[290px] text-white pt-8">
     <CustomContainer>
       <div class="flex flex-col lg:flex-row justify-between gap-6">
@@ -43,7 +60,7 @@
             v-for="tab in tabs"
             :key="tab.id"
             @click="selectedTab = tab.id"
-            class="px-7 w-full text-sm font-semibold py-5 border-l border-[#EAEAEA] first:rounded-tl-xl last:rounded-tr-xl first:border-l-0"
+            class="px-7 cursor-pointer w-full text-sm font-semibold py-5 border-l border-[#EAEAEA] first:rounded-tl-xl last:rounded-tr-xl first:border-l-0 transition-colors duration-300"
             :class="{
               'bg-[#F5F5F5] text-[#FF782D] font-bold': selectedTab === tab.id,
               'text-gray-700': selectedTab !== tab.id,
@@ -54,26 +71,28 @@
         </div>
 
         <!-- Tab Content -->
-        <div class="mt-4 text-right bg-[#F5F5F5] leading-loose text-gray-800 overflow-y-auto h-[250px] px-4 py-3 rounded-b-xl">
-          <CustomCoursesOverviewTab v-if="selectedTab === 'overview'" />
-          <CustomCoursesCurriculumTab v-if="selectedTab === 'curriculum'" />
-          <CustomCoursesInstructorTab v-if="selectedTab === 'instructor'" />
-          <CustomCoursesFaqsTab v-if="selectedTab === 'faq'" />
-          <!-- Add the rest below once created -->
-        </div>
+        <!-- Tab Content with fade transition -->
+        <Transition name="fade" mode="out-in">
+          <div :key="selectedTab" class="mt-4 text-right bg-[#F5F5F5] leading-loose text-gray-800 overflow-y-auto h-[250px] px-4 py-3 rounded-b-xl">
+            <CustomCoursesOverviewTab v-if="selectedTab === 'overview'" />
+            <CustomCoursesCurriculumTab v-if="selectedTab === 'curriculum'" />
+            <CustomCoursesInstructorTab v-if="selectedTab === 'instructor'" />
+            <CustomCoursesFaqsTab v-if="selectedTab === 'faq'" />
+            <CustomCoursesReviewsTab v-if="selectedTab === 'reviews'" />
+          </div>
+        </Transition>
       </div>
     </div>
   </CustomContainer>
 </template>
 
-<script setup lang="ts">
-const selectedTab = ref('overview');
-
-const tabs = [
-  { id: 'overview', label: 'نظرة عامة' },
-  { id: 'curriculum', label: 'المنهج الدراسي' },
-  { id: 'instructor', label: 'المُدرّس' },
-  { id: 'faq', label: 'الأسئلة الشائعة' },
-  { id: 'reviews', label: 'التقييمات' },
-];
-</script>
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import { Facebook, Twitter, Instagram } from 'lucide-vue-next';
+import { useRoute } from 'vue-router';
+import { computed } from 'vue';
+
+const route = useRoute();
+
+// Safer: make slug computed
+const slug = computed(() => route.params.slug as string);
 </script>
 <template>
   <div class="w-full bg-white">
-    <CustomBreadCrumb />
+    <CustomBreadCrumb :items="[{ label: 'Home', href: '/' }, { label: 'Articles', href: '/articles' }, { label: slug }]" />
     <CustomContainer>
       <div class="flex flex-col lg:flex-row-reverse gap-4 my-14">
         <!-- Filters (Left) -->

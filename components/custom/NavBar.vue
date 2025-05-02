@@ -13,11 +13,8 @@ const toggleMenu = (event: Event) => {
 // Close menu if clicked outside OR auto-close on large screens
 onMounted(() => {
   // Click outside
-  window.addEventListener("click", (event: any) => {
-    if (
-      !event.target.closest(".mobile-menu") &&
-      !event.target.closest("button")
-    ) {
+  window.addEventListener('click', (event: any) => {
+    if (!event.target.closest('.mobile-menu') && !event.target.closest('button')) {
       isMenuOpen.value = false;
     }
   });
@@ -29,10 +26,10 @@ onMounted(() => {
     }
   };
 
-  window.addEventListener("resize", handleResize);
+  window.addEventListener('resize', handleResize);
 
   onUnmounted(() => {
-    window.removeEventListener("resize", handleResize);
+    window.removeEventListener('resize', handleResize);
   });
 });
 
@@ -72,7 +69,6 @@ const components = [
     href: '/docs/components/tooltip',
     description: 'Displays info on focus or hover.',
   },
-  
 ];
 </script>
 
@@ -82,7 +78,7 @@ const components = [
       <div class="flex items-center justify-between">
         <!-- Logo & Hamburger -->
         <div class="flex items-center gap-4">
-          <img src="/logo.png" alt="Logo" class="h-20 w-20 -translate-x-7">
+          <img src="/logo.png" alt="Logo" class="h-20 w-20 -translate-x-7" />
           <button @click="toggleMenu" class="lg:hidden">
             <MenuIcon class="w-6 h-6" />
           </button>
@@ -93,13 +89,13 @@ const components = [
           :class="[
             'mobile-menu flex flex-col lg:flex-row gap-6 items-center p-4 lg:p-0',
             isMenuOpen ? 'flex absolute animate__animated animate__fadeInDown animate__faster z-10 top-20 left-10 w-[80%] bg-white shadow-xl' : 'hidden',
-            'lg:static lg:w-auto lg:flex'
+            'lg:static lg:w-auto lg:flex',
           ]"
         >
-          <NuxtLink to="faqs" class="text-gray-700 hover:text-orange-500">FAQ</NuxtLink>
-          <NuxtLink to="about" class="text-gray-700 hover:text-orange-500">عن المنصة</NuxtLink>
-          <NuxtLink to="articles" class="text-gray-700 hover:text-orange-500">المقالات</NuxtLink>
-          <NuxtLink to="courses" class="text-gray-700 hover:text-orange-500">الكورسات</NuxtLink>
+          <NuxtLink to="/faqs" class="text-gray-700 hover:text-orange-500">FAQ</NuxtLink>
+          <NuxtLink to="/about" class="text-gray-700 hover:text-orange-500">عن المنصة</NuxtLink>
+          <NuxtLink to="/articles" class="text-gray-700 hover:text-orange-500">المقالات</NuxtLink>
+          <NuxtLink to="/courses" class="text-gray-700 hover:text-orange-500">الكورسات</NuxtLink>
           <NuxtLink to="/" class="text-gray-700 hover:text-orange-500">الرئيسية</NuxtLink>
 
           <!-- Dropdown Menu -->
@@ -130,21 +126,15 @@ const components = [
 
           <!-- Search Input -->
           <div class="relative w-full max-md:w-full lg:w-72 mx-auto">
-            <Input
-              id="search"
-              type="text"
-              v-model="searchQuery"
-              placeholder="ابحث عن أي شيء"
-              class="w-full text-center bg-[#F0F0F0] text-base rounded-md py-2 pr-10"
-            />
+            <Input id="search" type="text" v-model="searchQuery" placeholder="ابحث عن أي شيء" class="w-full text-center bg-[#F0F0F0] text-base rounded-2xl py-2 pr-10" />
             <span class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
               <Search class="size-5 text-gray-500" />
             </span>
           </div>
 
           <!-- Auth Buttons -->
-          <NuxtLink to="login" class="text-gray-700 hover:text-orange-500"><Button variant="outline" class="cursor-pointer">تسجيل الدخول</Button></NuxtLink>
-          <NuxtLink to="signup" class="text-gray-700 hover:text-orange-500"><Button class="bg-orange-500 text-white hover:bg-orange-600 cursor-pointer">التسجيل</Button></NuxtLink> 
+          <NuxtLink to="login" class="text-gray-700 hover:text-orange-500"><Button variant="outline" class="cursor-pointer rounded-2xl">تسجيل الدخول</Button></NuxtLink>
+          <NuxtLink to="signup" class="text-gray-700 hover:text-orange-500"><Button class="bg-orange-500 text-white hover:bg-orange-600 rounded-2xl cursor-pointer">التسجيل</Button></NuxtLink>
         </div>
       </div>
     </CustomContainer>
