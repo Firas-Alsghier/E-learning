@@ -1,9 +1,29 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import { Search } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
+interface Article {
+  title: string;
+  slug: string;
+  image: string;
+  author: string;
+  students: number;
+  duration: string;
+  level: string;
+  lessons: number;
+  price: number;
+  oldPrice: number;
+  category: string;
+}
 
-// Fake courses array
-const articles = [
+const selected = ref({
+  category: ['Shop'],
+  tags: [],
+});
+
+const showMobileFilter = ref(false);
+
+const articles: Article[] = [
   {
     title: 'Create An LMS Website With LearnPress',
     slug: 'create-an-lms-website',
@@ -30,27 +50,33 @@ const articles = [
     oldPrice: 49,
     category: 'Web Development',
   },
-  // Add more courses if you want
 ];
 </script>
+
 <template>
   <div class="w-full bg-white">
-    <CustomBreadCrumb
-      :items="[
-        { label: 'Home', href: '/' },
-        { label: 'Articles', href: '/articles' }, // no href means current page
-      ]"
-    />
+    <CustomBreadCrumb :items="[{ label: 'Home', href: '/' }, { label: 'Articles' }]" />
+
     <CustomContainer>
       <div class="flex flex-col lg:flex-row-reverse gap-4 my-14">
-        <!-- Filters (Left) -->
-        <div class="w-full lg:max-w-[280px]">
-          <CustomArticlesBlogSidebar />
-        </div>
+        <!-- Desktop Sidebar -->
+        <aside class="hidden lg:block w-full max-w-[280px]">
+          <CustomArticlesBlogSidebar :selected="selected" />
+        </aside>
 
-        <!-- Course List + Search (Right) -->
+        <!-- Mobile Drawer -->
+        <transition name="fade">
+          <div v-if="showMobileFilter" class="fixed inset-0 bg-black/50 z-40" @click.self="showMobileFilter = false">
+            <aside class="absolute right-0 top-0 w-4/5 max-w-xs h-full bg-white shadow-lg p-4 z-50 overflow-y-auto space-y-6">
+              <CustomArticlesBlogSidebar :selected="selected" />
+              <button class="w-full mt-6 bg-purple-600 text-white py-2 rounded-md font-medium" @click="showMobileFilter = false">تم</button>
+            </aside>
+          </div>
+        </transition>
+
+        <!-- Article List -->
         <div class="flex-1 w-full space-y-5">
-          <!-- Top bar: Title + Search -->
+          <!-- Top Bar -->
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="relative w-[270px] items-center">
               <Input id="search" type="text" placeholder="Search..." class="text-right border-0 border-b border-black focus:border-black focus-visible:ring-0 rounded-none pl-10" />
@@ -58,11 +84,17 @@ const articles = [
                 <Search class="size-5 text-muted-foreground" />
               </span>
             </div>
-
-            <h2 class="text-lg font-semibold">كل المقالات</h2>
+            <div class="flex justify-between items-center">
+              <div class="lg:hidden p-4">
+                <button @click="showMobileFilter = true" class="flex items-center gap-2 border px-3 py-2 rounded-md">
+                  <span class="text-sm font-semibold">Filter</span>
+                </button>
+              </div>
+              <h2 class="text-2xl text-right font-semibold">كل المقالات</h2>
+            </div>
           </div>
 
-          <!-- Courses -->
+          <!-- Articles -->
           <div class="space-y-6">
             <CustomArticlesCard v-for="article in articles" :key="article.slug" :article="article" />
           </div>

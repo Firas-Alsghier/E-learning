@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Search } from 'lucide-vue-next';
-import { useRouter } from 'vue-router';
 
 // Fake courses array
 const courses = [
@@ -30,8 +29,9 @@ const courses = [
     oldPrice: 49,
     category: 'Web Development',
   },
-  // Add more courses if you want
 ];
+
+const showMobileFilter = ref(false);
 </script>
 
 <template>
@@ -47,24 +47,32 @@ const courses = [
       <div class="flex flex-col lg:flex-row-reverse gap-4 my-14">
         <!-- Filters -->
         <div class="w-full lg:max-w-[280px]">
-          <CustomCoursesFilterSidebar />
+          <CustomCoursesFilterSidebar :show="showMobileFilter" @close="showMobileFilter = false" />
         </div>
 
         <!-- Course List + Search -->
         <div class="flex-1 w-full space-y-5">
           <!-- Top bar -->
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div class="relative w-[270px] items-center">
+            <div class="relative w-[270px] max-sm:w-full max-sm:self-center items-center">
               <Input id="search" type="text" placeholder="Search..." class="text-right border-0 border-b border-black focus:border-black focus-visible:ring-0 rounded-none pl-10" />
               <span class="absolute left-0 inset-y-0 flex items-center justify-center">
                 <Search class="size-5 text-muted-foreground" />
               </span>
             </div>
 
-            <h2 class="text-2xl font-semibold">كل الكورسات</h2>
+            <!-- Mobile Filter Button -->
+            <div class="flex justify-between items-center">
+              <div class="lg:hidden p-4">
+                <button @click="showMobileFilter = true" class="flex items-center gap-2 border px-3 py-2 rounded-md">
+                  <span class="text-sm font-semibold">Filter</span>
+                </button>
+              </div>
+              <h2 class="text-2xl text-right font-semibold">كل الكورسات</h2>
+            </div>
           </div>
 
-          <!-- Dynamic Courses -->
+          <!-- Course Cards -->
           <div class="space-y-6">
             <CustomCoursesCourseCard v-for="course in courses" :key="course.slug" :course="course" />
           </div>

@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { Checkbox } from '@/components/ui/checkbox';
+import { ref, defineProps, defineEmits } from 'vue';
+import CustomCoursesFilterContent from './FilterContent.vue';
+
+defineProps<{ show: boolean }>();
+const emit = defineEmits(['close']);
 
 const selected = ref({
   courseCategory: ['Shop', 'Academy'],
@@ -12,75 +15,18 @@ const selected = ref({
 </script>
 
 <template>
-  <aside class="w-full max-w-xs p-4 space-y-6">
-    <!-- Course Category -->
-    <div>
-      <h3 class="font-semibold text-base mb-2">Course Category</h3>
-      <div class="space-y-2">
-        <div class="flex items-center justify-between" v-for="item in ['Commercial', 'Office', 'Shop', 'Educate', 'Academy', 'Single family home', 'Studio', 'University']" :key="item">
-          <div class="flex items-center gap-2">
-            <Checkbox v-model:checked="selected.courseCategory" :value="item" />
-            <span>{{ item }}</span>
-          </div>
-          <span class="text-sm font-medium text-muted-foreground">15</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Instructors -->
-    <div>
-      <h3 class="font-semibold text-base mb-2">Instructors</h3>
-      <div class="space-y-2">
-        <div class="flex items-center justify-between" v-for="item in ['Kenny White', 'John Doe']" :key="item">
-          <div class="flex items-center gap-2">
-            <Checkbox v-model:checked="selected.instructors" :value="item" />
-            <span>{{ item }}</span>
-          </div>
-          <span class="text-sm font-medium text-muted-foreground">15</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Price -->
-    <div>
-      <h3 class="font-semibold text-base mb-2">Price</h3>
-      <div class="space-y-2">
-        <div class="flex items-center justify-between" v-for="item in ['All', 'Free', 'Paid']" :key="item">
-          <div class="flex items-center gap-2">
-            <Checkbox v-model:checked="selected.price" :value="item" />
-            <span>{{ item }}</span>
-          </div>
-          <span class="text-sm font-medium text-muted-foreground">15</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Review -->
-    <div>
-      <h3 class="font-semibold text-base mb-2">Review</h3>
-      <div class="space-y-2">
-        <div class="flex items-center justify-between" v-for="item in ['★★★★★', '★★★★☆', '★★★☆☆', '★★☆☆☆', '★☆☆☆☆']" :key="item">
-          <div class="flex items-center gap-2">
-            <Checkbox v-model:checked="selected.review" :value="item" />
-            <span class="text-yellow-500">{{ item }}</span>
-          </div>
-          <span class="text-sm font-medium text-muted-foreground">(1,025)</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Level -->
-    <div>
-      <h3 class="font-semibold text-base mb-2">Level</h3>
-      <div class="space-y-2">
-        <div class="flex items-center justify-between" v-for="item in ['All levels', 'Beginner', 'Intermidiate', 'Expert']" :key="item">
-          <div class="flex items-center gap-2">
-            <Checkbox v-model:checked="selected.level" :value="item" />
-            <span>{{ item }}</span>
-          </div>
-          <span class="text-sm font-medium text-muted-foreground">15</span>
-        </div>
-      </div>
-    </div>
+  <!-- Desktop Filter -->
+  <aside class="hidden lg:block w-full max-w-xs p-4 space-y-6">
+    <CustomCoursesFilterContent :selected="selected" />
   </aside>
+
+  <!-- Mobile Drawer -->
+  <transition name="fade">
+    <div v-if="show" class="fixed inset-0 bg-black/50 z-40" @click.self="emit('close')">
+      <aside class="absolute right-0 top-0 w-4/5 max-w-xs h-full bg-white shadow-lg p-4 z-50 overflow-y-auto space-y-6">
+        <CustomCoursesFilterContent :selected="selected" />
+        <button class="w-full mt-6 bg-purple-600 text-white py-2 rounded-md font-medium" @click="emit('close')">Done</button>
+      </aside>
+    </div>
+  </transition>
 </template>
