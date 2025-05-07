@@ -1,79 +1,43 @@
 <script setup lang="ts">
-import { Search, MenuIcon } from 'lucide-vue-next';
+import { Search, MenuIcon, Heart, ShoppingCart, Bell } from 'lucide-vue-next';
+import { useUser } from '~/composables/useUser';
 
+const { user } = useUser();
 const isMenuOpen = ref(false);
 const searchQuery = ref('');
+const isHydrated = ref(false);
 
-// Toggle menu on mobile
-const toggleMenu = (event: Event) => {
-  event.stopPropagation();
-  isMenuOpen.value = !isMenuOpen.value;
-};
-
-// Close menu if clicked outside OR auto-close on large screens
+// Wait for client-side rehydration
 onMounted(() => {
-  // Click outside
+  isHydrated.value = true;
+
+  // Click outside to close menu
   window.addEventListener('click', (event: any) => {
     if (!event.target.closest('.mobile-menu') && !event.target.closest('button')) {
       isMenuOpen.value = false;
     }
   });
 
-  // Resize logic
+  // Resize logic to auto-close menu
   const handleResize = () => {
     if (window.innerWidth >= 1024) {
       isMenuOpen.value = false;
     }
   };
-
   window.addEventListener('resize', handleResize);
-
   onUnmounted(() => {
     window.removeEventListener('resize', handleResize);
   });
 });
 
-const components = [
-  {
-    title: 'الأعمال والريادة',
-    href: '/docs/components/alert-dialog',
-    description: 'تعلّم مهارات القيادة وبناء المشاريع الناجحة',
-  },
-  {
-    title: 'الصحة والتغذية',
-    href: '/docs/components/hover-card',
-    description: 'اكتشف أساليب الحياة الصحية والتغذية السليمة',
-  },
-  {
-    title: 'تطوير الذات',
-    href: '/docs/components/progress',
-    description: 'Displays an indicator showing the completion progress of a task.',
-  },
-  {
-    title: 'Scroll-area',
-    href: '/docs/components/scroll-area',
-    description: 'Visually or semantically separates content.',
-  },
-  {
-    title: 'Tabs',
-    href: '/docs/components/tabs',
-    description: 'Layered sections of content—known as tab panels.',
-  },
-  {
-    title: 'Tooltip',
-    href: '/docs/components/tooltip',
-    description: 'Displays info on focus or hover.',
-  },
-  {
-    title: 'Tooltip',
-    href: '/docs/components/tooltip',
-    description: 'Displays info on focus or hover.',
-  },
-];
+const toggleMenu = (event: Event) => {
+  event.stopPropagation();
+  isMenuOpen.value = !isMenuOpen.value;
+};
 </script>
 
 <template>
-  <header class="w-full shadow-md bg-white">
+  <header class="w-full shadow-md bg-white" v-if="isHydrated">
     <CustomContainer>
       <div class="flex items-center justify-between">
         <!-- Logo & Hamburger -->
@@ -98,32 +62,6 @@ const components = [
           <NuxtLink to="/courses" class="text-gray-700 hover:text-orange-500">الكورسات</NuxtLink>
           <NuxtLink to="/" class="text-gray-700 hover:text-orange-500">الرئيسية</NuxtLink>
 
-          <!-- Dropdown Menu -->
-          <!-- <NavigationMenu>
-            <NavigationMenuList>
-              <NavigationMenuItem>
-                <NavigationMenuTrigger class="text-gray-700">الكورسات</NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul class="grid max-lg:w-[270px] text-right w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                    <li v-for="component in components" :key="component.title">
-                      <NavigationMenuLink as-child>
-                        <a
-                          :href="component.href"
-                          class="block select-none space-y-1 rounded-md p-3 transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                        >
-                          <div class="text-sm font-medium">{{ component.title }}</div>
-                          <p class="text-sm text-muted-foreground text-right line-clamp-2">
-                            {{ component.description }}
-                          </p>
-                        </a>
-                      </NavigationMenuLink>
-                    </li>
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu> -->
-
           <!-- Search Input -->
           <div class="relative w-full max-md:w-full lg:w-72 mx-auto">
             <Input id="search" type="text" v-model="searchQuery" placeholder="ابحث عن أي شيء" class="w-full text-center bg-[#F0F0F0] text-base rounded-2xl py-2 pr-10" />
@@ -132,11 +70,36 @@ const components = [
             </span>
           </div>
 
-          <!-- Auth Buttons -->
-          <NuxtLink to="login" class="text-gray-700 hover:text-orange-500"><Button variant="outline" class="cursor-pointer rounded-2xl">تسجيل الدخول</Button></NuxtLink>
-          <NuxtLink to="signup" class="text-gray-700 hover:text-orange-500"><Button class="bg-orange-500 text-white hover:bg-orange-600 rounded-2xl cursor-pointer">التسجيل</Button></NuxtLink>
+          <!-- icons after logging in -->
+          <template v-if="user">
+            <Heart />
+            <ShoppingCart />
+            <Bell />
+            <CustomUserDropMenu />
+          </template>
+
+          <!-- Show login/signup when NOT logged in -->
+          <template v-else>
+            <NuxtLink to="login" class="text-gray-700 hover:text-orange-500">
+              <Button variant="outline" class="cursor-pointer rounded-2xl">تسجيل الدخول</Button>
+            </NuxtLink>
+            <NuxtLink to="signup" class="text-gray-700 hover:text-orange-500">
+              <Button class="bg-orange-500 text-white hover:bg-orange-600 rounded-2xl cursor-pointer">التسجيل</Button>
+            </NuxtLink>
+          </template>
         </div>
       </div>
     </CustomContainer>
   </header>
 </template>
+
+<style scoped>
+* {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+</style>

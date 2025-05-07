@@ -27,12 +27,15 @@
     "mongoose": "^8.14.1",
     "nodemon": "^3.1.10",
     "nuxt": "^3.16.2",
-    "reka-ui": "^2.2.0",
+    "reka-ui": "^2.2.1",
     "shadcn-nuxt": "^2.0.0",
     "tailwind-merge": "^3.1.0",
     "tailwindcss": "^4.1.1",
     "tw-animate-css": "^1.2.5",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.15"
   }
 }
