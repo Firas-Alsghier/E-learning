@@ -1,20 +1,23 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router';
+import { useUser } from '~/composables/useUser';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+
+const router = useRouter();
+const { setUser } = useUser();
+
+const handleLogout = () => {
+  localStorage.removeItem('token');
+  setUser(null); // ✅ This is enough
+  router.push('/');
+
+  setTimeout(() => {
+    location.reload();
+  }, 200);
+};
 </script>
+
 <template>
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
@@ -24,70 +27,48 @@ import {
       </Avatar>
     </DropdownMenuTrigger>
     <DropdownMenuContent class="w-56">
-      <DropdownMenuLabel>My Account</DropdownMenuLabel>
+      <DropdownMenuLabel class="no-selection">My Account</DropdownMenuLabel>
       <DropdownMenuSeparator />
       <DropdownMenuGroup>
-        <DropdownMenuItem>
-          <span>Profile</span>
-          <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+        <DropdownMenuItem class="cursor-pointer">
+          <span>My learning</span>
         </DropdownMenuItem>
-        <DropdownMenuItem>
-          <span>Billing</span>
-          <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
+        <DropdownMenuItem class="cursor-pointer">
+          <span>My cart</span>
         </DropdownMenuItem>
-        <DropdownMenuItem>
-          <span>Settings</span>
-          <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-        </DropdownMenuItem>
-        <DropdownMenuItem>
-          <span>Keyboard shortcuts</span>
-          <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>
+        <DropdownMenuItem class="cursor-pointer">
+          <span>Wishlist</span>
         </DropdownMenuItem>
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
       <DropdownMenuGroup>
-        <DropdownMenuItem>
-          <span>Team</span>
+        <DropdownMenuItem class="cursor-pointer">
+          <span>Notifications</span>
         </DropdownMenuItem>
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger>
-            <span>Invite users</span>
-          </DropdownMenuSubTrigger>
-          <DropdownMenuPortal>
-            <DropdownMenuSubContent>
-              <DropdownMenuItem>
-                <span>Email</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <span>Message</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <span>More...</span>
-              </DropdownMenuItem>
-            </DropdownMenuSubContent>
-          </DropdownMenuPortal>
-        </DropdownMenuSub>
-        <DropdownMenuItem>
-          <span>New Team</span>
-          <DropdownMenuShortcut>⌘+T</DropdownMenuShortcut>
+        <DropdownMenuItem class="cursor-pointer">
+          <span>Message</span>
         </DropdownMenuItem>
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
-      <DropdownMenuItem>
-        <span>GitHub</span>
+      <DropdownMenuItem class="cursor-pointer">
+        <span>Account setting</span>
       </DropdownMenuItem>
-      <DropdownMenuItem>
+      <DropdownMenuItem class="cursor-pointer">
         <span>Support</span>
       </DropdownMenuItem>
-      <DropdownMenuItem disabled>
-        <span>API</span>
-      </DropdownMenuItem>
-      <DropdownMenuSeparator />
-      <DropdownMenuItem>
+      <DropdownMenuItem @click="handleLogout" class="cursor-pointer">
         <span>Log out</span>
-        <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
 </template>
+<style scoped>
+.no-selection {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+</style>
