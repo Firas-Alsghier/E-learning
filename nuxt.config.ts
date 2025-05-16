@@ -5,7 +5,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
   css: ['~/assets/css/tailwind.css'],
-  modules: ['shadcn-nuxt', '@nuxtjs/google-fonts'],
+  modules: ['shadcn-nuxt', '@nuxtjs/google-fonts', '@pinia/nuxt'],
   app: {
     head: {
       link: [

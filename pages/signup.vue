@@ -54,6 +54,7 @@ const handleSubmit = async () => {
 };
 
 definePageMeta({
+  middleware: ['guest-only'],
   layout: false,
 });
 </script>

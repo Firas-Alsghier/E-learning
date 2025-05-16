@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 const router = useRouter();
-const { setUser } = useUser();
+const { setUser, user } = useUser();
 
 const handleLogout = () => {
   localStorage.removeItem('token');
@@ -27,7 +27,16 @@ const handleLogout = () => {
       </Avatar>
     </DropdownMenuTrigger>
     <DropdownMenuContent class="w-56">
-      <DropdownMenuLabel class="no-selection">My Account</DropdownMenuLabel>
+      <div class="flex gap-2 py-2">
+        <Avatar variant="outline" class="cursor-pointer">
+          <AvatarImage src="https://github.com/unovue.png" alt="@unovue" />
+          <AvatarFallback>Fa</AvatarFallback>
+        </Avatar>
+        <div class="info">
+          <h1 class="user-name text-base">{{ user?.firstName }} {{ user?.lastName }}</h1>
+          <p class="user-email text-xs">{{ user?.email }}</p>
+        </div>
+      </div>
       <DropdownMenuSeparator />
       <DropdownMenuGroup>
         <DropdownMenuItem class="cursor-pointer">

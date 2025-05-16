@@ -1,16 +1,15 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
-import { useUser } from '~/composables/useUser';
+import { useAuthStore } from '~/stores/auth'; // ✅ use Pinia store
 
 const router = useRouter();
-const { user } = useUser();
+const auth = useAuthStore();
 
 const email = ref('');
 const password = ref('');
 const loading = ref(false);
 const error = ref('');
 
-// 👇 Define the expected shape of the response
 type LoginResponse = {
   user: {
     _id: string;
@@ -35,10 +34,17 @@ const handleLogin = async () => {
       },
     });
 
-    user.value = res.user;
+    // ✅ Set Pinia auth state
+    auth.setUser({
+      id: res.user._id,
+      email: res.user.email,
+      firstName: res.user.firstName,
+      lastName: res.user.lastName,
+    });
+
     localStorage.setItem('token', res.token); // optional
 
-    await router.push('/'); // ✅ redirect to home
+    await router.push('/');
   } catch (err: any) {
     error.value = err.data?.message || 'حدث خطأ أثناء تسجيل الدخول';
   } finally {
@@ -48,6 +54,7 @@ const handleLogin = async () => {
 
 definePageMeta({
   layout: false,
+  middleware: ['guest-only'], // ✅ block access for logged-in users
 });
 </script>
 
