@@ -1,12 +1,10 @@
+// middleware/guest-only.ts
 import { useAuthStore } from '~/stores/auth';
 
 export default defineNuxtRouteMiddleware(() => {
-  const auth = useAuthStore();
+  const { isLoggedIn } = useAuthStore();
 
-  // If logged in, redirect away from guest-only pages
-  if (auth.isLoggedIn) {
-    return navigateTo('/');
+  if (isLoggedIn) {
+    return navigateTo('/'); // redirect logged-in users away from /login
   }
-
-  // Otherwise, allow access
 });

@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
     <div class="space-y-2">
       <div class="flex items-center justify-between" v-for="item in ['Commercial', 'Office', 'Shop', 'Educate', 'Academy']" :key="item">
         <div class="flex items-center gap-2">
+          <!-- there is an issue with Checkbox component -->
           <Checkbox v-model:checked="selected.courseCategory" :value="item" />
           <span>{{ item }}</span>
         </div>

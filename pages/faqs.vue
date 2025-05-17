@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { ChevronUp, ChevronDown  } from 'lucide-vue-next';
+import { ChevronUp, ChevronDown } from 'lucide-vue-next';
 
-const openIndexes = ref<number[]>([])
+const openIndexes = ref<number[]>([]);
 
 const toggleItem = (index: number) => {
   if (openIndexes.value.includes(index)) {
-    openIndexes.value = openIndexes.value.filter(i => i !== index)
+    openIndexes.value = openIndexes.value.filter((i) => i !== index);
   } else {
-    openIndexes.value.push(index)
+    openIndexes.value.push(index);
   }
-}
+};
 
 const faqs = [
   { question: 'ما المقصود بحقوق النشر المجانية؟', answer: 'تعني أنه يمكنك استخدام المحتوى بدون دفع رسوم متكررة.' },
@@ -19,53 +19,39 @@ const faqs = [
   { question: 'هل الكورسات محدثة؟', answer: 'نعم، يتم تحديث المحتوى بشكل منتظم.' },
   { question: 'هل يوجد دعم فني؟', answer: 'نعم، لدينا فريق جاهز للمساعدة على مدار الساعة.' },
   { question: 'ما طرق الدفع المتاحة؟', answer: 'نقبل الدفع بالبطاقات، بايبال، وأبل باي.' },
-  { question: 'هل أستطيع استرجاع المبلغ؟', answer: 'نعم، يوجد ضمان استرجاع خلال 30 يوم.' }
-]
+  { question: 'هل أستطيع استرجاع المبلغ؟', answer: 'نعم، يوجد ضمان استرجاع خلال 30 يوم.' },
+];
 </script>
 
 <template>
   <div class="py-10">
     <CustomContainer>
-    <h2 class="text-3xl font-bold mb-8 text-right">الأسئلة الشائعة</h2>
+      <h2 class="text-3xl font-bold mb-8 text-right">الأسئلة الشائعة</h2>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div
-        v-for="(faq, index) in faqs"
-        :key="index"
-        class="bg-gray-100 rounded-md p-4 transition-all duration-300"
-      >
-        <button
-          @click="toggleItem(index)"
-          class="w-full flex justify-between items-center font-semibold text-black"
-        >
-          <span>{{ faq.question }}</span>
-          <span class="text-xl">
-            <span v-if="openIndexes.includes(index)"><ChevronUp /></span>
-            <span v-else><ChevronDown/></span>
-          </span>
-        </button>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div v-for="(faq, index) in faqs" :key="index" class="bg-gray-100 rounded-md p-4 transition-all duration-300">
+          <button @click="toggleItem(index)" class="w-full flex justify-between items-center font-semibold text-black">
+            <span>{{ faq.question }}</span>
+            <span class="text-xl">
+              <span v-if="openIndexes.includes(index)"><ChevronUp /></span>
+              <span v-else><ChevronDown /></span>
+            </span>
+          </button>
 
-        <!-- Animated answer -->
-        <transition name="fade-slide">
-          <p
-            v-show="openIndexes.includes(index)"
-            class="text-sm text-gray-600 mt-2"
-          >
-            {{ faq.answer }}
-          </p>
-        </transition>
+          <!-- Animated answer -->
+          <transition name="fade-slide">
+            <p v-show="openIndexes.includes(index)" class="text-sm text-gray-600 mt-2">
+              {{ faq.answer }}
+            </p>
+          </transition>
+        </div>
       </div>
-    </div>
 
-    <!-- Bottom Image -->
-    <div class="mt-10 flex justify-start">
-      <img
-        src="/assets/images/faq.png"
-        alt="FAQ Illustration"
-        class="w-[300px] sm:w-[400px] object-contain"
-      />
-    </div>
-  </CustomContainer>
+      <!-- Bottom Image -->
+      <div class="mt-10 flex justify-start">
+        <img src="/assets/images/faq.png" alt="FAQ Illustration" class="w-[300px] sm:w-[400px] object-contain" />
+      </div>
+    </CustomContainer>
   </div>
 </template>
 

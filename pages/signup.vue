@@ -3,7 +3,7 @@ import { useRouter } from 'vue-router';
 import { useUser } from '~/composables/useUser';
 
 const router = useRouter();
-const { user } = useUser();
+const { setUser } = useUser(); // ✅ Only use setUser for setting the user
 
 const firstName = ref('');
 const lastName = ref('');
@@ -16,11 +16,11 @@ const loading = ref(false);
 interface SignupResponse {
   message: string;
   user: {
+    id: string;
+    email: string;
     firstName: string;
     lastName: string;
-    email: string;
     createdAt: string;
-    // You can add more fields in the future
   };
 }
 
@@ -44,7 +44,9 @@ const handleSubmit = async () => {
       },
     });
 
-    user.value = res.user;
+    // ✅ Properly set the user using setUser()
+    setUser(res.user);
+
     await router.push('/create');
   } catch (err: any) {
     error.value = err.data?.message || 'حدث خطأ ما';

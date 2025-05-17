@@ -19,7 +19,7 @@ const courses = [
   {
     title: 'Mastering Vue 3 Composition API',
     slug: 'mastering-vue3-composition-api',
-    image: 'https://via.placeholder.com/400x300',
+    image: 'https://api.masteringnuxt.com/storage/stBHoO5G1Hsm4YNmcGlDJRw7YZP3GpkxoFbvxEal.png',
     author: 'CodeMaster',
     students: 240,
     duration: '4 Weeks',
