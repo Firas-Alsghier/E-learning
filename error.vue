@@ -17,7 +17,7 @@ const error = useError();
           <img src="/assets/images/error.png" alt="Error Image" class="w-[70%] -translate-16 max-md:w-[100%]" />
 
           <!-- Back Button -->
-          <NuxtLink to="/" class="bg-black text-white px-6 py-2 rounded-md hover:bg-gray-800 transition-all"> العودة إلى الصفحة الرئيسية </NuxtLink>
+          <a href="/" class="bg-black text-white px-6 py-2 rounded-md hover:bg-gray-800 transition-all"> العودة إلى الصفحة الرئيسية </a>
         </div>
       </section>
     </CustomContainer>

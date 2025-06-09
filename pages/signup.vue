@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
+definePageMeta({
+  layout: false,
+  middleware: ['guest-only'],
+});
+
 import { useUser } from '~/composables/useUser';
 
 const router = useRouter();
-const { setUser } = useUser(); // ✅ Only use setUser for setting the user
+const { setUser } = useUser();
 
 const firstName = ref('');
 const lastName = ref('');
@@ -22,6 +26,7 @@ interface SignupResponse {
     lastName: string;
     createdAt: string;
   };
+  token: string;
 }
 
 const handleSubmit = async () => {
@@ -44,7 +49,11 @@ const handleSubmit = async () => {
       },
     });
 
-    // ✅ Properly set the user using setUser()
+    // ✅ Save token to cookie (important for auth middleware)
+    const token = useCookie('token');
+    token.value = res.token;
+
+    // ✅ Save user to store
     setUser(res.user);
 
     await router.push('/create');
@@ -54,11 +63,6 @@ const handleSubmit = async () => {
     loading.value = false;
   }
 };
-
-definePageMeta({
-  middleware: ['guest-only'],
-  layout: false,
-});
 </script>
 
 <template>

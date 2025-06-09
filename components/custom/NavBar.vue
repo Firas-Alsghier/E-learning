@@ -60,7 +60,7 @@ const toggleMenu = (event: Event) => {
           <NuxtLink to="/about" class="text-gray-700 hover:text-orange-500">عن المنصة</NuxtLink>
           <NuxtLink to="/articles" class="text-gray-700 hover:text-orange-500">المقالات</NuxtLink>
           <NuxtLink to="/courses" class="text-gray-700 hover:text-orange-500">الكورسات</NuxtLink>
-          <NuxtLink to="/" class="text-gray-700 hover:text-orange-500">الرئيسية</NuxtLink>
+          <a href="/" class="text-gray-700 hover:text-orange-500 cursor-pointer">الرئيسية</a>
 
           <!-- Search Input -->
           <div class="relative w-full max-md:w-full lg:w-72 mx-auto">

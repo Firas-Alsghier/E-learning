@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
-import { useAuthStore } from '~/stores/auth'; // ✅ use Pinia store
+// middleware/guest-only.ts
+
+definePageMeta({
+  layout: false,
+  middleware: ['guest-only'], // ✅ block access for logged-in users
+});
+
+import { useUser } from '~/composables/useUser';
 
 const router = useRouter();
-const auth = useAuthStore();
+const { setUser } = useUser();
 
 const email = ref('');
 const password = ref('');
@@ -34,16 +40,20 @@ const handleLogin = async () => {
       },
     });
 
-    // ✅ Set Pinia auth state
-    auth.setUser({
+    // ✅ Set user to Pinia store and localStorage
+    setUser({
       id: res.user._id,
       email: res.user.email,
       firstName: res.user.firstName,
       lastName: res.user.lastName,
+      createdAt: res.user.createdAt,
     });
 
-    localStorage.setItem('token', res.token); // optional
+    // ✅ Save token in cookies so auth middleware can read it
+    const token = useCookie('token');
+    token.value = res.token;
 
+    // ✅ Redirect after login
     await router.push('/');
   } catch (err: any) {
     error.value = err.data?.message || 'حدث خطأ أثناء تسجيل الدخول';
@@ -51,11 +61,6 @@ const handleLogin = async () => {
     loading.value = false;
   }
 };
-
-definePageMeta({
-  layout: false,
-  middleware: ['guest-only'], // ✅ block access for logged-in users
-});
 </script>
 
 <template>

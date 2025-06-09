@@ -1,23 +1,15 @@
-// composables/useUser.ts
 import { useAuthStore } from '~/stores/auth';
-
-export interface User {
-  id: string;
-  email: string;
-  firstName?: string;
-  lastName?: string;
-  createdAt?: string;
-}
+import type { User } from '~/types/user';
 
 export const useUser = () => {
   const auth = useAuthStore();
 
-  // ✅ Restore user from localStorage if available (in client only)
+  // ✅ Restore from localStorage only in browser
   if (import.meta.client && !auth.user) {
     onMounted(() => {
-      const savedUser = localStorage.getItem('auth');
+      const savedUser = localStorage.getItem('user');
       const token = localStorage.getItem('token');
-      console.log(savedUser, token);
+
       if (savedUser && token) {
         try {
           const parsedUser = JSON.parse(savedUser);
@@ -44,10 +36,6 @@ export const useUser = () => {
       }
     } else {
       auth.logout();
-      if (import.meta.client) {
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
-      }
     }
   };
 
