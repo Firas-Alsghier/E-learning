@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-const route = useRoute();
-
 definePageMeta({
   middleware: ['auth'], // This is enough!
   ssr: false,
@@ -18,12 +16,12 @@ definePageMeta({
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem class="hidden md:block">
-                <BreadcrumbLink href="#"> {{ route.path }} </BreadcrumbLink>
+                <BreadcrumbLink href="#"> Building Your Application </BreadcrumbLink>
               </BreadcrumbItem>
-              <!-- <BreadcrumbSeparator class="hidden md:block" />
+              <BreadcrumbSeparator class="hidden md:block" />
               <BreadcrumbItem>
                 <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-              </BreadcrumbItem> -->
+              </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
         </div>
@@ -34,10 +32,7 @@ definePageMeta({
           <div class="aspect-video rounded-xl bg-muted/50" />
           <div class="aspect-video rounded-xl bg-muted/50" />
         </div> -->
-        <div class="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min p-4">
-          <CustomUserEditProfileTitle />
-          <CustomUserEditProfileContent />
-        </div>
+        <div class="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min"></div>
       </div>
     </SidebarInset>
   </SidebarProvider>

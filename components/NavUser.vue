@@ -16,13 +16,13 @@ const handleLogout = () => {
     location.reload();
   }, 200);
 };
-const props = defineProps<{
-  user: {
-    name: string;
-    email: string;
-    avatar: string;
-  };
-}>();
+// const props = defineProps<{
+//   user: {
+//     name: string;
+//     email: string;
+//     avatar: string;
+//   };
+// }>();
 
 const { isMobile } = useSidebar();
 </script>
@@ -35,8 +35,8 @@ const { isMobile } = useSidebar();
           <SidebarMenuButton size="lg" class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
             <Avatar class="h-8 w-8 rounded-lg">
               <!-- put it in Avatar image :src="user.avatar" -->
-              <AvatarImage src="" :alt="user?.firstName" />
-              <AvatarFallback class="rounded-lg"> CN </AvatarFallback>
+              <AvatarImage src="https://randomuser.me/api/portraits/med/men/75.jpg" :alt="user?.firstName" />
+              <AvatarFallback class="rounded-lg"> {{ user?.firstName?.slice(0, 1) }} {{ user?.lastName?.slice(0, 1) }} </AvatarFallback>
             </Avatar>
             <div class="grid flex-1 text-left text-sm leading-tight">
               <span class="truncate font-medium">{{ user?.firstName }} {{ user?.lastName }}</span>

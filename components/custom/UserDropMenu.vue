@@ -60,7 +60,7 @@ const handleLogout = () => {
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
       <DropdownMenuItem class="cursor-pointer">
-        <span>Account setting</span>
+        <span><a href="/user/edit-profile">Account setting</a></span>
       </DropdownMenuItem>
       <DropdownMenuItem class="cursor-pointer">
         <span>Support</span>

@@ -20,9 +20,9 @@
         <div class="flex items-center gap-2">
           <span>⭐ 5</span>
           <div class="flex-1 h-2 bg-gray-200 rounded">
-            <div class="h-full bg-yellow-400 rounded" style="width: 90%"></div>
+            <div class="h-full bg-yellow-400 rounded" style="width: 95%"></div>
           </div>
-          <span>90%</span>
+          <span>95%</span>
         </div>
         <div class="flex items-center gap-2">
           <span>⭐ 4</span>
