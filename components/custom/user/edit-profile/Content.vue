@@ -1,7 +1,7 @@
 <template>
   <form class="space-y-8 bg-[#f9f9f9] p-8 rounded-lg">
     <!-- الاسم الأول واسم العائلة -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 text-right md:grid-cols-2 gap-6">
       <div class="space-y-2">
         <label class="font-medium">الاسم الأول:</label>
         <Input v-model="form.firstName" class="w-[95%] bg-white" />
@@ -16,7 +16,7 @@
     <div class="space-y-2">
       <label class="font-medium">Headline</label>
       <Input v-model="form.headline" class="w-[95%] bg-white" />
-      <p class="text-sm text-muted-foreground">أضف عنوانًا احترافيًا مثل "محاضر في Udemy" أو "مهندس معماري".</p>
+      <p class="text-sm text-muted-foreground">أضف عنوانًا احترافيًا مثل "مصمم جرافيك" أو "مهندس معماري".</p>
     </div>
     <hr />
     <!-- السيرة الذاتية -->
@@ -85,9 +85,10 @@
         <p class="text-sm text-muted-foreground">ادخل اسم حسابك على YouTube (مثل johnsmith).</p>
       </div>
     </div>
-
+    <hr />
+    <CustomUserEditProfileImageUpload />
     <!-- زر الحفظ -->
-    <Button class="mt-6">حفظ</Button>
+    <Button class="mt-6 cursor-pointer">حفظ</Button>
   </form>
 </template>
 
