@@ -15,51 +15,37 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-const form = ref({
-  firstName: '',
-  lastName: '',
-  headline: '',
-  bio: '',
-  language: '',
-  website: '',
-  facebook: '',
-  instagram: '',
-  linkedin: '',
-  tiktok: '',
-  x: '',
-  youtube: '',
-});
 </script>
 
 <template>
   <form class="space-y-8 bg-[#f9f9f9] p-8 rounded-lg">
     <!-- الاسم الأول واسم العائلة -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="space-y-2">
+      <div class="space-y-2 text-right">
         <label class="font-medium">بريدك الإلكتروني:</label>
         <div class="flex gap-2">
           <AlertDialog>
-            <AlertDialogTrigger>تعديل</AlertDialogTrigger>
-            <AlertDialogContent>
+            <AlertDialogTrigger class="bg-[#171717] text-white py-2 px-4 rounded-lg text-sm cursor-pointer">تعديل</AlertDialogTrigger>
+            <AlertDialogContent class="flex flex-col w-full">
               <AlertDialogHeader>
-                <AlertDialogTitle>تغيير بريدك الإلكتروني</AlertDialogTitle>
-                <AlertDialogDescription> يرجى إدخال عنوان البريد الإلكتروني الجديد الذي ترغب في استخدامه. سنرسل إليك رمز تأكيد لتأكيد العنوان.</AlertDialogDescription>
+                <AlertDialogTitle class="text-right">تغيير بريدك الإلكتروني</AlertDialogTitle>
+                <AlertDialogDescription class="text-right"> يرجى إدخال عنوان البريد الإلكتروني الجديد الذي ترغب في استخدامه. سنرسل إليك رمز تأكيد لتأكيد العنوان.</AlertDialogDescription>
               </AlertDialogHeader>
               <div class="space-y-2">
-                <label class="font-medium">ادخل بريدك الإلكتروني الجديد</label>
-                <Input class="w-[95%] bg-white" />
+                <label class="font-medium w-full text-right inline-block">ادخل بريدك الإلكتروني الجديد</label>
+                <Input class="bg-white" />
               </div>
               <div class="space-y-2">
-                <label class="font-medium">كلمة المرور</label>
-                <Input class="w-[95%] bg-white" type="password" />
+                <label class="font-medium w-full text-right inline-block">كلمة المرور</label>
+                <Input class="bg-white" type="password" />
               </div>
               <AlertDialogFooter>
-                <AlertDialogCancel class="cursor-pointer">Cancel</AlertDialogCancel>
-                <AlertDialogAction class="cursor-pointer">Continue</AlertDialogAction>
+                <AlertDialogCancel class="cursor-pointer">الغاء</AlertDialogCancel>
+                <AlertDialogAction class="cursor-pointer">تأكيد</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-          <Input v-model="form.firstName" class="w-[95%] bg-white" readonly placeholder="ferasalarape10@gmail.com" />
+          <Input class="bg-white" readonly placeholder="ferasalarape10@gmail.com" />
         </div>
       </div>
     </div>
@@ -68,20 +54,20 @@ const form = ref({
     <div class="space-y-6">
       <div class="space-y-2">
         <label class="font-medium">كلمة المرور الحالية</label>
-        <Input v-model="form.headline" type="password" class="w-[95%] bg-white" />
+        <Input type="password" class="w-[95%] bg-white" />
       </div>
 
       <div class="space-y-2">
         <label class="font-medium">كلمة مرور جديدة</label>
-        <Input v-model="form.headline" type="password" class="w-[95%] bg-white" />
+        <Input type="password" class="w-[95%] bg-white" />
       </div>
 
       <div class="space-y-2">
         <label class="font-medium">تأكيد كلمة المرور الجديدة </label>
-        <Input v-model="form.headline" type="password" class="w-[95%] bg-white" />
+        <Input type="password" class="w-[95%] bg-white" />
       </div>
     </div>
     <!-- زر الحفظ -->
-    <Button class="mt-6">حفظ</Button>
+    <Button class="mt-6 cursor-pointer">حفظ</Button>
   </form>
 </template>

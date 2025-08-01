@@ -18,7 +18,7 @@ definePageMeta({
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem class="hidden md:block">
-                <BreadcrumbLink href="#"> {{ route.path }} </BreadcrumbLink>
+                <BreadcrumbLink href="#"> {{ route.path.slice(1) }} </BreadcrumbLink>
               </BreadcrumbItem>
               <!-- <BreadcrumbSeparator class="hidden md:block" />
               <BreadcrumbItem>

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 const links = [
   { name: 'الملف الشخصي', to: '/account/profile' },
   { name: 'الصورة', to: '/account/photo' },
@@ -26,4 +26,4 @@ const links = [
       </li>
     </ul>
   </aside>
-</template>
+</template> -->

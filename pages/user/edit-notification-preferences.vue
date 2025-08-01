@@ -20,10 +20,6 @@ definePageMeta({
               <BreadcrumbItem class="hidden md:block">
                 <BreadcrumbLink href="#"> {{ route.path.slice(1) }} </BreadcrumbLink>
               </BreadcrumbItem>
-              <!-- <BreadcrumbSeparator class="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-              </BreadcrumbItem> -->
             </BreadcrumbList>
           </Breadcrumb>
         </div>
@@ -34,9 +30,9 @@ definePageMeta({
           <div class="aspect-video rounded-xl bg-muted/50" />
           <div class="aspect-video rounded-xl bg-muted/50" />
         </div> -->
-        <div class="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min p-4" dir="rtl">
-          <CustomUserEditAccountTitle />
-          <CustomUserEditAccountContent />
+        <div class="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min p-4">
+          <CustomUserEditNotificationPreferencesTitle />
+          <CustomUserEditNotificationPreferencesContent />
         </div>
       </div>
     </SidebarInset>
