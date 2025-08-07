@@ -34,19 +34,19 @@ const data = {
     },
     {
       title: 'الخصوصية',
-      url: '#',
+      url: 'edit-privacy',
       icon: Settings2,
     },
     {
       title: 'تفضيلات الإشعارات',
-      url: '#',
+      url: 'edit-notification-preferences',
       icon: Settings2,
     },
-    {
-      title: 'المساعدة والدعم',
-      url: '#',
-      icon: Settings2,
-    },
+    // {
+    //   title: 'المساعدة والدعم',
+    //   url: '#',
+    //   icon: Settings2,
+    // },
     {
       title: 'إغلاق الحساب',
       url: 'close-account',

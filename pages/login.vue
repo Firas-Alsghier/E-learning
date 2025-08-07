@@ -42,7 +42,7 @@ const handleLogin = async () => {
 
     // ✅ Set user to Pinia store and localStorage
     setUser({
-      id: res.user._id,
+      _id: res.user._id,
       email: res.user.email,
       firstName: res.user.firstName,
       lastName: res.user.lastName,
@@ -103,5 +103,3 @@ const handleLogin = async () => {
     </div>
   </div>
 </template>
-
-<style lang="scss" scoped></style>

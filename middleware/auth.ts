@@ -7,9 +7,9 @@ export default defineNuxtRouteMiddleware(() => {
   if (import.meta.client) {
     if (!auth.user) {
       const savedUser = localStorage.getItem('user');
-      const token = localStorage.getItem('token');
+      // const token = localStorage.getItem('token');
 
-      if (savedUser && token) {
+      if (savedUser) {
         try {
           const parsedUser = JSON.parse(savedUser);
           auth.setUser(parsedUser);

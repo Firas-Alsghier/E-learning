@@ -9,7 +9,7 @@ const error = useError();
 <template>
   <div class="min-h-screen flex flex-col justify-between bg-white text-black">
     <!-- Navbar -->
-    <CustomNavBar />
+    <!-- <CustomNavBar /> -->
     <CustomContainer>
       <section class="w-full py-14">
         <div class="flex flex-col items-center mt-10">
@@ -23,6 +23,6 @@ const error = useError();
     </CustomContainer>
 
     <!-- Footer -->
-    <CustomFooter />
+    <!-- <CustomFooter /> -->
   </div>
 </template>
