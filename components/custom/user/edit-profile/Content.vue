@@ -5,10 +5,26 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+// import CustomUserEditProfileImageUpload from '@/components/custom/profile/CustomUserEditProfileImageUpload';
+
+interface FormType {
+  firstName: string;
+  lastName: string;
+  headline: string;
+  bio: string;
+  language: string;
+  website: string;
+  facebook: string;
+  instagram: string;
+  linkedin: string;
+  tiktok: string;
+  x: string;
+  youtube: string;
+}
 
 const auth = useAuthStore();
 
-const form = ref({
+const form = ref<FormType>({
   firstName: '',
   lastName: '',
   headline: '',
@@ -43,7 +59,11 @@ onMounted(() => {
 });
 
 const saveChanges = async () => {
-  const token = localStorage.getItem('token');
+  // ✅ Try cookie first, then localStorage
+  let token = useCookie('token').value;
+  if (!token && import.meta.client) {
+    token = localStorage.getItem('token') || '';
+  }
 
   if (!token) {
     alert('You are not logged in.');
@@ -51,15 +71,15 @@ const saveChanges = async () => {
   }
 
   try {
-    const response = await $fetch('/api/user/edit-profile', {
+    const response: any = await $fetch('http://localhost:3001/api/auth/edit-profile', {
       method: 'PUT',
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token}`, // ✅ Send Bearer token
+        'Content-Type': 'application/json', // ✅ Ensure JSON body
       },
       body: form.value,
     });
 
-    // You can later replace this with toast()
     alert('Profile updated successfully');
     console.log('Response:', response);
   } catch (error: any) {

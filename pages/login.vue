@@ -40,7 +40,7 @@ const handleLogin = async () => {
       },
     });
 
-    // ✅ Set user to Pinia store and localStorage
+    // ✅ Set user to Pinia store
     setUser({
       _id: res.user._id,
       email: res.user.email,
@@ -49,9 +49,12 @@ const handleLogin = async () => {
       createdAt: res.user.createdAt,
     });
 
-    // ✅ Save token in cookies so auth middleware can read it
-    const token = useCookie('token');
-    token.value = res.token;
+    // ✅ Save token in cookies
+    const tokenCookie = useCookie('token');
+    tokenCookie.value = res.token;
+
+    // ✅ Save token in localStorage for direct API requests
+    localStorage.setItem('token', res.token);
 
     // ✅ Redirect after login
     await router.push('/');

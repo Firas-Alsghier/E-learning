@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useRouter } from '#app';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -15,11 +14,101 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+
+const router = useRouter();
+
+const currentEmail = ref('ferasalarape10@gmail.com');
+
+// Email change dialog fields
+const newEmail = ref('');
+const emailPassword = ref('');
+
+// Password change fields
+const currentPassword = ref('');
+const newPassword = ref('');
+const confirmNewPassword = ref('');
+
+const getToken = () => useCookie('token').value || (process.client ? localStorage.getItem('token') : '');
+
+const saveToken = (token: string) => {
+  const tokenCookie = useCookie('token');
+  tokenCookie.value = token;
+  if (process.client) localStorage.setItem('token', token);
+};
+
+const clearToken = () => {
+  const tokenCookie = useCookie('token');
+  tokenCookie.value = null;
+  if (process.client) localStorage.removeItem('token');
+};
+
+const logoutAndRedirect = async () => {
+  clearToken();
+  await router.push('/login');
+};
+
+// Change Email
+const changeEmail = async () => {
+  const token = getToken();
+  if (!token) return alert('You are not logged in');
+
+  try {
+    const res: any = await $fetch('/api/user/edit-account', {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${token}` },
+      body: {
+        newEmail: newEmail.value,
+        currentPassword: emailPassword.value,
+      },
+    });
+
+    if (res.token) {
+      saveToken(res.token); // ✅ refresh JWT
+    }
+
+    if (res.user?.email) {
+      currentEmail.value = res.user.email; // ✅ update UI
+    }
+
+    alert('تم تحديث البريد الإلكتروني بنجاح');
+  } catch (err: any) {
+    alert(err?.data?.statusMessage || err?.message || 'Error changing email');
+  }
+};
+
+// Change Password
+const changePassword = async () => {
+  if (newPassword.value !== confirmNewPassword.value) {
+    return alert('Passwords do not match');
+  }
+
+  const token = getToken();
+  if (!token) return alert('You are not logged in');
+
+  try {
+    const res: any = await $fetch('/api/user/edit-account', {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${token}` },
+      body: {
+        currentPassword: currentPassword.value,
+        newPassword: newPassword.value,
+      },
+    });
+
+    if (res.token) {
+      saveToken(res.token); // ✅ refresh JWT
+    }
+
+    alert('تم تحديث كلمة المرور بنجاح');
+  } catch (err: any) {
+    alert(err?.data?.statusMessage || err?.message || 'Error changing password');
+  }
+};
 </script>
 
 <template>
-  <form class="space-y-8 bg-[#f9f9f9] p-8 rounded-lg">
-    <!-- الاسم الأول واسم العائلة -->
+  <form class="space-y-8 bg-[#f9f9f9] p-8 rounded-lg" @submit.prevent="changePassword">
+    <!-- Email -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div class="space-y-2 text-right">
         <label class="font-medium">بريدك الإلكتروني:</label>
@@ -29,45 +118,48 @@ import {
             <AlertDialogContent class="flex flex-col w-full">
               <AlertDialogHeader>
                 <AlertDialogTitle class="text-right">تغيير بريدك الإلكتروني</AlertDialogTitle>
-                <AlertDialogDescription class="text-right"> يرجى إدخال عنوان البريد الإلكتروني الجديد الذي ترغب في استخدامه. سنرسل إليك رمز تأكيد لتأكيد العنوان.</AlertDialogDescription>
+                <AlertDialogDescription class="text-right"> يرجى إدخال عنوان البريد الإلكتروني الجديد وكلمة المرور الحالية. </AlertDialogDescription>
               </AlertDialogHeader>
               <div class="space-y-2">
                 <label class="font-medium w-full text-right inline-block">ادخل بريدك الإلكتروني الجديد</label>
-                <Input class="bg-white" />
+                <Input v-model="newEmail" class="bg-white" />
               </div>
               <div class="space-y-2">
                 <label class="font-medium w-full text-right inline-block">كلمة المرور</label>
-                <Input class="bg-white" type="password" />
+                <Input v-model="emailPassword" class="bg-white" type="password" />
               </div>
               <AlertDialogFooter>
                 <AlertDialogCancel class="cursor-pointer">الغاء</AlertDialogCancel>
-                <AlertDialogAction class="cursor-pointer">تأكيد</AlertDialogAction>
+                <AlertDialogAction class="cursor-pointer" @click="changeEmail">تأكيد</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-          <Input class="bg-white" readonly placeholder="ferasalarape10@gmail.com" />
+          <Input class="bg-white" readonly :placeholder="currentEmail" />
         </div>
       </div>
     </div>
+
     <hr />
-    <!-- المسمى الوظيفي -->
+
+    <!-- Change Password -->
     <div class="space-y-6">
       <div class="space-y-2">
         <label class="font-medium">كلمة المرور الحالية</label>
-        <Input type="password" class="w-[95%] bg-white" />
+        <Input v-model="currentPassword" type="password" class="w-[95%] bg-white" />
       </div>
 
       <div class="space-y-2">
         <label class="font-medium">كلمة مرور جديدة</label>
-        <Input type="password" class="w-[95%] bg-white" />
+        <Input v-model="newPassword" type="password" class="w-[95%] bg-white" />
       </div>
 
       <div class="space-y-2">
-        <label class="font-medium">تأكيد كلمة المرور الجديدة </label>
-        <Input type="password" class="w-[95%] bg-white" />
+        <label class="font-medium">تأكيد كلمة المرور الجديدة</label>
+        <Input v-model="confirmNewPassword" type="password" class="w-[95%] bg-white" />
       </div>
     </div>
-    <!-- زر الحفظ -->
-    <Button class="mt-6 cursor-pointer">حفظ</Button>
+
+    <!-- Save button -->
+    <Button type="submit" class="mt-6 cursor-pointer">حفظ</Button>
   </form>
 </template>

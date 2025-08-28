@@ -23,6 +23,25 @@ const userSchema = new mongoose.Schema({
     x: { type: String, default: '' },
     youtube: { type: String, default: '' },
   },
+
+  privacySettings: {
+    showProfile: { type: Boolean, default: true },
+    showReviews: { type: Boolean, default: true },
+    allowMessages: { type: Boolean, default: true },
+  },
+
+  notificationPreferences: {
+    offers: {
+      productUpdates: { type: Boolean, default: false },
+      promotions: { type: Boolean, default: false },
+    },
+    learning: {
+      stats: { type: Boolean, default: false },
+      inspiration: { type: Boolean, default: false },
+      courseRecs: { type: Boolean, default: false },
+      lecturerNotifs: { type: Boolean, default: false },
+    },
+  },
 });
 
 export default mongoose.model('User', userSchema);
