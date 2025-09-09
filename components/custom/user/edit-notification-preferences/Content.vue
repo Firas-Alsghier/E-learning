@@ -1,46 +1,98 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useFetch } from '#app'; // Nuxt helper for API requests
+import { ref, onMounted } from 'vue';
 
-// State for checkboxes
-const offers = ref({
+type Offers = {
+  productUpdates: boolean;
+  promotions: boolean;
+};
+
+type Learning = {
+  stats: boolean;
+  inspiration: boolean;
+  courseRecs: boolean;
+  lecturerNotifs: boolean;
+};
+
+type NotificationResponse = {
+  notificationPreferences?: {
+    offers: Offers;
+    learning: Learning;
+  };
+};
+
+const offers = ref<Offers>({
   productUpdates: false,
   promotions: false,
 });
 
-const learning = ref({
+const learning = ref<Learning>({
   stats: false,
   inspiration: false,
   courseRecs: false,
   lecturerNotifs: false,
 });
 
-// Save preferences function
+const isSaving = ref(false);
+
+// Load saved preferences
+const loadPreferences = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const me = await $fetch<NotificationResponse>('http://localhost:3001/api/auth/me', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (me?.notificationPreferences) {
+      offers.value = {
+        productUpdates: !!me.notificationPreferences.offers?.productUpdates,
+        promotions: !!me.notificationPreferences.offers?.promotions,
+      };
+
+      learning.value = {
+        stats: !!me.notificationPreferences.learning?.stats,
+        inspiration: !!me.notificationPreferences.learning?.inspiration,
+        courseRecs: !!me.notificationPreferences.learning?.courseRecs,
+        lecturerNotifs: !!me.notificationPreferences.learning?.lecturerNotifs,
+      };
+    }
+  } catch (err) {
+    console.error('❌ Failed to load notifications:', err);
+  }
+};
+
+onMounted(loadPreferences);
+
+// Save preferences
 const savePreferences = async () => {
   try {
-    const token = localStorage.getItem('token'); // read JWT token
+    const token = localStorage.getItem('token');
+    if (!token) return;
 
-    const { data, error } = await useFetch('http://localhost:3001/api/auth/notifications', {
+    isSaving.value = true;
+
+    const res = await $fetch<{ success: boolean; data: { offers: Offers; learning: Learning } }>('http://localhost:3001/api/auth/notifications', {
       method: 'PUT',
+      headers: { Authorization: `Bearer ${token}` },
       body: {
         offers: offers.value,
         learning: learning.value,
       },
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
     });
 
-    if (error.value) {
-      console.error('❌ Failed to save:', error.value);
-      alert('حدث خطأ أثناء الحفظ');
-    } else {
-      console.log('✅ Saved:', data.value);
+    if (res.success) {
+      offers.value = res.data.offers;
+      learning.value = res.data.learning;
+      console.log('✅ Saved:', res.data);
       alert('تم حفظ التفضيلات بنجاح ✅');
+      location.reload();
     }
   } catch (err) {
-    console.error('❌ Error:', err);
+    console.error('❌ Error saving notifications:', err);
     alert('خطأ في الاتصال بالخادم');
+  } finally {
+    isSaving.value = false;
   }
 };
 </script>
@@ -60,7 +112,6 @@ const savePreferences = async () => {
         </div>
         <div class="flex items-center justify-end gap-2">
           <Checkbox v-model="offers.promotions" />
-
           <label>العروض والترويج</label>
         </div>
       </div>
@@ -99,7 +150,7 @@ const savePreferences = async () => {
 
     <!-- Save Button -->
     <div class="flex justify-end">
-      <Button class="cursor-pointer">حفظ</Button>
+      <Button class="cursor-pointer" :disabled="isSaving">حفظ</Button>
     </div>
   </form>
 </template>

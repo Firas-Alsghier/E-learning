@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import authMiddleware from '../middleware/authMiddleware.js';
+import { Router } from 'lucide-vue-next';
 
 const router = express.Router();
 
@@ -33,7 +34,6 @@ router.post('/signup', async (req, res) => {
     });
 
     await newUser.save();
-
     // Create JWT token
     const payload = {
       id: newUser._id,
@@ -67,6 +67,7 @@ router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
+
     if (!user) {
       return res.status(401).json({ message: 'البريد الإلكتروني غير مسجل' });
     }
@@ -93,7 +94,6 @@ router.post('/login', async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        createdAt: user.createdAt,
       },
     });
   } catch (err) {
@@ -192,6 +192,7 @@ router.put('/edit-account', authMiddleware, async (req, res) => {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
+        bio: user.bio,
       },
     });
   } catch (error) {
@@ -200,13 +201,13 @@ router.put('/edit-account', authMiddleware, async (req, res) => {
   }
 });
 
+// inside auth.js
 router.put('/edit-privacy', authMiddleware, async (req, res) => {
   try {
-    const userId = req.user.id; // from JWT middleware
     const { showProfile, showReviews, allowMessages } = req.body;
 
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
       {
         $set: {
           'privacySettings.showProfile': showProfile,
@@ -217,10 +218,15 @@ router.put('/edit-privacy', authMiddleware, async (req, res) => {
       { new: true }
     );
 
-    res.json({ success: true, privacySettings: updatedUser.privacySettings });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    res.json({
+      message: '✅ Privacy updated',
+      privacySettings: user.privacySettings,
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success: false, message: 'Server error' });
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
@@ -249,6 +255,42 @@ router.put('/notifications', authMiddleware, async (req, res) => {
   } catch (err) {
     console.error('Error updating notifications:', err);
     res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+router.get('/users', async (req, res) => {
+  try {
+    const users = await User.find(); // fetch all documents
+    res.json(users); // return to frontend
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching users', error: err });
+  }
+});
+
+// Get current user
+router.get('/me', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({
+      id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      headline: user.headline,
+      bio: user.bio,
+      language: user.language,
+      avatarUrl: user.avatarUrl,
+      social: user.social || {},
+      notificationPreferences: user.notificationPreferences || {},
+      privacySettings: user.privacySettings || {}, // 👈 add this line
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 

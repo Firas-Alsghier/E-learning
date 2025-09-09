@@ -1,13 +1,9 @@
 <script setup lang="ts">
-// middleware/guest-only.ts
-
+import { useUser } from '~/composables/useUser';
 definePageMeta({
   layout: false,
   middleware: ['guest-only'], // ✅ block access for logged-in users
 });
-
-import { useUser } from '~/composables/useUser';
-
 const router = useRouter();
 const { setUser } = useUser();
 
@@ -23,6 +19,7 @@ type LoginResponse = {
     lastName: string;
     email: string;
     createdAt: string;
+    bio: string;
   };
   token: string;
 };
@@ -39,8 +36,8 @@ const handleLogin = async () => {
         password: password.value,
       },
     });
-
     // ✅ Set user to Pinia store
+    console.log(res);
     setUser({
       _id: res.user._id,
       email: res.user.email,

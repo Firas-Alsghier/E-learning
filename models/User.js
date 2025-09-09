@@ -1,15 +1,16 @@
 import mongoose from 'mongoose';
+import { type } from 'os';
 
 const userSchema = new mongoose.Schema({
-  firstName: String,
-  lastName: String,
+  firstName: { type: String, require: true },
+  lastName: { type: String, require: true },
   email: { type: String, unique: true },
-  password: String,
-  createdAt: String,
+  password: { type: String, require: true },
+  createdAt: { type: String, require: true },
 
   // ✅ Optional profile fields
-  headline: { type: String, default: '' },
   bio: { type: String, default: '' },
+  headline: { type: String, default: '' },
   language: { type: String, default: '' },
   avatarUrl: { type: String, default: '' },
 
@@ -25,9 +26,9 @@ const userSchema = new mongoose.Schema({
   },
 
   privacySettings: {
-    showProfile: { type: Boolean, default: true },
-    showReviews: { type: Boolean, default: true },
-    allowMessages: { type: Boolean, default: true },
+    showProfile: { type: Boolean, default: false },
+    showReviews: { type: Boolean, default: false },
+    allowMessages: { type: Boolean, default: false },
   },
 
   notificationPreferences: {

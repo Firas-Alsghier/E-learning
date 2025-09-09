@@ -1,14 +1,14 @@
-// This file just to assign types and shape of an object
 export interface User {
-  _id: string;
+  _id?: string;
   firstName: string;
   lastName: string;
-  email: string;
+  email?: string;
   avatarUrl?: string;
-  headline?: string;
   bio?: string;
+  headline?: string;
   language?: string;
-  createdAt: string;
+  createdAt?: string;
+
   social?: {
     facebook?: string;
     twitter?: string;
@@ -19,5 +19,17 @@ export interface User {
     tiktok?: string;
     x?: string;
     youtube?: string;
+  };
+
+  notificationPreferences?: {
+    emailNotifications?: boolean;
+    pushNotifications?: boolean;
+  };
+
+  // ✅ Add this
+  privacySettings?: {
+    showProfile?: boolean;
+    showReviews?: boolean;
+    allowMessages?: boolean;
   };
 }

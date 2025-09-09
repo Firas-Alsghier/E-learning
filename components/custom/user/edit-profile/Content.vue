@@ -1,30 +1,9 @@
-<script setup lang="ts">
-import { ref, onMounted } from 'vue';
+<script setup>
 import { useAuthStore } from '~/stores/auth';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-// import CustomUserEditProfileImageUpload from '@/components/custom/profile/CustomUserEditProfileImageUpload';
-
-interface FormType {
-  firstName: string;
-  lastName: string;
-  headline: string;
-  bio: string;
-  language: string;
-  website: string;
-  facebook: string;
-  instagram: string;
-  linkedin: string;
-  tiktok: string;
-  x: string;
-  youtube: string;
-}
 
 const auth = useAuthStore();
 
-const form = ref<FormType>({
+const form = ref({
   firstName: '',
   lastName: '',
   headline: '',
@@ -39,30 +18,46 @@ const form = ref<FormType>({
   youtube: '',
 });
 
-onMounted(() => {
-  if (auth.user) {
-    Object.assign(form.value, {
-      firstName: auth.user.firstName,
-      lastName: auth.user.lastName,
-      headline: auth.user.headline || '',
-      bio: auth.user.bio || '',
-      language: auth.user.language || '',
-      website: auth.user.social?.website || '',
-      facebook: auth.user.social?.facebook || '',
-      instagram: auth.user.social?.instagram || '',
-      linkedin: auth.user.social?.linkedin || '',
-      tiktok: auth.user.social?.tiktok || '',
-      x: auth.user.social?.x || '',
-      youtube: auth.user.social?.youtube || '',
+// ✅ Load user data on mount
+onMounted(async () => {
+  let token = useCookie('token').value;
+  if (!token && import.meta.client) {
+    token = localStorage.getItem('token');
+  }
+
+  if (!token) return;
+
+  try {
+    const user = await $fetch('http://localhost:3001/api/auth/me', {
+      headers: { Authorization: `Bearer ${token}` },
     });
+
+    auth.user = user; // Save in store
+
+    form.value = {
+      firstName: user.firstName || '',
+      lastName: user.lastName || '',
+      headline: user.headline || '',
+      bio: user.bio || '',
+      language: user.language || '',
+      website: user.social?.website || '',
+      facebook: user.social?.facebook || '',
+      instagram: user.social?.instagram || '',
+      linkedin: user.social?.linkedin || '',
+      tiktok: user.social?.tiktok || '',
+      x: user.social?.x || '',
+      youtube: user.social?.youtube || '',
+    };
+  } catch (err) {
+    console.error('Error fetching profile:', err);
   }
 });
 
+// ✅ Save changes
 const saveChanges = async () => {
-  // ✅ Try cookie first, then localStorage
   let token = useCookie('token').value;
   if (!token && import.meta.client) {
-    token = localStorage.getItem('token') || '';
+    token = localStorage.getItem('token');
   }
 
   if (!token) {
@@ -71,18 +66,20 @@ const saveChanges = async () => {
   }
 
   try {
-    const response: any = await $fetch('http://localhost:3001/api/auth/edit-profile', {
+    const response = await $fetch('http://localhost:3001/api/auth/edit-profile', {
       method: 'PUT',
       headers: {
-        Authorization: `Bearer ${token}`, // ✅ Send Bearer token
-        'Content-Type': 'application/json', // ✅ Ensure JSON body
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
       body: form.value,
     });
 
+    auth.user = { ...auth.user, ...form.value };
     alert('Profile updated successfully');
     console.log('Response:', response);
-  } catch (error: any) {
+    location.reload();
+  } catch (error) {
     alert('Failed to update profile');
     console.error('Error updating profile:', error);
   }

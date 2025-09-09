@@ -8,9 +8,9 @@ export const useUser = () => {
   if (import.meta.client && !auth.user) {
     onMounted(() => {
       const savedUser = localStorage.getItem('user');
-      // const token = localStorage.getItem('token');
+      const token = localStorage.getItem('token');
 
-      if (savedUser) {
+      if (savedUser && token) {
         try {
           const parsedUser = JSON.parse(savedUser);
           auth.setUser(parsedUser);

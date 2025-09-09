@@ -1,14 +1,12 @@
 <script setup lang="ts">
+import { useUser } from '~/composables/useUser';
 definePageMeta({
   layout: false,
   middleware: ['guest-only'],
 });
 
-import { useUser } from '~/composables/useUser';
-
 const router = useRouter();
 const { setUser } = useUser();
-
 const firstName = ref('');
 const lastName = ref('');
 const email = ref('');
@@ -52,7 +50,6 @@ const handleSubmit = async () => {
     // ✅ Save token to cookie (important for auth middleware)
     const token = useCookie('token');
     token.value = res.token;
-
     // ✅ Save user to store
     setUser(res.user);
 
