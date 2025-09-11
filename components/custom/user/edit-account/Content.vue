@@ -1,107 +1,89 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from '#app';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+import { useAuthStore } from '~/stores/auth';
 
+import { useUser } from '~/composables/useUser';
+const { setUser } = useUser();
 const router = useRouter();
 
-const currentEmail = ref('ferasalarape10@gmail.com');
+const auth = useAuthStore();
+const token = localStorage.getItem('token');
 
-// Email change dialog fields
+// --- Email state
+const email = ref(auth.user?.email);
 const newEmail = ref('');
-const emailPassword = ref('');
+const passwordForEmail = ref('');
 
-// Password change fields
+// --- Password state
 const currentPassword = ref('');
 const newPassword = ref('');
-const confirmNewPassword = ref('');
+const confirmPassword = ref('');
 
-const getToken = () => useCookie('token').value || (process.client ? localStorage.getItem('token') : '');
-
-const saveToken = (token: string) => {
-  const tokenCookie = useCookie('token');
-  tokenCookie.value = token;
-  if (process.client) localStorage.setItem('token', token);
-};
-
-const clearToken = () => {
-  const tokenCookie = useCookie('token');
-  tokenCookie.value = null;
-  if (process.client) localStorage.removeItem('token');
-};
-
-const logoutAndRedirect = async () => {
-  clearToken();
-  await router.push('/login');
-};
-
-// Change Email
+// --- Change Email ---
 const changeEmail = async () => {
-  const token = getToken();
-  if (!token) return alert('You are not logged in');
+  if (!newEmail.value || !passwordForEmail.value) {
+    alert('الرجاء إدخال البريد وكلمة المرور');
+    return;
+  }
 
   try {
-    const res: any = await $fetch('/api/user/edit-account', {
+    await $fetch('http://localhost:3001/api/auth/change-email', {
       method: 'PUT',
-      headers: { Authorization: `Bearer ${token}` },
       body: {
         newEmail: newEmail.value,
-        currentPassword: emailPassword.value,
+        password: passwordForEmail.value,
       },
+      headers: { Authorization: `Bearer ${token}` },
     });
 
-    if (res.token) {
-      saveToken(res.token); // ✅ refresh JWT
-    }
-
-    if (res.user?.email) {
-      currentEmail.value = res.user.email; // ✅ update UI
-    }
-
-    alert('تم تحديث البريد الإلكتروني بنجاح');
-  } catch (err: any) {
-    alert(err?.data?.statusMessage || err?.message || 'Error changing email');
+    email.value = newEmail.value;
+    alert('تم تحديث البريد الإلكتروني ✅');
+    localStorage.removeItem('token');
+    setUser(null); // ✅ This is enough
+    router.push('/');
+    setTimeout(() => {
+      location.reload();
+    }, 100);
+  } catch (err) {
+    console.error(err);
+    alert('فشل تحديث البريد');
   }
 };
 
-// Change Password
+// --- Change Password ---
 const changePassword = async () => {
-  if (newPassword.value !== confirmNewPassword.value) {
-    return alert('Passwords do not match');
+  if (!currentPassword.value || !newPassword.value || !confirmPassword.value) {
+    alert('الرجاء إدخال جميع الحقول');
+    return;
   }
 
-  const token = getToken();
-  if (!token) return alert('You are not logged in');
+  if (newPassword.value !== confirmPassword.value) {
+    alert('كلمة المرور الجديدة غير متطابقة');
+    return;
+  }
 
   try {
-    const res: any = await $fetch('/api/user/edit-account', {
+    await $fetch('http://localhost:3001/api/auth/edit-account', {
       method: 'PUT',
-      headers: { Authorization: `Bearer ${token}` },
       body: {
         currentPassword: currentPassword.value,
         newPassword: newPassword.value,
       },
+      headers: { Authorization: `Bearer ${token}` },
     });
 
-    if (res.token) {
-      saveToken(res.token); // ✅ refresh JWT
-    }
-
-    alert('تم تحديث كلمة المرور بنجاح');
-  } catch (err: any) {
-    alert(err?.data?.statusMessage || err?.message || 'Error changing password');
+    alert('تم تحديث كلمة المرور ✅');
+    localStorage.removeItem('token');
+    setUser(null); // ✅ This is enough
+    router.push('/');
+    currentPassword.value = '';
+    newPassword.value = '';
+    confirmPassword.value = '';
+    setTimeout(() => {
+      location.reload();
+    }, 100);
+  } catch (err) {
+    console.error(err);
+    alert('فشل تحديث كلمة المرور');
   }
 };
 </script>
@@ -113,28 +95,34 @@ const changePassword = async () => {
       <div class="space-y-2 text-right">
         <label class="font-medium">بريدك الإلكتروني:</label>
         <div class="flex gap-2">
+          <!-- Dialog for editing email -->
           <AlertDialog>
-            <AlertDialogTrigger class="bg-[#171717] text-white py-2 px-4 rounded-lg text-sm cursor-pointer">تعديل</AlertDialogTrigger>
+            <AlertDialogTrigger class="bg-[#171717] text-white py-2 px-4 rounded-lg text-sm cursor-pointer"> تعديل </AlertDialogTrigger>
             <AlertDialogContent class="flex flex-col w-full">
               <AlertDialogHeader>
                 <AlertDialogTitle class="text-right">تغيير بريدك الإلكتروني</AlertDialogTitle>
                 <AlertDialogDescription class="text-right"> يرجى إدخال عنوان البريد الإلكتروني الجديد وكلمة المرور الحالية. </AlertDialogDescription>
               </AlertDialogHeader>
+
               <div class="space-y-2">
-                <label class="font-medium w-full text-right inline-block">ادخل بريدك الإلكتروني الجديد</label>
+                <label class="font-medium w-full text-right inline-block"> البريد الإلكتروني الجديد </label>
                 <Input v-model="newEmail" class="bg-white" />
               </div>
+
               <div class="space-y-2">
                 <label class="font-medium w-full text-right inline-block">كلمة المرور</label>
-                <Input v-model="emailPassword" class="bg-white" type="password" />
+                <Input v-model="passwordForEmail" type="password" class="bg-white" />
               </div>
+
               <AlertDialogFooter>
-                <AlertDialogCancel class="cursor-pointer">الغاء</AlertDialogCancel>
-                <AlertDialogAction class="cursor-pointer" @click="changeEmail">تأكيد</AlertDialogAction>
+                <AlertDialogCancel class="cursor-pointer">إلغاء</AlertDialogCancel>
+                <AlertDialogAction class="cursor-pointer" @click.prevent="changeEmail"> تأكيد </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-          <Input class="bg-white" readonly :placeholder="currentEmail" />
+
+          <!-- Current email display -->
+          <Input v-model="email" class="bg-white" readonly />
         </div>
       </div>
     </div>
@@ -155,7 +143,7 @@ const changePassword = async () => {
 
       <div class="space-y-2">
         <label class="font-medium">تأكيد كلمة المرور الجديدة</label>
-        <Input v-model="confirmNewPassword" type="password" class="w-[95%] bg-white" />
+        <Input v-model="confirmPassword" type="password" class="w-[95%] bg-white" />
       </div>
     </div>
 

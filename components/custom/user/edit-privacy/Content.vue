@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-
 type Privacy = {
   showProfile: boolean;
   showReviews: boolean;

@@ -137,37 +137,37 @@ const saveChanges = async () => {
       <h3 class="font-semibold text-lg">روابط:</h3>
 
       <div class="space-y-2">
-        <label class="font-medium">موقع الويب (http(s)://..)</label>
+        <label class="font-medium">موقع الويب ://https</label>
         <Input v-model="form.website" class="w-[95%] bg-white" />
       </div>
 
       <div class="space-y-2">
-        <label class="font-medium">/facebook.com</label>
+        <label class="font-medium">facebook.com</label>
         <Input v-model="form.facebook" placeholder="اسم المستخدم" class="w-[95%] bg-white" />
       </div>
 
       <div class="space-y-2">
-        <label class="font-medium">/instagram.com</label>
+        <label class="font-medium">instagram.com</label>
         <Input v-model="form.instagram" placeholder="اسم المستخدم" class="w-[95%] bg-white" />
       </div>
 
       <div class="space-y-2">
-        <label class="font-medium">/linkedin.com</label>
+        <label class="font-medium">linkedin.com</label>
         <Input v-model="form.linkedin" placeholder="عنوان URL للملف الشخصي العام" class="w-[95%] bg-white" />
       </div>
 
       <div class="space-y-2">
-        <label class="font-medium">/tiktok.com</label>
+        <label class="font-medium">tiktok.com</label>
         <Input v-model="form.tiktok" placeholder="@اسم المستخدم" class="w-[95%] bg-white" />
       </div>
 
       <div class="space-y-2">
-        <label class="font-medium">/x.com</label>
+        <label class="font-medium">x.com</label>
         <Input v-model="form.x" placeholder="اسم المستخدم" class="w-[95%] bg-white" />
       </div>
 
       <div class="space-y-2">
-        <label class="font-medium">/youtube.com</label>
+        <label class="font-medium">youtube.com</label>
         <Input v-model="form.youtube" placeholder="اسم المستخدم" class="w-[95%] bg-white" />
       </div>
     </div>

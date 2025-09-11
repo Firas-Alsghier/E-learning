@@ -280,6 +280,7 @@ router.get('/me', authMiddleware, async (req, res) => {
       id: user._id,
       firstName: user.firstName,
       lastName: user.lastName,
+      email: user.email,
       headline: user.headline,
       bio: user.bio,
       language: user.language,
@@ -291,6 +292,27 @@ router.get('/me', authMiddleware, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.put('/change-email', authMiddleware, async (req, res) => {
+  try {
+    const { newEmail, password } = req.body;
+    const user = await User.findById(req.user.id);
+
+    // check password first
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ msg: 'كلمة المرور غير صحيحة' });
+    }
+
+    user.email = newEmail;
+    await user.save();
+
+    res.json({ msg: 'تم تحديث البريد الإلكتروني', email: user.email });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: 'خطأ في الخادم' });
   }
 });
 
