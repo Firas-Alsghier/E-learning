@@ -2,9 +2,7 @@
 // This file contains the 3 final major components of the sidebar userPic, linkList, homeButton
 import type { SidebarProps } from '@/components/ui/sidebar';
 import NavMain from '@/components/NavMain.vue';
-import NavProjects from '@/components/NavProjects.vue';
 import NavUser from '@/components/NavUser.vue';
-import TeamSwitcher from '@/components/TeamSwitcher.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from '@/components/ui/sidebar';
 
 import { BookOpen, Bot, Settings2, SquareTerminal } from 'lucide-vue-next';
