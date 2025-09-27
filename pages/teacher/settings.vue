@@ -108,7 +108,7 @@ const courseData = [
           <!-- <div class="aspect-video rounded-xl bg-muted/50 ratings flex justify-center items-center text-5xl">20</div> -->
         </div>
         <div class="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min grid grid-cols-1 gap-6">
-          <CustomTeacherSettingsDashboard />
+          <CustomTeacherSettingsDashboard dir="rtl" />
         </div>
       </div>
     </SidebarInset>
