@@ -30,6 +30,11 @@ const data = {
       url: 'create-course',
       icon: BookOpen,
     },
+    {
+      title: 'الرسائل',
+      url: 'messages',
+      icon: BookOpen,
+    },
     // {
     //   title: 'الطلاب',
     //   url: 'students',

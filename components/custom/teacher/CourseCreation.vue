@@ -1,0 +1,250 @@
+<script setup lang="ts">
+import { ref, computed } from 'vue';
+import { ChevronRight } from 'lucide-vue-next';
+
+// --- State Management for Course Creation Steps ---
+// Represents the current step the user is on (1 to 4)
+const currentStep = ref(1);
+
+// Course data model for Step 1
+interface CourseInfo {
+  title: string;
+  category: string;
+  level: string;
+  description: string;
+  faqs: { question: string; answer: string }[];
+}
+
+const courseData = ref<CourseInfo>({
+  title: '',
+  category: 'Data Management',
+  level: 'Basic',
+  description: '',
+  faqs: [{ question: 'Do you offer 1 on 1 calls', answer: 'Yes, at a fixed cost per call' }],
+});
+
+// Mock data for dropdowns
+const categories = ['Data Management', 'Web Development', 'Design', 'Marketing', 'Finance'];
+const levels = ['Basic', 'Intermediate', 'Advanced', 'Expert'];
+
+// Helper to check if step is complete (for visual styling)
+const isStepCompleted = (step: number) => {
+  return step < currentStep.value;
+};
+
+// Helper to handle navigation
+const goToNextStep = () => {
+  if (currentStep.value < 4) {
+    currentStep.value++;
+  }
+};
+
+const goToStep = (step: number) => {
+  if (step <= currentStep.value) {
+    currentStep.value = step;
+  }
+};
+
+// Character count for description
+const descriptionCharCount = computed(() => courseData.value.description.length);
+
+// --- FAQ Management ---
+const addFaq = () => {
+  courseData.value.faqs.push({ question: '', answer: '' });
+};
+
+const removeFaq = (index: number) => {
+  courseData.value.faqs.splice(index, 1);
+};
+
+// Function to handle "Save & Continue" or "Save as draft"
+const handleSave = (action: 'continue' | 'draft') => {
+  if (action === 'continue') {
+    // Validation logic would go here
+    console.log('Saving Course Info and moving to step 2:', courseData.value);
+    goToNextStep();
+  } else {
+    console.log('Saving draft:', courseData.value);
+  }
+  // Placeholder for actual API call
+  alert(`Action: ${action === 'continue' ? 'Saved & Continued' : 'Saved as Draft'}`);
+};
+
+// Placeholder functions for file/image upload
+const handleFileUpload = (type: 'cover' | 'video') => {
+  alert(`Simulating ${type} file upload...`);
+  // In a real app, this would open a file picker and handle async upload
+};
+</script>
+
+<template>
+  <div class="p-8 bg-gray-50 min-h-screen font-sans">
+    <!-- Header & Step Navigation -->
+    <header class="mb-8 flex justify-between items-center">
+      <!-- Step Indicators -->
+      <nav class="flex items-center space-x-2 text-sm font-medium">
+        <template v-for="step in 4" :key="step">
+          <button
+            @click="goToStep(step)"
+            :class="[
+              'px-4 py-2 rounded-full transition-all duration-300',
+              currentStep === step ? 'bg-violet-600 text-white shadow-md' : isStepCompleted(step) ? 'text-violet-600 hover:bg-violet-50' : 'text-gray-400 cursor-not-allowed',
+            ]"
+            :disabled="step > currentStep"
+          >
+            <span class="mr-1 font-bold">{{ step }}</span>
+            <span v-if="step === 1">Course Information & FAQ</span>
+            <span v-else-if="step === 2">Upload Course Materials</span>
+            <span v-else-if="step === 3">Pricing</span>
+            <span v-else-if="step === 4">Publish</span>
+          </button>
+          <ChevronRight v-if="step < 4" class="h-4 w-4 text-gray-400" />
+        </template>
+      </nav>
+      <button class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-100 transition">Preview</button>
+    </header>
+
+    <!-- Step Content Area -->
+    <main class="bg-white p-8 rounded-xl shadow-lg">
+      <!-- Step 1: Course Information & FAQ -->
+      <div v-if="currentStep === 1">
+        <h1 class="text-xl font-bold text-gray-800 mb-6">Course Information</h1>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <!-- Left Column: Text Inputs -->
+          <div class="space-y-6">
+            <!-- Title -->
+            <div>
+              <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">Title</label>
+              <input
+                id="title"
+                type="text"
+                v-model="courseData.title"
+                placeholder="e.g. Introduction to Data Analysis"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 placeholder:text-gray-400"
+              />
+            </div>
+
+            <!-- Category & Level -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label for="category" class="block text-sm font-semibold text-gray-700 mb-2">Category</label>
+                <select
+                  id="category"
+                  v-model="courseData.category"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg appearance-none bg-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                >
+                  <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
+                </select>
+              </div>
+              <div>
+                <label for="level" class="block text-sm font-semibold text-gray-700 mb-2">Level</label>
+                <select id="level" v-model="courseData.level" class="w-full px-4 py-3 border border-gray-300 rounded-lg appearance-none bg-white focus:outline-none focus:ring-2 focus:ring-violet-500">
+                  <option v-for="lvl in levels" :key="lvl" :value="lvl">{{ lvl }}</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div>
+              <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+              <textarea
+                id="description"
+                v-model="courseData.description"
+                maxlength="2000"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 resize-none h-32 placeholder:text-gray-400"
+              ></textarea>
+              <p class="text-xs text-right text-gray-500 mt-1">{{ descriptionCharCount }}/2000 characters</p>
+            </div>
+
+            <!-- Frequently Asked Questions -->
+            <div class="pt-4">
+              <h2 class="text-lg font-bold text-gray-800 mb-4">Frequently Asked Questions</h2>
+
+              <div v-for="(faq, index) in courseData.faqs" :key="index" class="mb-4 p-4 border border-gray-200 rounded-lg relative">
+                <!-- Remove button -->
+                <button v-if="courseData.faqs.length > 1" @click="removeFaq(index)" class="absolute top-2 right-2 text-red-500 hover:text-red-700 transition">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+
+                <label :for="`faq-q-${index}`" class="block text-xs font-semibold text-gray-700 mb-1">Question</label>
+                <input
+                  :id="`faq-q-${index}`"
+                  type="text"
+                  v-model="faq.question"
+                  placeholder="e.g. Do you offer 1 on 1 calls"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-violet-500 mb-2"
+                />
+
+                <label :for="`faq-a-${index}`" class="block text-xs font-semibold text-gray-700 mb-1">Answer</label>
+                <input
+                  :id="`faq-a-${index}`"
+                  type="text"
+                  v-model="faq.answer"
+                  placeholder="e.g. Yes, at a fixed cost per call"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-violet-500"
+                />
+              </div>
+
+              <button @click="addFaq" class="text-sm text-violet-600 font-semibold hover:text-violet-700 transition flex items-center mt-2"><Plus class="h-4 w-4 mr-1" /> Add another FAQ</button>
+            </div>
+          </div>
+
+          <!-- Right Column: Media Uploads -->
+          <div class="space-y-8">
+            <!-- Cover Image Upload -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Cover Image</label>
+              <div
+                @click="handleFileUpload('cover')"
+                class="w-full h-64 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-gray-500 cursor-pointer hover:border-violet-500 hover:text-violet-600 transition"
+              >
+                <Upload class="h-6 w-6 mb-2" />
+                <span class="text-sm">Upload</span>
+              </div>
+            </div>
+
+            <!-- Sales Video Upload -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Sales video</label>
+              <div
+                @click="handleFileUpload('video')"
+                class="w-full h-64 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-gray-500 cursor-pointer hover:border-violet-500 hover:text-violet-600 transition"
+              >
+                <Upload class="h-6 w-6 mb-2" />
+                <span class="text-sm">Upload</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="flex justify-end pt-8 border-t border-gray-100 mt-8 space-x-4">
+          <button @click="handleSave('draft')" class="px-6 py-3 text-sm font-semibold text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition">Save as draft</button>
+          <button @click="handleSave('continue')" class="px-6 py-3 text-sm font-semibold text-white bg-violet-600 rounded-lg hover:bg-violet-700 transition shadow-md shadow-violet-300">
+            Save & Continue
+          </button>
+        </div>
+      </div>
+
+      <!-- Placeholder for future steps -->
+      <div v-else class="text-center p-20 text-gray-500">
+        <h2 class="text-2xl font-semibold mb-4">Step {{ currentStep }} Coming Soon!</h2>
+        <p>Content for this step will be implemented in a dedicated component (e.g., Step{{ currentStep }}.vue).</p>
+      </div>
+    </main>
+  </div>
+</template>
+
+<script lang="ts">
+// We need to import the required Lucide icons outside of the setup script tag
+import { Upload, Plus } from 'lucide-vue-next';
+export default {
+  components: {
+    Upload,
+    Plus,
+  },
+};
+</script>

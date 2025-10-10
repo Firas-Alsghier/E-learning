@@ -1,3 +1,30 @@
+<script setup lang="ts">
+import type { Article } from '~/types';
+import { Calendar } from 'lucide-vue-next';
+
+// ✅ Strongly type the array
+const articles: Article[] = [
+  {
+    image: 'https://miro.medium.com/v2/resize:fit:4800/format:webp/1*HDJxJoL-WIc6OokcBi8rXA.jpeg',
+    date: 'Jan 24, 2023',
+    title: 'Ugly websites sell better.',
+    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque...',
+  },
+  {
+    image: 'https://www.michaelthemaven.com/images/content/no_netflix-e1570237551381.jpg',
+    date: 'Jan 24, 2023',
+    title: '10 Things To Do In The Evening Instead Of Watching Netflix',
+    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque...',
+  },
+  {
+    image: 'https://miro.medium.com/v2/resize:fit:2000/format:webp/1*ZAL4GUViMz2f-9anG_fJXg.png',
+    date: 'Jan 24, 2023',
+    title: 'Why No One Cares About Your Company Updates (And What To Do About It)',
+    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque...',
+  },
+];
+</script>
+
 <template>
   <CustomContainer>
     <section class="py-16 text-right">
@@ -42,31 +69,6 @@
     </section>
   </CustomContainer>
 </template>
-
-<script setup>
-import { Calendar } from 'lucide-vue-next';
-
-const articles = [
-  {
-    image: 'https://miro.medium.com/v2/resize:fit:4800/format:webp/1*HDJxJoL-WIc6OokcBi8rXA.jpeg',
-    date: 'Jan 24, 2023',
-    title: 'Ugly websites sell better.',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque...',
-  },
-  {
-    image: 'https://www.michaelthemaven.com/images/content/no_netflix-e1570237551381.jpg',
-    date: 'Jan 24, 2023',
-    title: '10 Things To Do In The Evening Instead Of Watching Netflix',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque...',
-  },
-  {
-    image: 'https://miro.medium.com/v2/resize:fit:2000/format:webp/1*ZAL4GUViMz2f-9anG_fJXg.png',
-    date: 'Jan 24, 2023',
-    title: 'Why No One Cares About Your Company Updates (And What To Do About It)',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque...',
-  },
-];
-</script>
 
 <style>
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');

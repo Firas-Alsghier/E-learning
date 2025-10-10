@@ -98,11 +98,11 @@ const courses = [
       </div>
 
       <!-- شبكة الكروت -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 justify-items-center">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
         <div
           v-for="(course, index) in courses"
           :key="index"
-          class="bg-white group border rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-2 transition-all duration-300 ease-in-out w-[410px] h-[474px] flex flex-col justify-between"
+          class="bg-white group border rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-2 transition-all duration-300 ease-in-out w-[400px] h-[470px] flex flex-col justify-between"
         >
           <!-- صورة -->
           <img :src="course.image" alt="" class="w-full h-[210px] object-cover" />

@@ -1,11 +1,17 @@
 <script setup lang="ts">
 import { Search, MenuIcon, Heart, ShoppingCart, Bell } from 'lucide-vue-next';
-import { useUser } from '~/composables/useUser';
+import { useUser } from '~/composables/useUser'; // Retained for real-world functionality
 
 const { user } = useUser();
 const isMenuOpen = ref(false);
 const searchQuery = ref('');
 const isHydrated = ref(false);
+
+// --- Notification/Count State (New) ---
+// Initialize your mock counts here. In a real app, these would come from a store or API.
+const wishlistCount = ref(5); // Items in wishlist
+const cartCount = ref(1); // Items in cart
+const notificationCount = ref(9); // Unread notifications
 
 // Wait for client-side rehydration
 onMounted(() => {
@@ -70,11 +76,37 @@ const toggleMenu = (event: Event) => {
             </span>
           </div>
 
-          <!-- icons after logging in -->
+          <!-- icons after logging in (Updated with Badges) -->
           <template v-if="user">
-            <Heart />
-            <ShoppingCart />
-            <Bell />
+            <!-- Heart Icon with Badge -->
+            <NuxtLink to="/wishlist" class="relative cursor-pointer text-gray-700 hover:text-orange-500">
+              <Heart class="size-6" />
+              <span
+                v-if="wishlistCount > 0"
+                class="absolute top-[-8px] right-[-8px] h-4 w-4 flex items-center justify-center rounded-full bg-red-600 text-white text-[10px] font-bold border border-white"
+              >
+                {{ wishlistCount > 9 ? '9+' : wishlistCount }}
+              </span>
+            </NuxtLink>
+
+            <!-- ShoppingCart Icon with Badge -->
+            <div class="relative cursor-pointer text-gray-700 hover:text-orange-500">
+              <ShoppingCart class="size-6" />
+              <span v-if="cartCount > 0" class="absolute top-[-8px] right-[-8px] h-4 w-4 flex items-center justify-center rounded-full bg-red-600 text-white text-[10px] font-bold border border-white">
+                {{ cartCount > 9 ? '9+' : cartCount }}
+              </span>
+            </div>
+
+            <!-- Bell Icon with Badge -->
+            <div class="relative cursor-pointer text-gray-700 hover:text-orange-500">
+              <Bell class="size-6" />
+              <span
+                v-if="notificationCount > 0"
+                class="absolute top-[-8px] right-[-8px] h-4 w-4 flex items-center justify-center rounded-full bg-red-600 text-white text-[10px] font-bold border border-white"
+              >
+                {{ notificationCount > 9 ? '9+' : notificationCount }}
+              </span>
+            </div>
             <CustomUserDropMenu />
           </template>
 

@@ -118,9 +118,9 @@ const saveChanges = async () => {
     <hr />
 
     <div class="space-y-2">
-      <label class="font-medium">معلومات الاتصال</label>
-      <input type="number" v-model="form.bio" class="w-[95%] bg-white" />
-      <p class="text-sm text-muted-foreground">لا يسمح بالروابط ورموز التنسيق في هذا القسم.</p>
+      <label class="font-medium">رقم الهاتف</label>
+      <Input id="phone" class="w-[95%] bg-white" />
+      <p class="text-sm text-muted-foreground">مثال: 218xxxxxx+</p>
     </div>
     <hr />
 

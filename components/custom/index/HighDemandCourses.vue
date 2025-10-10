@@ -1,3 +1,20 @@
+<script setup lang="ts">
+import type { Category } from '~/types';
+
+const categories: Category[] = [
+  { icon: '🎨', name: 'Design', courses: 38 },
+  { icon: '💻', name: 'Development', courses: 38 },
+  { icon: '🎭', name: 'Art', courses: 38 },
+  { icon: '🎥', name: 'Video', courses: 38 },
+  { icon: '📊', name: 'Marketing', courses: 38 },
+  { icon: '📄', name: 'Business', courses: 38 },
+  { icon: '📡', name: 'Networking', courses: 38 },
+  { icon: '🎨', name: 'Illustration', courses: 38 },
+  { icon: '🎨', name: 'Illustration', courses: 38 },
+  { icon: '🎨', name: 'Illustration', courses: 38 },
+];
+</script>
+
 <template>
   <CustomContainer>
     <section class="text-center py-10">
@@ -15,7 +32,7 @@
         <div
           v-for="(category, index) in categories"
           :key="index"
-          class="bg-white cursor-pointer border rounded-lg w-[234px] h-[234px] p-6 flex flex-col items-center justify-center text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-lg mx-auto"
+          class="bg-white cursor-pointer border rounded-lg w-[234px] h-[223px] max-sm:w-[223px] max-sm:h-[234px] p-6 flex flex-col items-center justify-center text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-lg mx-auto"
         >
           <div class="text-4xl mb-3">{{ category.icon }}</div>
           <h3 class="text-gray-800 font-semibold">{{ category.name }}</h3>
@@ -25,18 +42,3 @@
     </section>
   </CustomContainer>
 </template>
-
-<script setup>
-const categories = [
-  { icon: '🎨', name: 'Design', courses: 38 },
-  { icon: '💻', name: 'Development', courses: 38 },
-  { icon: '🎭', name: 'Art', courses: 38 },
-  { icon: '🎥', name: 'Video', courses: 38 },
-  { icon: '📊', name: 'Marketing', courses: 38 },
-  { icon: '📄', name: 'Business', courses: 38 },
-  { icon: '📡', name: 'Networking', courses: 38 },
-  { icon: '🎨', name: 'Illustration', courses: 38 },
-  { icon: '🎨', name: 'Illustration', courses: 38 },
-  { icon: '🎨', name: 'Illustration', courses: 38 },
-];
-</script>
