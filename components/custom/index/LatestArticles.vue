@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Article } from '~/types';
-import { Calendar } from 'lucide-vue-next';
+import { Calendar, Heart } from 'lucide-vue-next';
 
 // ✅ Strongly type the array
 const articles: Article[] = [
@@ -47,10 +47,19 @@ const articles: Article[] = [
           class="bg-white group rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col group"
         >
           <!-- Image -->
-          <div class="overflow-hidden">
+          <!-- <div class="overflow-hidden">
             <img :src="article.image" alt="Article image" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" />
+          </div> -->
+          <div class="relative">
+            <img :src="article.image" :alt="article.title" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" />
+            <button
+              class="absolute top-3 right-3 p-2 rounded-full bg-white/90 text-red-500 shadow-xl hover:scale-110 transition duration-300 transform ring-2 ring-red-500"
+              aria-label="Remove from wishlist"
+              title="Remove from Wishlist"
+            >
+              <Heart :size="20" fill="currentColor" class="cursor-pointer" />
+            </button>
           </div>
-
           <!-- Content -->
           <div class="p-4 flex-1 flex flex-col justify-between">
             <h3 class="text-lg text-left font-semibold leading-snug mb-2">

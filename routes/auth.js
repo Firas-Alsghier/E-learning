@@ -2,17 +2,19 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import { sendEmail } from '../utils/sendEmail.js';
+import crypto from 'crypto';
 import authMiddleware from '../middleware/authMiddleware.js';
-import { Router } from 'lucide-vue-next';
+
+// import { Router } from 'lucide-vue-next';
 
 const router = express.Router();
 
-// Signup
 router.post('/signup', async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
 
-    // Check if user exists
+    // Check existing user
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'البريد الإلكتروني مستخدم بالفعل' });
@@ -21,43 +23,112 @@ router.post('/signup', async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Format date as (YYYY, MMM, DDD)
-    const createdAt = new Date().toDateString(); // e.g., Mon Jul 22 2025
+    // Generate verification token
+    const verificationToken = crypto.randomBytes(20).toString('hex');
 
-    // Save user
-    const newUser = new User({
+    // Create new user
+    const user = new User({
       firstName,
       lastName,
       email,
       password: hashedPassword,
-      createdAt,
+      createdAt: new Date().toISOString(),
+      role: req.body.role || 'student',
+      isVerified: false,
+      verificationToken,
+      verificationTokenExpires: Date.now() + 24 * 60 * 60 * 1000, // expires in 24h
     });
 
-    await newUser.save();
-    // Create JWT token
-    const payload = {
-      id: newUser._id,
-      email: newUser.email,
-      firstName: newUser.firstName,
-      lastName: newUser.lastName,
-    };
+    await user.save();
 
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
+    // Create email verification link
+    const verifyLink = `http://localhost:3000/verify-email?token=${verificationToken}`;
+
+    // Send verification email
+    const emailContent = `
+      <h2>مرحباً ${firstName} 👋</h2>
+      <p>من فضلك اضغط على الرابط أدناه لتفعيل حسابك:</p>
+      <a href="${verifyLink}" target="_blank"
+         style="background:#4F46E5;color:white;padding:10px 20px;
+         border-radius:8px;text-decoration:none;">
+         تفعيل الحساب
+      </a>
+      <p>الرابط صالح لمدة 24 ساعة فقط.</p>
+    `;
+    await sendEmail(email, 'تأكيد البريد الإلكتروني', emailContent);
 
     res.status(201).json({
-      message: 'تم إنشاء الحساب بنجاح',
-      token,
-      user: {
-        id: newUser._id,
-        firstName: newUser.firstName,
-        lastName: newUser.lastName,
-        email: newUser.email,
-        createdAt: newUser.createdAt,
-      },
+      message: 'تم إنشاء الحساب بنجاح. تحقق من بريدك الإلكتروني لتأكيد الحساب.',
     });
+  } catch (error) {
+    console.error('❌ Signup error:', error);
+    res.status(500).json({ message: 'حدث خطأ أثناء إنشاء الحساب.' });
+  }
+});
+// ✅ VERIFY EMAIL ROUTE
+router.get('/verify/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+    const user = await User.findOne({
+      verificationToken: token,
+      verificationTokenExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'رمز التفعيل غير صالح أو منتهي الصلاحية.' });
+    }
+
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpires = undefined;
+    await user.save();
+
+    // Auto-login after verification
+    const tokenJWT = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '7d',
+    });
+
+    const frontendURL = `http://localhost:3000/verify-success?token=${jwtToken}`;
+    return res.redirect(frontendURL);
+  } catch (error) {
+    console.error('❌ Verify error:', error);
+    res.status(500).json({ message: 'حدث خطأ أثناء تفعيل الحساب.' });
+  }
+});
+
+// ✅ Resend Verification Email
+router.post('/resend-verification', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: 'Email is required.' });
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: 'User not found.' });
+    if (user.isVerified) return res.status(400).json({ message: 'User already verified.' });
+
+    // 🔑 Generate a new token
+    const token = crypto.randomBytes(20).toString('hex');
+    user.verificationToken = token;
+    user.verificationTokenExpires = Date.now() + 15 * 60 * 1000; // 15 mins
+    await user.save();
+
+    // ✉️ Send the email again
+    const link = `http://localhost:3000/verify-email/${token}`;
+    await sendEmail({
+      to: user.email,
+      subject: 'Verify Your Email',
+      html: `
+        <h2>Verify your email</h2>
+        <p>Please click the link below to verify your account:</p>
+        <a href="${link}" target="_blank">${link}</a>
+        <p>This link will expire in 15 minutes.</p>
+      `,
+    });
+
+    res.json({ message: 'Verification email resent successfully!' });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'حدث خطأ في الخادم' });
+    res.status(500).json({ message: 'Server error.' });
   }
 });
 
@@ -66,39 +137,31 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // Find user
     const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ message: 'المستخدم غير موجود.' });
 
-    if (!user) {
-      return res.status(401).json({ message: 'البريد الإلكتروني غير مسجل' });
-    }
-
+    // Check password
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'كلمة المرور غير صحيحة' });
-    }
+    if (!isMatch) return res.status(400).json({ message: 'كلمة السر غير صحيحة.' });
 
-    const payload = {
-      id: user._id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-    };
+    // Check if verified
+    if (!user.isVerified) return res.status(400).json({ message: 'يرجى تفعيل الحساب عبر البريد الإلكتروني.' });
 
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
+    // Create token
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '7d',
+    });
 
     res.status(200).json({
-      message: 'تم تسجيل الدخول بنجاح',
+      message: 'تم تسجيل الدخول بنجاح ✅',
+      user,
       token,
-      user: {
-        id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-      },
+      role: user.role, // ✅
     });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'حدث خطأ في الخادم' });
+  } catch (error) {
+    console.error('❌ Login error:', error);
+    res.status(500).json({ message: 'حدث خطأ أثناء تسجيل الدخول.' });
   }
 });
 
@@ -313,6 +376,140 @@ router.put('/change-email', authMiddleware, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ msg: 'خطأ في الخادم' });
+  }
+});
+
+router.post('/verify-email', async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ message: 'رمز التحقق مفقود' });
+    }
+
+    // Find user with valid token (not expired)
+    const user = await User.findOne({
+      verificationToken: token,
+      verificationTokenExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'رمز التحقق غير صالح أو منتهي الصلاحية' });
+    }
+
+    // Mark user as verified
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpires = undefined;
+    await user.save();
+
+    res.json({ message: 'تم تفعيل حسابك بنجاح 🎉' });
+  } catch (error) {
+    console.error('❌ Error verifying email:', error);
+    res.status(500).json({ message: 'حدث خطأ أثناء التحقق من الحساب' });
+  }
+});
+
+router.get('/verify-email', async (req, res) => {
+  const { token } = req.query;
+
+  try {
+    if (!token) return res.status(400).json({ message: 'Token not found' });
+
+    // Verify the token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Find the user and update verification status
+    const user = await User.findByIdAndUpdate(decoded.id, { verified: true });
+
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    res.redirect(`${process.env.FRONTEND_URL}/email-verified`);
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ message: 'Invalid or expired token' });
+  }
+});
+
+// ✅ Forgot password
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: 'لا يوجد مستخدم بهذا البريد الإلكتروني.' });
+    }
+
+    // 1️⃣ Generate reset token (random string)
+    const resetToken = crypto.randomBytes(32).toString('hex');
+
+    // 2️⃣ Hash it before saving to DB
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+    // 3️⃣ Save hashed token + expiry time (1 hour)
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+    await user.save();
+
+    // 4️⃣ Create reset link with NON-hashed token
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+
+    // 5️⃣ Send email
+    const htmlContent = `
+      <h2>إعادة تعيين كلمة المرور</h2>
+      <p>انقر على الزر أدناه لإعادة تعيين كلمة المرور الخاصة بك:</p>
+      <a href="${resetLink}" 
+         style="display:inline-block; padding:10px 20px; background-color:#4f46e5; color:white; text-decoration:none; border-radius:6px;">
+         إعادة تعيين كلمة المرور
+      </a>
+      <p>سينتهي هذا الرابط خلال ساعة واحدة.</p>
+    `;
+
+    await sendEmail(user.email, 'إعادة تعيين كلمة المرور', htmlContent);
+    res.json({ message: 'تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.' });
+  } catch (error) {
+    console.error('❌ Error in forgot-password:', error);
+    res.status(500).json({ message: 'حدث خطأ أثناء إرسال رابط إعادة التعيين.' });
+  }
+});
+
+// ✅ Reset Password
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return res.status(400).json({ message: 'رمز التحقق أو كلمة المرور مفقودة.' });
+    }
+
+    // 1️⃣ Hash the token from the URL (same way we saved it)
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    // 2️⃣ Find user with valid token and non-expired
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'رمز التحقق غير صالح أو منتهي الصلاحية.' });
+    }
+
+    // 3️⃣ Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+
+    // 4️⃣ Clear reset fields
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+
+    await user.save();
+
+    res.json({ message: 'تم تغيير كلمة المرور بنجاح!' });
+  } catch (error) {
+    console.error('❌ Error resetting password:', error);
+    res.status(500).json({ message: 'حدث خطأ أثناء إعادة تعيين كلمة المرور.' });
   }
 });
 

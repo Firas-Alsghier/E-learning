@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Timer, UsersRound } from 'lucide-vue-next';
+import { Timer, UsersRound, Heart } from 'lucide-vue-next';
 
 const courses = [
   {
@@ -105,8 +105,17 @@ const courses = [
           class="bg-white group border rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-2 transition-all duration-300 ease-in-out w-[400px] h-[470px] flex flex-col justify-between"
         >
           <!-- صورة -->
-          <img :src="course.image" alt="" class="w-full h-[210px] object-cover" />
-
+          <!-- <img :src="course.image" alt="" class="w-full h-[210px] object-cover" /> -->
+          <div class="relative">
+            <img :src="course.image" :alt="course.title" class="w-full h-[210px] object-cover" />
+            <button
+              class="absolute top-3 right-3 p-2 rounded-full bg-white/90 text-red-500 shadow-xl hover:scale-110 transition duration-300 transform ring-2 ring-red-500"
+              aria-label="Remove from wishlist"
+              title="Remove from Wishlist"
+            >
+              <Heart :size="20" fill="currentColor" class="cursor-pointer" />
+            </button>
+          </div>
           <!-- المحتوى -->
           <div class="p-4 flex flex-col justify-between h-full">
             <div>

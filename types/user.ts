@@ -32,4 +32,5 @@ export interface User {
     showReviews?: boolean;
     allowMessages?: boolean;
   };
+  role?: 'student' | 'teacher' | 'admin';
 }

@@ -5,7 +5,7 @@ import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from '@/components/ui/sidebar';
 
-import { BookOpen, Bot, Settings2, SquareTerminal } from 'lucide-vue-next';
+import { AudioWaveform, BookOpen, Bot, Command, Frame, GalleryVerticalEnd, Map, PieChart, Settings2, SquareTerminal } from 'lucide-vue-next';
 
 const props = withDefaults(defineProps<SidebarProps>(), {
   collapsible: 'icon',
@@ -35,21 +35,21 @@ const data = {
       url: 'messages',
       icon: BookOpen,
     },
-    // {
-    //   title: 'الطلاب',
-    //   url: 'students',
-    //   icon: Settings2,
-    // },
-    // {
-    //   title: 'التقيمات',
-    //   url: 'edit-notification-preferences',
-    //   icon: Settings2,
-    // },
-    // {
-    //   title: 'المساعدة والدعم',
-    //   url: '#',
-    //   icon: Settings2,
-    // },
+    {
+      title: 'المقالات',
+      url: 'blogs',
+      icon: Settings2,
+    },
+    {
+      title: 'كتابة مقالة',
+      url: 'blogs/create',
+      icon: Settings2,
+    },
+    {
+      title: 'تعديل المقالات',
+      url: '#',
+      icon: Settings2,
+    },
     // {
     //   title: 'الرسائل',
     //   url: 'messages',

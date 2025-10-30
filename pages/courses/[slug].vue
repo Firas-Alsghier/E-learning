@@ -2,6 +2,7 @@
 const selectedTab = ref('overview');
 import { useRoute } from 'vue-router';
 import { computed } from 'vue';
+import { Heart } from 'lucide-vue-next'; // Added Heart icon
 
 const route = useRoute();
 
@@ -25,6 +26,7 @@ const tabs = [
           <div class="flex items-center space-x-4">
             <span class="bg-[#555555] text-white text-sm px-3 py-2 rounded-[8px] inline-block">Photography</span>
             <p class="text-lg"><span class="text-[#9D9D9D]">by</span> Determined-Poitras</p>
+            <Heart :size="20" fill="currentColor" class="cursor-pointer" />
           </div>
           <h1 class="text-4xl font-bold">The Ultimate Guide To The Best WordPress LMS Plugin</h1>
 

@@ -1,12 +1,22 @@
 import mongoose from 'mongoose';
-import { type } from 'os';
 
 const userSchema = new mongoose.Schema({
-  firstName: { type: String, require: true },
-  lastName: { type: String, require: true },
-  email: { type: String, unique: true },
-  password: { type: String, require: true },
-  createdAt: { type: String, require: true },
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
+  email: { type: String, unique: true, required: true },
+  password: { type: String, required: true },
+  createdAt: { type: String, required: true },
+
+  // ✅ Email verification fields
+  isVerified: { type: Boolean, default: false },
+  verificationToken: { type: String },
+  verificationTokenExpires: { type: Date },
+
+  resetPasswordToken: { type: String },
+  resetPasswordExpire: { type: Date },
+
+  resetPasswordToken: { type: String },
+  resetPasswordExpires: { type: Date },
 
   // ✅ Optional profile fields
   bio: { type: String, default: '' },
@@ -42,6 +52,12 @@ const userSchema = new mongoose.Schema({
       courseRecs: { type: Boolean, default: false },
       lecturerNotifs: { type: Boolean, default: false },
     },
+  },
+
+  role: {
+    type: String,
+    enum: ['student', 'teacher', 'admin'],
+    default: 'student',
   },
 });
 
