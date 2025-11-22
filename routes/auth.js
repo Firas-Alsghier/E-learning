@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.post('/signup', async (req, res) => {
   try {
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, email, password, country } = req.body;
 
     // Check existing user
     const existingUser = await User.findOne({ email });
@@ -33,6 +33,7 @@ router.post('/signup', async (req, res) => {
       email,
       password: hashedPassword,
       createdAt: new Date().toISOString(),
+      country,
       role: req.body.role || 'student',
       isVerified: false,
       verificationToken,
@@ -137,27 +138,40 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find user
+    // 🔍 Check if user exists
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: 'المستخدم غير موجود.' });
 
-    // Check password
+    // 🔑 Validate password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: 'كلمة السر غير صحيحة.' });
 
-    // Check if verified
+    // 📧 Check if account verified
     if (!user.isVerified) return res.status(400).json({ message: 'يرجى تفعيل الحساب عبر البريد الإلكتروني.' });
 
-    // Create token
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '7d',
-    });
+    // 🎟️ Create JWT with all needed info
+    const token = jwt.sign(
+      {
+        id: user._id, // ✅ use 'id' for consistency
+        email: user.email,
+        role: user.role,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
 
+    // ✅ Send response
     res.status(200).json({
       message: 'تم تسجيل الدخول بنجاح ✅',
-      user,
       token,
-      role: user.role, // ✅
+      user: {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+        avatarUrl: user.avatarUrl,
+      },
     });
   } catch (error) {
     console.error('❌ Login error:', error);
@@ -168,7 +182,7 @@ router.post('/login', async (req, res) => {
 // Edit Profile
 router.put('/edit-profile', authMiddleware, async (req, res) => {
   const userId = req.user.id;
-  const { firstName, lastName, headline, bio, language, avatarUrl, website, facebook, instagram, linkedin, tiktok, x, youtube } = req.body;
+  const { firstName, lastName, headline, bio, language, avatarUrl, website, facebook, instagram, linkedin, x, country } = req.body;
 
   try {
     const updatedUser = await User.findByIdAndUpdate(
@@ -181,14 +195,13 @@ router.put('/edit-profile', authMiddleware, async (req, res) => {
           bio,
           language,
           avatarUrl,
+          country,
           social: {
             website,
             facebook,
             instagram,
             linkedin,
-            tiktok,
             x,
-            youtube,
           },
         },
       },

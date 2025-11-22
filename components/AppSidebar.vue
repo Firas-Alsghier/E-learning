@@ -6,6 +6,7 @@ import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from '@/components/ui/sidebar';
 
 import { BookOpen, Bot, Settings2, SquareTerminal } from 'lucide-vue-next';
+import SidebarProvider from './ui/sidebar/SidebarProvider.vue';
 
 const props = withDefaults(defineProps<SidebarProps>(), {
   collapsible: 'icon',
@@ -19,11 +20,6 @@ const data = {
       url: 'edit-profile',
       icon: SquareTerminal,
       isActive: true,
-    },
-    {
-      title: 'الصورة',
-      url: 'edit-photo',
-      icon: Bot,
     },
     {
       title: 'أمان الحساب',
@@ -63,7 +59,7 @@ const data = {
       <NavMain :items="data.navMain" />
     </SidebarContent>
     <SidebarFooter>
-      <Button class="cursor-pointer w-full"><a href="/">Home page</a></Button>
+      <!-- <Button class="cursor-pointer w-[30%] m-auto"><a href="/">🏠</a></Button> -->
     </SidebarFooter>
     <SidebarRail />
   </Sidebar>

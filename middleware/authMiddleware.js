@@ -1,21 +1,27 @@
-// middleware/authMiddleware.js
 import jwt from 'jsonwebtoken';
 
-export const verifyToken = (req, res, next) => {
+const authMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Unauthorized: No token provided' });
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'لم يتم العثور على التوكن' });
   }
 
   const token = authHeader.split(' ')[1];
+
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+
+    // 🧠 Make sure the structure always has user id and role
+    req.user = {
+      id: decoded.id || decoded._id, // in case token has _id not id
+      role: decoded.role,
+      email: decoded.email,
+    };
+
     next();
-  } catch {
-    return res.status(401).json({ message: 'Unauthorized: Invalid token' });
+  } catch (error) {
+    return res.status(401).json({ message: 'توكن غير صالح أو منتهي الصلاحية' });
   }
 };
 
-const authMiddleware = verifyToken;
 export default authMiddleware;

@@ -1,4 +1,6 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const { isLoggedIn } = useUser();
+</script>
 
 <template>
   <main class="h-[90vh] max-sm:h-[70vh] relative overflow-hidden bg-gradient-to-r from-[#FFF5BE] to-[#D0F7EA]">
@@ -26,7 +28,11 @@
           <p class="text-[16px] max-sm:text-lg font-normal text-[#555555] my-3">
             قم بتطوير مهارة مهنية محددة من خلال سلسلة من الدورات التدريبية المترابطة. جسّد أفكارك على أرض الواقع من خلال مشاريع عمليّة واحصل على شهادة تخصص لإضافتها إلى سيرتك الذاتية.
           </p>
-          <Button class="bg-[#FF782D] text-base rounded-2xl cursor-pointer">التسجيل</Button>
+          <NuxtLink to="signup">
+            <ClientOnly>
+              <Button v-if="!isLoggedIn" class="bg-[#FF782D] text-base rounded-2xl cursor-pointer">التسجيل</Button>
+            </ClientOnly>
+          </NuxtLink>
         </div>
       </div>
     </CustomContainer>

@@ -11,6 +11,7 @@ const { setUser } = useUser();
 const firstName = ref('');
 const lastName = ref('');
 const email = ref('');
+const country = ref('');
 const password = ref('');
 const confirmPassword = ref('');
 
@@ -19,7 +20,53 @@ const emailError = ref('');
 const passwordError = ref('');
 const confirmError = ref('');
 const loading = ref(false);
-
+const countries = [
+  'ليبيا',
+  'تونس',
+  'الجزائر',
+  'المغرب',
+  'مصر',
+  'السودان',
+  'فلسطين',
+  'الأردن',
+  'لبنان',
+  'سوريا',
+  'العراق',
+  'الكويت',
+  'قطر',
+  'البحرين',
+  'السعودية',
+  'الإمارات',
+  'عُمان',
+  'اليمن',
+  'موريتانيا',
+  'الصومال',
+  'جيبوتي',
+  'الولايات المتحدة',
+  'المملكة المتحدة',
+  'فرنسا',
+  'إيطاليا',
+  'إسبانيا',
+  'ألمانيا',
+  'تركيا',
+  'الهند',
+  'باكستان',
+  'إندونيسيا',
+  'ماليزيا',
+  'اليابان',
+  'كوريا الجنوبية',
+  'الصين',
+  'البرازيل',
+  'كندا',
+  'الأرجنتين',
+  'أستراليا',
+  'السويد',
+  'النرويج',
+  'هولندا',
+  'سويسرا',
+  'الدنمارك',
+  'روسيا',
+];
 // ✅ Email validation
 const validateEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
@@ -63,6 +110,7 @@ const handleSubmit = async () => {
         lastName: lastName.value,
         email: email.value,
         password: password.value,
+        country: country.value,
       },
     });
 
@@ -103,6 +151,14 @@ const handleSubmit = async () => {
               <Label for="email" class="self-end">بريدك الإلكتروني</Label>
               <Input id="email" type="email" class="text-right" placeholder="m@example.com" v-model="email" />
               <p v-if="emailError" class="text-red-500 text-sm text-right">{{ emailError }}</p>
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <Label for="country" class="self-end">الدولة</Label>
+              <select id="country" v-model="country" class="text-right border rounded-md h-10 px-3 bg-white">
+                <option value="" disabled>اختر دولتك</option>
+                <option v-for="c in countries" :key="c" :value="c">{{ c }}</option>
+              </select>
             </div>
 
             <div class="flex flex-col gap-1">

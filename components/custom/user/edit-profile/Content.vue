@@ -9,13 +9,12 @@ const form = ref({
   headline: '',
   bio: '',
   language: '',
+  country: '',
   website: '',
   facebook: '',
   instagram: '',
   linkedin: '',
-  tiktok: '',
   x: '',
-  youtube: '',
 });
 
 // ✅ Load user data on mount
@@ -40,13 +39,12 @@ onMounted(async () => {
       headline: user.headline || '',
       bio: user.bio || '',
       language: user.language || '',
+      country: user.country || '',
       website: user.social?.website || '',
       facebook: user.social?.facebook || '',
       instagram: user.social?.instagram || '',
       linkedin: user.social?.linkedin || '',
-      tiktok: user.social?.tiktok || '',
       x: user.social?.x || '',
-      youtube: user.social?.youtube || '',
     };
   } catch (err) {
     console.error('Error fetching profile:', err);
@@ -132,6 +130,40 @@ const saveChanges = async () => {
     </div>
     <hr />
 
+    <!-- الدولة -->
+    <div class="space-y-2">
+      <label class="font-medium">البلد</label>
+
+      <Select v-model="form.country">
+        <SelectTrigger class="w-[95%] bg-white">
+          <SelectValue placeholder="اختر البلد" />
+        </SelectTrigger>
+
+        <SelectContent>
+          <SelectItem value="Libya">ليبيا</SelectItem>
+          <SelectItem value="Egypt">مصر</SelectItem>
+          <SelectItem value="Morocco">المغرب</SelectItem>
+          <SelectItem value="Tunisia">تونس</SelectItem>
+          <SelectItem value="Algeria">الجزائر</SelectItem>
+
+          <SelectItem value="Sudan">السودان</SelectItem>
+          <SelectItem value="Saudi Arabia">السعودية</SelectItem>
+          <SelectItem value="UAE">الإمارات</SelectItem>
+          <SelectItem value="Qatar">قطر</SelectItem>
+          <SelectItem value="Kuwait">الكويت</SelectItem>
+          <SelectItem value="Bahrain">البحرين</SelectItem>
+          <SelectItem value="Oman">عُمان</SelectItem>
+
+          <SelectItem value="Jordan">الأردن</SelectItem>
+          <SelectItem value="Lebanon">لبنان</SelectItem>
+          <SelectItem value="Syria">سوريا</SelectItem>
+
+          <SelectItem value="Iraq">العراق</SelectItem>
+          <SelectItem value="Yemen">اليمن</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+    <hr />
     <!-- روابط التواصل -->
     <div class="space-y-6">
       <h3 class="font-semibold text-lg">روابط:</h3>
@@ -157,18 +189,8 @@ const saveChanges = async () => {
       </div>
 
       <div class="space-y-2">
-        <label class="font-medium">tiktok.com</label>
-        <Input v-model="form.tiktok" placeholder="@اسم المستخدم" class="w-[95%] bg-white" />
-      </div>
-
-      <div class="space-y-2">
         <label class="font-medium">x.com</label>
         <Input v-model="form.x" placeholder="اسم المستخدم" class="w-[95%] bg-white" />
-      </div>
-
-      <div class="space-y-2">
-        <label class="font-medium">youtube.com</label>
-        <Input v-model="form.youtube" placeholder="اسم المستخدم" class="w-[95%] bg-white" />
       </div>
     </div>
     <hr />

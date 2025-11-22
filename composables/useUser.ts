@@ -23,6 +23,8 @@ export const useUser = () => {
 
   const user = computed(() => auth.user);
 
+  const isLoggedIn = computed(() => !!auth.user); // 🔥 Add this line
+
   const fullName = computed(() => {
     if (!auth.user || !auth.user.firstName) return '';
     return `${auth.user.firstName} ${auth.user.lastName ?? ''}`.trim();
@@ -39,5 +41,5 @@ export const useUser = () => {
     }
   };
 
-  return { user, fullName, setUser };
+  return { user, fullName, setUser, isLoggedIn }; // 🔥 Return it
 };
