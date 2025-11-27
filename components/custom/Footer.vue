@@ -1,7 +1,7 @@
 <template>
-  <footer class="bg-[#F5F5F5] py-10 border-t">
+  <footer class="bg-[#1E262E] py-10 border-t">
     <CustomContainer>
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 text-gray-700 rtl">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 text-text-custom rtl">
         <!-- About Section -->
         <div class="md:col-span-1">
           <h2 class="text-xl font-bold mb-4">منصة راوِية</h2>
@@ -70,7 +70,7 @@
 
       <!-- Copyright & Scroll to Top -->
       <div class="mt-10 flex items-center justify-center relative">
-        <p class="text-sm text-gray-600">© {{ new Date().getFullYear() }} | منصة راوِية جميع الحقوق محفوظة</p>
+        <p class="text-sm text-text-secondary-custom">© {{ new Date().getFullYear() }} | منصة راوِية جميع الحقوق محفوظة</p>
 
         <!-- Scroll to Top Button in the Right Corner -->
         <button

@@ -42,11 +42,11 @@ watch(isVisible, (visible) => {
   <section class="py-10" ref="statsSection">
     <CustomContainer>
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
-        <div v-for="(stat, index) in stats" :key="index" class="bg-gray-50 rounded-2xl py-10 shadow-sm">
-          <h2 class="text-4xl font-bold text-orange-500 mb-2" :id="`stat-${index}`">
+        <div v-for="(stat, index) in stats" :key="index" class="bg-card-custom border-custom rounded-2xl py-10 shadow-sm">
+          <h2 class="text-4xl font-bold text-primary-custom mb-2" :id="`stat-${index}`">
             {{ animatedNumbers[index] }}
           </h2>
-          <p class="text-base font-medium text-black">{{ stat.label }}</p>
+          <p class="text-base font-medium text-secondary-custom">{{ stat.label }}</p>
         </div>
       </div>
     </CustomContainer>

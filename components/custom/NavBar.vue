@@ -43,12 +43,12 @@ const toggleMenu = (event: Event) => {
 </script>
 
 <template>
-  <header class="w-full shadow-md bg-white" v-if="isHydrated">
+  <header class="w-full shadow-md bg-navbar-custom py-2" v-if="isHydrated">
     <CustomContainer>
       <div class="flex items-center justify-between">
         <!-- Logo & Hamburger -->
         <div class="flex items-center gap-4">
-          <img src="/logo.png" alt="Logo" class="h-20 w-20 -translate-x-7" />
+          <img src="/logo.png" alt="Logo" class="h-16 w-16 -translate-x-7" />
           <button @click="toggleMenu" class="lg:hidden">
             <MenuIcon class="w-6 h-6" />
           </button>
@@ -62,11 +62,11 @@ const toggleMenu = (event: Event) => {
             'lg:static lg:w-auto lg:flex',
           ]"
         >
-          <NuxtLink to="/faqs" class="text-gray-700 hover:text-orange-500">FAQ</NuxtLink>
-          <NuxtLink to="/about" class="text-gray-700 hover:text-orange-500">عن المنصة</NuxtLink>
-          <NuxtLink to="/articles" class="text-gray-700 hover:text-orange-500">المقالات</NuxtLink>
-          <NuxtLink to="/courses" class="text-gray-700 hover:text-orange-500">الكورسات</NuxtLink>
-          <a href="/" class="text-gray-700 hover:text-orange-500 cursor-pointer">الرئيسية</a>
+          <NuxtLink to="/faqs" class="text-text-custom hover:text-hover-rose-gold">FAQ</NuxtLink>
+          <NuxtLink to="/about" class="text-text-custom hover:text-hover-rose-gold">عن المنصة</NuxtLink>
+          <NuxtLink to="/articles" class="text-text-custom hover:text-hover-rose-gold">المقالات</NuxtLink>
+          <NuxtLink to="/courses" class="text-text-custom hover:text-hover-rose-gold">الكورسات</NuxtLink>
+          <a href="/" class="text-text-custom hover:text-hover-rose-gold cursor-pointer">الرئيسية</a>
 
           <!-- Search Input -->
           <div class="relative w-full max-md:w-full lg:w-72 mx-auto">
@@ -79,7 +79,7 @@ const toggleMenu = (event: Event) => {
           <!-- icons after logging in (Updated with Badges) -->
           <template v-if="user">
             <!-- Heart Icon with Badge -->
-            <NuxtLink to="/wishlist" class="relative cursor-pointer text-gray-700 hover:text-orange-500">
+            <NuxtLink to="/wishlist" class="relative cursor-pointer text-text-secondary-custom hover:text-hover-rose-gold">
               <Heart class="size-6" />
               <span
                 v-if="wishlistCount > 0"
@@ -90,7 +90,7 @@ const toggleMenu = (event: Event) => {
             </NuxtLink>
 
             <!-- ShoppingCart Icon with Badge -->
-            <div class="relative cursor-pointer text-gray-700 hover:text-orange-500">
+            <div class="relative cursor-pointer text-text-secondary-custom hover:text-hover-rose-gold">
               <ShoppingCart class="size-6" />
               <span v-if="cartCount > 0" class="absolute top-[-8px] right-[-8px] h-4 w-4 flex items-center justify-center rounded-full bg-red-600 text-white text-[10px] font-bold border border-white">
                 {{ cartCount > 9 ? '9+' : cartCount }}
@@ -98,7 +98,7 @@ const toggleMenu = (event: Event) => {
             </div>
 
             <!-- Bell Icon with Badge -->
-            <div class="relative cursor-pointer text-gray-700 hover:text-orange-500">
+            <div class="relative cursor-pointer text-text-secondary-custom hover:text-hover-rose-gold">
               <Bell class="size-6" />
               <span
                 v-if="notificationCount > 0"

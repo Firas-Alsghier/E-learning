@@ -10,6 +10,18 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+
+  gender: {
+    type: String,
+    enum: ['male', 'female'],
+    required: true,
+  },
+
+  birthDate: {
+    day: { type: String, required: true },
+    month: { type: String, required: true },
+    year: { type: String, required: true },
+  },
   // ✅ Email verification fields
   isVerified: { type: Boolean, default: false },
   verificationToken: { type: String },

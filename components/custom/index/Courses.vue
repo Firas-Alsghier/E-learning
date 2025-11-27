@@ -89,11 +89,11 @@ const courses = [
       <!-- العنوان والزر -->
       <div class="flex flex-row-reverse items-start justify-between gap-6 mb-6">
         <div class="text-right">
-          <h3 class="text-2xl mb-3 font-semibold">أفضل الكورسات</h3>
-          <p class="text-lg sm:text-base text-[#555]">.اختر من أحد هذه الدورات لتطوير مهاراتك في مجالات مختلفة</p>
+          <h3 class="text-2xl text-primary-custom mb-3 font-semibold">أفضل الكورسات</h3>
+          <p class="text-lg sm:text-base text-secondary-custom">.اختر من أحد هذه الدورات لتطوير مهاراتك في مجالات مختلفة</p>
         </div>
         <div>
-          <NuxtLink to="courses"><Button class="bg-transparent text-base cursor-pointer rounded-2xl hover:bg-[#FF782D] hover:text-white text-black border-2">كل الكورسات</Button></NuxtLink>
+          <NuxtLink to="courses"><Button class="btn-custom text-primary-custom border-custom border-custom text-base cursor-pointer rounded-2xl">كل الكورسات</Button></NuxtLink>
         </div>
       </div>
 
@@ -102,7 +102,7 @@ const courses = [
         <div
           v-for="(course, index) in courses"
           :key="index"
-          class="bg-white group border rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-2 transition-all duration-300 ease-in-out w-[400px] h-[470px] flex flex-col justify-between"
+          class="bg-card-custom group border rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-2 transition-all duration-300 ease-in-out w-[400px] h-[470px] flex flex-col justify-between"
         >
           <!-- صورة -->
           <!-- <img :src="course.image" alt="" class="w-full h-[210px] object-cover" /> -->
@@ -119,26 +119,26 @@ const courses = [
           <!-- المحتوى -->
           <div class="p-4 flex flex-col justify-between h-full">
             <div>
-              <span class="bg-black text-white text-sm px-3 py-1 rounded-full inline-block mb-2">{{ course.category }}</span>
-              <h4 class="text-lg font-semibold mb-1">{{ course.title }}</h4>
-              <p class="text-sm text-gray-500 mb-3">by {{ course.author }}</p>
-              <div class="flex items-center text-sm text-gray-600 gap-4 mb-3">
-                <p class="flex items-center"><Timer class="group-hover:text-[#FF782D] mr-1" /> {{ course.duration }}</p>
-                <p class="flex items-center"><UsersRound class="group-hover:text-[#FF782D] mr-1" /> {{ course.students }} طلاب</p>
+              <span class="btn-custom text-white text-sm px-3 py-1 rounded-full inline-block mb-2">{{ course.category }}</span>
+              <h4 class="text-lg text-primary-custom font-semibold mb-1">{{ course.title }}</h4>
+              <p class="text-sm text-secondary-custom mb-3">by {{ course.author }}</p>
+              <div class="flex items-center text-sm text-primary-custom gap-4 mb-3">
+                <p class="flex items-center"><Timer class="mr-1 text-secondary-custom" /> {{ course.duration }}</p>
+                <p class="flex items-center"><UsersRound class="mr-1 text-secondary-custom" /> {{ course.students }} طلاب</p>
               </div>
             </div>
-            <p class="text-gray-500 text-sm mt-1 line-clamp-2">
+            <p class="text-secondary-custom text-sm mt-1 line-clamp-2">
               {{ course.description }}
             </p>
             <!-- السعر والرابط -->
             <div class="border-t pt-2 mt-2 flex items-center justify-between text-sm">
               <div class="flex items-center gap-2">
-                <span class="line-through text-gray-400" v-if="!course.free">${{ course.oldPrice }}</span>
-                <span :class="course.free ? 'text-green-600 font-medium text-lg' : 'text-red-500 font-medium text-lg'" class="font-medium text-lg">
+                <span class="line-through text-secondary-custom" v-if="!course.free">${{ course.oldPrice }}</span>
+                <span :class="course.free ? 'text-green-600 font-medium text-lg' : 'text-primary-custom font-medium text-lg'" class="font-medium text-lg">
                   {{ course.free ? 'Free' : `$${course.newPrice}` }}
                 </span>
               </div>
-              <NuxtLink :to="`/courses/${course.id}`" class="text-black font-medium text-lg hover:underline"> → المزيد </NuxtLink>
+              <NuxtLink :to="`/courses/${course.id}`" class="text-secondary-custom font-medium text-lg hover:underline"> → المزيد </NuxtLink>
             </div>
           </div>
         </div>

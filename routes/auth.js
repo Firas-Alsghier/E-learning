@@ -12,60 +12,66 @@ const router = express.Router();
 
 router.post('/signup', async (req, res) => {
   try {
-    const { firstName, lastName, email, password, country } = req.body;
+    const { firstName, lastName, email, password, country, birthDate, gender } = req.body;
 
-    // Check existing user
+    // Validate birth date
+    if (!birthDate || !birthDate.day || !birthDate.month || !birthDate.year) {
+      return res.status(400).json({ message: 'يجب إدخال تاريخ الميلاد' });
+    }
+
+    // Validate gender
+    if (!gender || !['male', 'female'].includes(gender)) {
+      return res.status(400).json({ message: 'يجب اختيار الجنس' });
+    }
+
+    // Check user exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'البريد الإلكتروني مستخدم بالفعل' });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Generate verification token
     const verificationToken = crypto.randomBytes(20).toString('hex');
 
-    // Create new user
+    // Create user
     const user = new User({
       firstName,
       lastName,
       email,
       password: hashedPassword,
-      createdAt: new Date().toISOString(),
       country,
+      birthDate,
+      gender, // 👈 save gender
+      createdAt: new Date().toISOString(),
       role: req.body.role || 'student',
       isVerified: false,
       verificationToken,
-      verificationTokenExpires: Date.now() + 24 * 60 * 60 * 1000, // expires in 24h
+      verificationTokenExpires: Date.now() + 24 * 60 * 60 * 1000,
     });
 
     await user.save();
 
-    // Create email verification link
     const verifyLink = `http://localhost:3000/verify-email?token=${verificationToken}`;
-
-    // Send verification email
     const emailContent = `
       <h2>مرحباً ${firstName} 👋</h2>
-      <p>من فضلك اضغط على الرابط أدناه لتفعيل حسابك:</p>
+      <p>اضغط على الرابط لتفعيل حسابك:</p>
       <a href="${verifyLink}" target="_blank"
-         style="background:#4F46E5;color:white;padding:10px 20px;
-         border-radius:8px;text-decoration:none;">
+         style="background:#4F46E5;color:white;padding:10px 20px;border-radius:8px;text-decoration:none;">
          تفعيل الحساب
       </a>
-      <p>الرابط صالح لمدة 24 ساعة فقط.</p>
     `;
+
     await sendEmail(email, 'تأكيد البريد الإلكتروني', emailContent);
 
     res.status(201).json({
-      message: 'تم إنشاء الحساب بنجاح. تحقق من بريدك الإلكتروني لتأكيد الحساب.',
+      message: 'تم إنشاء الحساب بنجاح. تحقق من بريدك الإلكتروني.',
     });
   } catch (error) {
-    console.error('❌ Signup error:', error);
-    res.status(500).json({ message: 'حدث خطأ أثناء إنشاء الحساب.' });
+    console.error('Signup error:', error);
+    res.status(500).json({ message: 'خطأ أثناء إنشاء الحساب' });
   }
 });
+
 // ✅ VERIFY EMAIL ROUTE
 router.get('/verify/:token', async (req, res) => {
   try {
@@ -182,39 +188,57 @@ router.post('/login', async (req, res) => {
 // Edit Profile
 router.put('/edit-profile', authMiddleware, async (req, res) => {
   const userId = req.user.id;
-  const { firstName, lastName, headline, bio, language, avatarUrl, website, facebook, instagram, linkedin, x, country } = req.body;
+
+  const { firstName, lastName, headline, bio, language, avatarUrl, website, facebook, instagram, linkedin, x, country, gender, birthDay, birthMonth, birthYear } = req.body;
 
   try {
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      {
-        $set: {
-          firstName,
-          lastName,
-          headline,
-          bio,
-          language,
-          avatarUrl,
-          country,
-          social: {
-            website,
-            facebook,
-            instagram,
-            linkedin,
-            x,
-          },
-        },
-      },
-      { new: true }
-    );
+    // Build update object dynamically
+    const updateData = {};
+
+    if (firstName !== undefined) updateData.firstName = firstName;
+    if (lastName !== undefined) updateData.lastName = lastName;
+    if (headline !== undefined) updateData.headline = headline;
+    if (bio !== undefined) updateData.bio = bio;
+    if (language !== undefined) updateData.language = language;
+    if (avatarUrl !== undefined) updateData.avatarUrl = avatarUrl;
+    if (country !== undefined) updateData.country = country;
+    if (gender !== undefined) updateData.gender = gender;
+
+    // socials
+    updateData.social = {};
+    if (website !== undefined) updateData.social.website = website;
+    if (facebook !== undefined) updateData.social.facebook = facebook;
+    if (instagram !== undefined) updateData.social.instagram = instagram;
+    if (linkedin !== undefined) updateData.social.linkedin = linkedin;
+    if (x !== undefined) updateData.social.x = x;
+
+    // birthDate: only update if ANY field is included
+    if (birthDay !== undefined || birthMonth !== undefined || birthYear !== undefined) {
+      updateData.birthDate = {
+        day: birthDay !== undefined ? birthDay : undefined,
+        month: birthMonth !== undefined ? birthMonth : undefined,
+        year: birthYear !== undefined ? birthYear : undefined,
+      };
+    }
+
+    // Remove undefined fields to avoid overwriting
+    const cleanUpdate = JSON.parse(JSON.stringify(updateData));
+
+    const updatedUser = await User.findByIdAndUpdate(userId, { $set: cleanUpdate }, { new: true });
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
     res.status(200).json({
-      message: 'تم تحديث الملف بنجاح',
+      message: 'Profile updated successfully',
       user: updatedUser,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'حدث خطأ أثناء التحديث' });
+    console.error('Update profile error:', error);
+    res.status(500).json({
+      message: 'An error occurred while updating profile',
+    });
   }
 });
 
@@ -360,6 +384,11 @@ router.get('/me', authMiddleware, async (req, res) => {
       headline: user.headline,
       bio: user.bio,
       language: user.language,
+      country: user.country,
+      gender: user.gender,
+      birthDay: user.birthDate.day,
+      birthMonth: user.birthDate.month,
+      birthYear: user.birthDate.year,
       avatarUrl: user.avatarUrl,
       social: user.social || {},
       notificationPreferences: user.notificationPreferences || {},

@@ -113,7 +113,7 @@ const handleLogin = async () => {
 
             <p class="text-red-500 text-sm mt-2" v-if="error">{{ error }}</p>
 
-            <Button variant="outline" class="w-full cursor-pointer"> تسجيل الدخول باستخدام جوجل </Button>
+            <!-- <Button variant="outline" class="w-full cursor-pointer"> تسجيل الدخول باستخدام جوجل </Button> -->
           </div>
 
           <div class="mt-4 text-center text-sm">

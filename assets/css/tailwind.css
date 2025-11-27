@@ -1,6 +1,5 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
-
 @custom-variant dark (&:is(.dark *));
 body {
   font-family: 'Noto Kufi Arabic', sans-serif;
@@ -76,7 +75,113 @@ body {
   --sidebar-ring: oklch(0.439 0 0);
 }
 
+/* 
+
+✅ Primary Backgrounds
+
+#262F39 (navy)
+
+Use everywhere dark mode is needed:
+
+Hero section
+
+Navbar
+
+Footer
+
+Dashboard sidebar
+
+✅ Secondary Backgrounds
+
+For lighter areas (cards, course listings, etc.):
+
+Soft dark: #2E3744
+
+Dark gray: #1D232A
+
+These keep the palette consistent.
+
+🟠 Buttons & CTAs
+Primary Button
+
+Background: #A99C96
+
+Text: #262F39
+
+Hover: Slightly darker rose-gold: #8F847F
+
+Secondary Button
+
+Background: transparent
+
+Border: #A99C96
+
+Text: #A99C96
+
+Hover: background becomes rgba(169,156,150,0.1)
+
+🔤 Typography Colors
+Headings (H1–H3)
+
+#F4F4F4
+
+Paragraph text
+
+#D8D8D8
+
+Muted text
+
+#9BA4AE (optional, soft gray)
+
+🧩 Icons
+
+Use the accent:
+
+#A99C96
+
+Optional alternate:
+
+#D8D8D8 for gray icons
+
+🧱 Borders & Lines
+
+#A99C96 (thin accent lines)
+
+#343E49 (neutral borders)
+
+*/
+.btn-custom {
+  background: #be9680;
+}
+
+.btn-custom:hover {
+  background: #988c86;
+  border: 1px solid #988c86;
+}
+
+.text-primary-custom {
+  color: #f4f4f4;
+}
+
+.text-secondary-custom {
+  color: #d8d8d8;
+}
+
+.bg-card-custom {
+  background: #303a45;
+}
+
+.border-custom {
+  border: 1px solid #be9680;
+}
 @theme inline {
+  --color-primary-custom: #262f39;
+  --color-navbar-custom: #1e262e;
+  --color-hover-rose-gold: #8f847f;
+  --color-accent-custom: #a99c96;
+  --color-text-custom: #f4f4f4;
+  --color-text-secondary-custom: #d8d8d8;
+  /* custom */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -116,19 +221,19 @@ body {
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
   @keyframes accordion-down {
-  from {
-    height: 0;
+    from {
+      height: 0;
     }
-  to {
-    height: var(--reka-accordion-content-height);
+    to {
+      height: var(--reka-accordion-content-height);
     }
   }
   @keyframes accordion-up {
-  from {
-    height: var(--reka-accordion-content-height);
+    from {
+      height: var(--reka-accordion-content-height);
     }
-  to {
-    height: 0;
+    to {
+      height: 0;
     }
   }
 }

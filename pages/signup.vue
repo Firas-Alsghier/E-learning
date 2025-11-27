@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useUser } from '~/composables/useUser';
+
 definePageMeta({
   layout: false,
   middleware: ['guest-only'],
@@ -8,92 +9,118 @@ definePageMeta({
 const router = useRouter();
 const { setUser } = useUser();
 
+// ------------------------------
+// Form fields
+// ------------------------------
 const firstName = ref('');
 const lastName = ref('');
 const email = ref('');
 const country = ref('');
+
 const password = ref('');
 const confirmPassword = ref('');
 
+// Birth date fields
+const birthDay = ref('');
+const birthMonth = ref('');
+const birthYear = ref('');
+
+// Gender field
+const gender = ref('');
+
+// ------------------------------
+// Validation states
+// ------------------------------
 const error = ref('');
 const emailError = ref('');
 const passwordError = ref('');
 const confirmError = ref('');
 const loading = ref(false);
+
+// ------------------------------
+// Countries list
+// ------------------------------
 const countries = [
-  'ليبيا',
-  'تونس',
-  'الجزائر',
-  'المغرب',
-  'مصر',
-  'السودان',
-  'فلسطين',
-  'الأردن',
-  'لبنان',
-  'سوريا',
-  'العراق',
-  'الكويت',
-  'قطر',
-  'البحرين',
-  'السعودية',
-  'الإمارات',
-  'عُمان',
-  'اليمن',
-  'موريتانيا',
-  'الصومال',
-  'جيبوتي',
-  'الولايات المتحدة',
-  'المملكة المتحدة',
-  'فرنسا',
-  'إيطاليا',
-  'إسبانيا',
-  'ألمانيا',
-  'تركيا',
-  'الهند',
-  'باكستان',
-  'إندونيسيا',
-  'ماليزيا',
-  'اليابان',
-  'كوريا الجنوبية',
-  'الصين',
-  'البرازيل',
-  'كندا',
-  'الأرجنتين',
-  'أستراليا',
-  'السويد',
-  'النرويج',
-  'هولندا',
-  'سويسرا',
-  'الدنمارك',
-  'روسيا',
+  'Libya',
+  'Tunisia',
+  'Algeria',
+  'Morocco',
+  'Egypt',
+  'Sudan',
+  'Palestine',
+  'Jordan',
+  'Lebanon',
+  'Syria',
+  'Iraq',
+  'Kuwait',
+  'Qatar',
+  'Bahrain',
+  'Saudi Arabia',
+  'UAE',
+  'Oman',
+  'Yemen',
+  'Mauritania',
+  'Somalia',
+  'Djibouti',
+  'USA',
+  'UK',
+  'France',
+  'Italy',
+  'Spain',
+  'Germany',
+  'Turkey',
+  'India',
+  'Pakistan',
+  'Indonesia',
+  'Malaysia',
+  'Japan',
+  'South Korea',
+  'China',
+  'Brazil',
+  'Canada',
+  'Argentina',
+  'Australia',
+  'Sweden',
+  'Norway',
+  'Netherlands',
+  'Switzerland',
+  'Denmark',
+  'Russia',
 ];
-// ✅ Email validation
+
+// ------------------------------
+// Generate years list
+// ------------------------------
+const currentYear = new Date().getFullYear();
+const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
+
+// ------------------------------
+// Validators
+// ------------------------------
 const validateEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
-// ✅ Password validation (min 8 chars + at least 1 number + 1 letter)
 const validatePassword = (value: string) => value.length >= 8 && /\d/.test(value) && /[A-Za-z]/.test(value);
 
-// 🧠 Watch for live validation feedback
+// Live watchers
 watch(email, (val) => {
-  if (val && !validateEmail(val)) emailError.value = 'بريد إلكتروني غير صالح';
-  else emailError.value = '';
+  emailError.value = val && !validateEmail(val) ? 'Invalid email' : '';
 });
 
 watch(password, (val) => {
-  if (val && !validatePassword(val)) passwordError.value = 'كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل وتشمل أرقامًا وحروفًا';
-  else passwordError.value = '';
+  passwordError.value = val && !validatePassword(val) ? 'Password must be at least 8 characters and contain letters + numbers' : '';
 });
 
 watch(confirmPassword, (val) => {
-  if (val && val !== password.value) confirmError.value = 'كلمتا السر غير متطابقتين';
-  else confirmError.value = '';
+  confirmError.value = val && val !== password.value ? 'Passwords do not match' : '';
 });
 
-// 📨 Submit handler
+// ------------------------------
+// Submit handler
+// ------------------------------
 const handleSubmit = async () => {
-  // 1️⃣ Basic checks before API call
-  if (!firstName.value || !lastName.value || !email.value || !password.value || !confirmPassword.value) {
-    error.value = 'يرجى ملء جميع الحقول';
+  // Required fields check
+  if (!firstName.value || !lastName.value || !email.value || !password.value || !confirmPassword.value || !birthDay.value || !birthMonth.value || !birthYear.value || !country.value || !gender.value) {
+    error.value = 'Please fill in all fields';
     return;
   }
 
@@ -111,6 +138,12 @@ const handleSubmit = async () => {
         email: email.value,
         password: password.value,
         country: country.value,
+        gender: gender.value,
+        birthDate: {
+          day: birthDay.value,
+          month: birthMonth.value,
+          year: birthYear.value,
+        },
       },
     });
 
@@ -119,7 +152,7 @@ const handleSubmit = async () => {
       query: { email: email.value },
     });
   } catch (err: any) {
-    error.value = err.data?.message || 'حدث خطأ ما';
+    error.value = err.data?.message || 'Something went wrong';
   } finally {
     loading.value = false;
   }
@@ -132,10 +165,12 @@ const handleSubmit = async () => {
       <Card class="mx-auto max-w-sm">
         <CardHeader>
           <CardTitle class="text-xl text-right">التسجيل</CardTitle>
-          <CardDescription class="text-right">أدخل معلوماتك لإنشاء حساب</CardDescription>
+          <CardDescription class="text-right"> أدخل معلوماتك لإنشاء حساب </CardDescription>
         </CardHeader>
+
         <CardContent>
           <div class="grid gap-4">
+            <!-- Name fields -->
             <div class="grid grid-cols-2 gap-4">
               <div class="flex flex-col gap-2">
                 <Label for="last-name" class="self-end">اللقب</Label>
@@ -147,40 +182,119 @@ const handleSubmit = async () => {
               </div>
             </div>
 
+            <!-- Email -->
             <div class="flex flex-col gap-1">
               <Label for="email" class="self-end">بريدك الإلكتروني</Label>
               <Input id="email" type="email" class="text-right" placeholder="m@example.com" v-model="email" />
-              <p v-if="emailError" class="text-red-500 text-sm text-right">{{ emailError }}</p>
+              <p v-if="emailError" class="text-red-500 text-sm text-right">
+                {{ emailError }}
+              </p>
             </div>
 
+            <!-- Country -->
             <div class="flex flex-col gap-1">
               <Label for="country" class="self-end">الدولة</Label>
               <select id="country" v-model="country" class="text-right border rounded-md h-10 px-3 bg-white">
                 <option value="" disabled>اختر دولتك</option>
-                <option v-for="c in countries" :key="c" :value="c">{{ c }}</option>
+                <option v-for="c in countries" :key="c" :value="c">
+                  {{ c }}
+                </option>
               </select>
             </div>
 
+            <!-- Gender -->
+            <div class="flex flex-col gap-1">
+              <Label class="self-end">الجنس</Label>
+              <Select v-model="gender">
+                <SelectTrigger class="bg-white">
+                  <SelectValue placeholder="اختر الجنس" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="male">ذكر</SelectItem>
+                  <SelectItem value="female">أنثى</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <!-- Birthdate -->
+            <div class="flex flex-col gap-2">
+              <label class="self-end">تاريخ الميلاد</label>
+
+              <div class="grid grid-cols-3 gap-4">
+                <!-- Day -->
+                <Select v-model="birthDay">
+                  <SelectTrigger class="bg-white">
+                    <SelectValue placeholder="اليوم" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem v-for="d in 31" :key="d" :value="String(d)">
+                      {{ d }}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <!-- Month -->
+                <Select v-model="birthMonth">
+                  <SelectTrigger class="bg-white">
+                    <SelectValue placeholder="الشهر" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">يناير</SelectItem>
+                    <SelectItem value="2">فبراير</SelectItem>
+                    <SelectItem value="3">مارس</SelectItem>
+                    <SelectItem value="4">أبريل</SelectItem>
+                    <SelectItem value="5">مايو</SelectItem>
+                    <SelectItem value="6">يونيو</SelectItem>
+                    <SelectItem value="7">يوليو</SelectItem>
+                    <SelectItem value="8">أغسطس</SelectItem>
+                    <SelectItem value="9">سبتمبر</SelectItem>
+                    <SelectItem value="10">أكتوبر</SelectItem>
+                    <SelectItem value="11">نوفمبر</SelectItem>
+                    <SelectItem value="12">ديسمبر</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <!-- Year -->
+                <Select v-model="birthYear">
+                  <SelectTrigger class="bg-white">
+                    <SelectValue placeholder="السنة" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem v-for="y in years" :key="y" :value="String(y)">
+                      {{ y }}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <!-- Password -->
             <div class="flex flex-col gap-1">
               <Label for="password" class="self-end">كلمة السر</Label>
               <Input id="password" type="password" v-model="password" />
-              <p v-if="passwordError" class="text-red-500 text-sm text-right">{{ passwordError }}</p>
+              <p v-if="passwordError" class="text-red-500 text-sm text-right">
+                {{ passwordError }}
+              </p>
             </div>
 
+            <!-- Confirm password -->
             <div class="flex flex-col gap-1">
               <Label for="confirm-password" class="self-end">اعد كتابة كلمة السر</Label>
               <Input id="confirm-password" type="password" v-model="confirmPassword" />
-              <p v-if="confirmError" class="text-red-500 text-sm text-right">{{ confirmError }}</p>
+              <p v-if="confirmError" class="text-red-500 text-sm text-right">
+                {{ confirmError }}
+              </p>
             </div>
 
+            <!-- Submit -->
             <Button type="submit" class="w-full cursor-pointer" @click.prevent="handleSubmit" :disabled="loading">
               <span v-if="loading">جاري التسجيل...</span>
               <span v-else>إنشاء حساب</span>
             </Button>
 
-            <p class="text-red-500 text-sm mt-2 text-right" v-if="error">{{ error }}</p>
-
-            <Button variant="outline" class="w-full cursor-pointer">تسجيل الدخول باستخدام جوجل</Button>
+            <p class="text-red-500 text-sm mt-2 text-right" v-if="error">
+              {{ error }}
+            </p>
           </div>
 
           <div class="mt-4 text-center text-sm">
@@ -191,6 +305,7 @@ const handleSubmit = async () => {
       </Card>
     </div>
 
+    <!-- Right Image -->
     <div class="hidden bg-muted lg:block">
       <img src="/assets/images/course-new.jpg" alt="Image" width="1920" height="1080" class="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale" />
     </div>

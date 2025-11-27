@@ -31,11 +31,11 @@ const articles: Article[] = [
       <!-- Header Row -->
       <div class="flex flex-row-reverse items-start justify-between gap-6 mb-6">
         <div class="text-right">
-          <h3 class="text-2xl mb-3 font-semibold">تصفح مقالاتنا</h3>
-          <p class="text-lg sm:text-base text-[#555]">تصفح مقالاتنا المجانية.</p>
+          <h3 class="text-2xl text-primary-custom mb-3 font-semibold">تصفح مقالاتنا</h3>
+          <p class="text-lg sm:text-base text-secondary-custom">تصفح مقالاتنا المجانية.</p>
         </div>
         <div>
-          <NuxtLink to="articles"><Button class="bg-transparent text-base cursor-pointer rounded-2xl hover:bg-[#FF782D] hover:text-white text-black border-2">عرض المقالات</Button></NuxtLink>
+          <NuxtLink to="articles"><Button class="btn-custom text-primary-custom border-custom text-base cursor-pointer rounded-2xl">عرض المقالات</Button></NuxtLink>
         </div>
       </div>
 
@@ -44,7 +44,7 @@ const articles: Article[] = [
         <div
           v-for="(article, index) in articles"
           :key="index"
-          class="bg-white group rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col group"
+          class="bg-card-custom group rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col group"
         >
           <!-- Image -->
           <!-- <div class="overflow-hidden">
@@ -62,14 +62,14 @@ const articles: Article[] = [
           </div>
           <!-- Content -->
           <div class="p-4 flex-1 flex flex-col justify-between">
-            <h3 class="text-lg text-left font-semibold leading-snug mb-2">
+            <h3 class="text-lg text-primary-custom text-left font-semibold leading-snug mb-2">
               {{ article.title }}
             </h3>
-            <p class="text-base text-gray-500 flex items-center gap-1 mb-2">
-              <Calendar class="group-hover:text-[#FF782D] mr-1" />
+            <p class="text-base text-primary-custom flex items-center gap-1 mb-2">
+              <Calendar class="mr-1 text-secondary-custom" />
               {{ article.date }}
             </p>
-            <p class="text-sm text-left text-gray-700 line-clamp-2">
+            <p class="text-sm text-left text-secondary-custom line-clamp-2">
               {{ article.description }}
             </p>
           </div>

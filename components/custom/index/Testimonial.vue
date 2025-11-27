@@ -32,8 +32,8 @@ const studentPropData = [
   <CustomContainer>
     <section class="py-16 px-4">
       <div class="text-center mb-12">
-        <h2 class="text-xl sm:text-2xl font-semibold text-gray-800">ماذا يقول الطلاب عن منصة راوية</h2>
-        <p class="mt-2 text-gray-500 text-sm sm:text-base">استكشف آراء طلابنا وانطباعاتهم بعد تجربة التعلم معنا.</p>
+        <h2 class="text-xl sm:text-2xl font-semibold text-primary-custom">ماذا يقول الطلاب عن منصة راوية</h2>
+        <p class="mt-2 text-secondary-custom text-sm sm:text-base">استكشف آراء طلابنا وانطباعاتهم بعد تجربة التعلم معنا.</p>
       </div>
 
       <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 max-w-7xl mx-auto">

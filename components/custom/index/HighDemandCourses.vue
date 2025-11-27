@@ -20,11 +20,11 @@ const categories: Category[] = [
     <section class="text-center py-10">
       <div class="flex flex-row-reverse items-start justify-between gap-6 mb-6">
         <div class="text-right">
-          <h3 class="text-2xl mb-3 font-semibold">الدّورات الأكثر طلباً</h3>
-          <p class="text-lg sm:text-base text-[#555]">.اختر من أحد هذه الدورات لتطوير مهاراتك في مجالات مختلفة</p>
+          <h3 class="text-2xl mb-3 font-semibold text-primary-custom">الدّورات الأكثر طلباً</h3>
+          <p class="text-lg sm:text-base text-secondary-custom">.اختر من أحد هذه الدورات لتطوير مهاراتك في مجالات مختلفة</p>
         </div>
         <div>
-          <Button class="bg-transparent text-base cursor-pointer rounded-2xl hover:bg-[#FF782D] hover:text-white text-black border-2">كل التصنيفات</Button>
+          <Button class="btn-custom text-primary-custom border-custom text-base cursor-pointer rounded-2xl border-2">كل التصنيفات</Button>
         </div>
       </div>
 
@@ -32,11 +32,11 @@ const categories: Category[] = [
         <div
           v-for="(category, index) in categories"
           :key="index"
-          class="bg-white cursor-pointer border rounded-lg w-[234px] h-[223px] max-sm:w-[223px] max-sm:h-[234px] p-6 flex flex-col items-center justify-center text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-lg mx-auto"
+          class="bg-card-custom cursor-pointer border-custom rounded-lg w-[234px] h-[223px] max-sm:w-[223px] max-sm:h-[234px] p-6 flex flex-col items-center justify-center text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-lg mx-auto"
         >
           <div class="text-4xl mb-3">{{ category.icon }}</div>
-          <h3 class="text-gray-800 font-semibold">{{ category.name }}</h3>
-          <p class="text-gray-500 text-sm">{{ category.courses }} دورات</p>
+          <h3 class="text-primary-custom font-semibold">{{ category.name }}</h3>
+          <p class="text-secondary-custom text-sm">{{ category.courses }} دورات</p>
         </div>
       </div>
     </section>

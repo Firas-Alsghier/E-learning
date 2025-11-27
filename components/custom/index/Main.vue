@@ -3,7 +3,7 @@ const { isLoggedIn } = useUser();
 </script>
 
 <template>
-  <main class="h-[90vh] max-sm:h-[70vh] relative overflow-hidden bg-gradient-to-r from-[#FFF5BE] to-[#D0F7EA]">
+  <main class="h-[90vh] max-sm:h-[70vh] relative overflow-hidden bg-gradient-to-r from-[#191501] to-[#2e8769]">
     <CustomContainer>
       <div class="absolute -right-16 -top-16 max-lg:hidden max-xl:w-[35%] max-sm:hidden">
         <img src="/assets/images/Vector.png" width="450" alt="" />
