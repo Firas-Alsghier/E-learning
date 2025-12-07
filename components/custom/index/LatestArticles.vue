@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import type { Article } from '~/types';
 import { Calendar, Heart } from 'lucide-vue-next';
-
+import { useAuthStore } from '~/stores/auth';
+import { useI18n } from 'vue-i18n';
+const auth = useAuthStore();
+const { t } = useI18n();
 // ✅ Strongly type the array
 const articles: Article[] = [
   {
@@ -31,11 +34,13 @@ const articles: Article[] = [
       <!-- Header Row -->
       <div class="flex flex-row-reverse items-start justify-between gap-6 mb-6">
         <div class="text-right">
-          <h3 class="text-2xl text-primary-custom mb-3 font-semibold">تصفح مقالاتنا</h3>
-          <p class="text-lg sm:text-base text-secondary-custom">تصفح مقالاتنا المجانية.</p>
+          <h3 class="text-2xl text-primary-custom mb-3 font-semibold" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('explore-articles') }}</h3>
+          <p class="text-lg sm:text-base text-secondary-custom" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('free-articles') }}</p>
         </div>
         <div>
-          <NuxtLink to="articles"><Button class="btn-custom text-primary-custom border-custom text-base cursor-pointer rounded-2xl">عرض المقالات</Button></NuxtLink>
+          <NuxtLink to="articles"
+            ><Button class="btn-custom text-primary-custom border-custom text-base cursor-pointer rounded-2xl">{{ t('all-articles') }}</Button></NuxtLink
+          >
         </div>
       </div>
 

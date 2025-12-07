@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useAuthStore } from '~/stores/auth';
+import { useI18n } from 'vue-i18n';
 import { Search, MenuIcon, Heart, ShoppingCart, Bell } from 'lucide-vue-next';
 import { useUser } from '~/composables/useUser'; // Retained for real-world functionality
 
@@ -6,12 +8,13 @@ const { user } = useUser();
 const isMenuOpen = ref(false);
 const searchQuery = ref('');
 const isHydrated = ref(false);
-
+const { t } = useI18n();
 // --- Notification/Count State (New) ---
 // Initialize your mock counts here. In a real app, these would come from a store or API.
 const wishlistCount = ref(5); // Items in wishlist
 const cartCount = ref(1); // Items in cart
 const notificationCount = ref(9); // Unread notifications
+const auth = useAuthStore();
 
 // Wait for client-side rehydration
 onMounted(() => {
@@ -43,12 +46,15 @@ const toggleMenu = (event: Event) => {
 </script>
 
 <template>
+  <!-- <LanguageBanner /> -->
+  <LanguageBanner />
+
   <header class="w-full shadow-md bg-navbar-custom py-2" v-if="isHydrated">
     <CustomContainer>
       <div class="flex items-center justify-between">
         <!-- Logo & Hamburger -->
         <div class="flex items-center gap-4">
-          <img src="/logo.png" alt="Logo" class="h-16 w-16 -translate-x-7" />
+          <img src="/logo.png" alt="Logo" class="h-16 w-16" />
           <button @click="toggleMenu" class="lg:hidden">
             <MenuIcon class="w-6 h-6" />
           </button>
@@ -58,19 +64,19 @@ const toggleMenu = (event: Event) => {
         <div
           :class="[
             'mobile-menu flex flex-col lg:flex-row gap-6 items-center p-4 lg:p-0',
-            isMenuOpen ? 'flex absolute animate__animated animate__fadeInDown animate__faster z-10 top-20 left-10 w-[80%] bg-white shadow-xl' : 'hidden',
+            isMenuOpen ? 'flex absolute animate__animated animate__fadeInDown animate__faster z-10 top-20 left-10 w-[80%] bg-card-custom shadow-xl' : 'hidden',
             'lg:static lg:w-auto lg:flex',
           ]"
         >
-          <NuxtLink to="/faqs" class="text-text-custom hover:text-hover-rose-gold">FAQ</NuxtLink>
-          <NuxtLink to="/about" class="text-text-custom hover:text-hover-rose-gold">عن المنصة</NuxtLink>
-          <NuxtLink to="/articles" class="text-text-custom hover:text-hover-rose-gold">المقالات</NuxtLink>
-          <NuxtLink to="/courses" class="text-text-custom hover:text-hover-rose-gold">الكورسات</NuxtLink>
-          <a href="/" class="text-text-custom hover:text-hover-rose-gold cursor-pointer">الرئيسية</a>
+          <NuxtLink to="/faqs" class="text-text-custom hover:text-hover-rose-gold" :class="auth.isEnglish ? 'text-left' : 'text-right'">FAQ</NuxtLink>
+          <NuxtLink to="/about" class="text-text-custom hover:text-hover-rose-gold" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('about-us') }}</NuxtLink>
+          <NuxtLink to="/articles" class="text-text-custom hover:text-hover-rose-gold" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('articles') }}</NuxtLink>
+          <NuxtLink to="/courses" class="text-text-custom hover:text-hover-rose-gold" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('courses') }}</NuxtLink>
+          <a href="/" class="text-text-custom hover:text-hover-rose-gold cursor-pointer" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('home') }}</a>
 
           <!-- Search Input -->
           <div class="relative w-full max-md:w-full lg:w-72 mx-auto">
-            <Input id="search" type="text" v-model="searchQuery" placeholder="ابحث عن أي شيء" class="w-full text-center bg-[#F0F0F0] text-base rounded-2xl py-2 pr-10" />
+            <Input id="search" type="text" v-model="searchQuery" placeholder="Search" class="w-full text-center bg-[#F0F0F0] text-base rounded-2xl py-2 pr-10" />
             <span class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
               <Search class="size-5 text-gray-500" />
             </span>
@@ -113,10 +119,10 @@ const toggleMenu = (event: Event) => {
           <!-- Show login/signup when NOT logged in -->
           <template v-else>
             <NuxtLink to="login" class="text-gray-700 hover:text-orange-500">
-              <Button variant="outline" class="cursor-pointer rounded-2xl">تسجيل الدخول</Button>
+              <Button variant="outline" class="cursor-pointer rounded-2xl">{{ t('log-in') }}</Button>
             </NuxtLink>
-            <NuxtLink to="signup" class="text-gray-700 hover:text-orange-500">
-              <Button class="bg-orange-500 text-white hover:bg-orange-600 rounded-2xl cursor-pointer">التسجيل</Button>
+            <NuxtLink to="signup">
+              <Button class="btn-custom text-primary-custom border-custom rounded-2xl cursor-pointer">{{ t('sign-up') }}</Button>
             </NuxtLink>
           </template>
         </div>

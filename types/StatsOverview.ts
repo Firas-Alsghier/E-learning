@@ -1,4 +1,5 @@
 export interface Stat {
   number: number;
-  label: string;
+  // label: string;
+  key: string;
 }

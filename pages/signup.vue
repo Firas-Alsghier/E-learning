@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useUser } from '~/composables/useUser';
-
+import { useAuthStore } from '~/stores/auth';
+import { useI18n } from 'vue-i18n';
 definePageMeta({
   layout: false,
   middleware: ['guest-only'],
@@ -8,6 +9,8 @@ definePageMeta({
 
 const router = useRouter();
 const { setUser } = useUser();
+const { t } = useI18n();
+const auth = useAuthStore();
 
 // ------------------------------
 // Form fields
@@ -157,15 +160,21 @@ const handleSubmit = async () => {
     loading.value = false;
   }
 };
+// :class="auth.isEnglish ? 'text-left' : 'text-right'"
 </script>
 
 <template>
+  <LanguageBanner />
+
   <div class="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
+    <div class="hidden bg-muted lg:block">
+      <img src="/assets/images/course-new.jpg" alt="Image" width="1920" height="1080" class="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale" />
+    </div>
     <div class="flex items-center justify-center py-12">
       <Card class="mx-auto max-w-sm">
         <CardHeader>
-          <CardTitle class="text-xl text-right">التسجيل</CardTitle>
-          <CardDescription class="text-right"> أدخل معلوماتك لإنشاء حساب </CardDescription>
+          <CardTitle class="text-xl text-right" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('sign-up') }}</CardTitle>
+          <CardDescription class="text-right" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('enter-account-info') }}</CardDescription>
         </CardHeader>
 
         <CardContent>
@@ -173,58 +182,65 @@ const handleSubmit = async () => {
             <!-- Name fields -->
             <div class="grid grid-cols-2 gap-4">
               <div class="flex flex-col gap-2">
-                <Label for="last-name" class="self-end">اللقب</Label>
-                <Input id="last-name" class="text-right" placeholder="علي" v-model="lastName" />
+                <Label for="last-name" class="self-end">{{ t('last-name') }}</Label>
+                <Input id="last-name" :class="auth.isEnglish ? 'text-left' : 'text-right'" :placeholder="t('fake-last-name')" v-model="lastName" />
               </div>
               <div class="flex flex-col gap-2">
-                <Label for="first-name" class="self-end">اسمك</Label>
-                <Input id="first-name" class="text-right" placeholder="محمد" v-model="firstName" />
+                <Label for="first-name" class="self-end">{{ t('first-name') }}</Label>
+                <Input id="first-name" :class="auth.isEnglish ? 'text-left' : 'text-right'" :placeholder="t('fake-first-name')" v-model="firstName" />
               </div>
             </div>
 
             <!-- Email -->
             <div class="flex flex-col gap-1">
-              <Label for="email" class="self-end">بريدك الإلكتروني</Label>
-              <Input id="email" type="email" class="text-right" placeholder="m@example.com" v-model="email" />
+              <Label for="email" class="self-end">{{ t('your-email') }}</Label>
+              <Input id="email" type="email" :class="auth.isEnglish ? 'text-left' : 'text-right'" placeholder="m@example.com" v-model="email" />
               <p v-if="emailError" class="text-red-500 text-sm text-right">
                 {{ emailError }}
               </p>
             </div>
 
-            <!-- Country -->
-            <div class="flex flex-col gap-1">
-              <Label for="country" class="self-end">الدولة</Label>
-              <select id="country" v-model="country" class="text-right border rounded-md h-10 px-3 bg-white">
-                <option value="" disabled>اختر دولتك</option>
-                <option v-for="c in countries" :key="c" :value="c">
-                  {{ c }}
-                </option>
-              </select>
+            <!-- Country (ShadCN Select) -->
+            <div class="flex flex-col gap-1 items-end">
+              <Label class="self-end">{{ t('country') }}</Label>
+              <Select v-model="country" class="self-end">
+                <SelectTrigger class="bg-white w-full">
+                  <SelectValue :placeholder="t('choose-country')" />
+                </SelectTrigger>
+
+                <SelectContent class="text-left">
+                  <SelectItem v-for="c in countries" :key="c" :value="c">
+                    {{ c }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <!-- Gender -->
-            <div class="flex flex-col gap-1">
-              <Label class="self-end">الجنس</Label>
+            <div class="flex flex-col gap-1 items-end">
+              <Label class="self-end">{{ t('gender') }}</Label>
+
               <Select v-model="gender">
-                <SelectTrigger class="bg-white">
-                  <SelectValue placeholder="اختر الجنس" />
+                <SelectTrigger class="bg-white w-full">
+                  <SelectValue :placeholder="t('choose-gender')" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="male">ذكر</SelectItem>
-                  <SelectItem value="female">أنثى</SelectItem>
+
+                <SelectContent class="text-right">
+                  <SelectItem value="male">{{ t('male') }}</SelectItem>
+                  <SelectItem value="female">{{ t('female') }}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <!-- Birthdate -->
             <div class="flex flex-col gap-2">
-              <label class="self-end">تاريخ الميلاد</label>
+              <label :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('date-birth') }}</label>
 
               <div class="grid grid-cols-3 gap-4">
                 <!-- Day -->
                 <Select v-model="birthDay">
                   <SelectTrigger class="bg-white">
-                    <SelectValue placeholder="اليوم" />
+                    <SelectValue :placeholder="t('day')" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem v-for="d in 31" :key="d" :value="String(d)">
@@ -236,7 +252,7 @@ const handleSubmit = async () => {
                 <!-- Month -->
                 <Select v-model="birthMonth">
                   <SelectTrigger class="bg-white">
-                    <SelectValue placeholder="الشهر" />
+                    <SelectValue :placeholder="t('month')" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="1">يناير</SelectItem>
@@ -257,7 +273,7 @@ const handleSubmit = async () => {
                 <!-- Year -->
                 <Select v-model="birthYear">
                   <SelectTrigger class="bg-white">
-                    <SelectValue placeholder="السنة" />
+                    <SelectValue :placeholder="t('year')" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem v-for="y in years" :key="y" :value="String(y)">
@@ -270,7 +286,7 @@ const handleSubmit = async () => {
 
             <!-- Password -->
             <div class="flex flex-col gap-1">
-              <Label for="password" class="self-end">كلمة السر</Label>
+              <Label for="password" class="self-end">{{ t('password') }}</Label>
               <Input id="password" type="password" v-model="password" />
               <p v-if="passwordError" class="text-red-500 text-sm text-right">
                 {{ passwordError }}
@@ -279,7 +295,7 @@ const handleSubmit = async () => {
 
             <!-- Confirm password -->
             <div class="flex flex-col gap-1">
-              <Label for="confirm-password" class="self-end">اعد كتابة كلمة السر</Label>
+              <Label for="confirm-password" class="self-end">{{ t('conform-password') }}</Label>
               <Input id="confirm-password" type="password" v-model="confirmPassword" />
               <p v-if="confirmError" class="text-red-500 text-sm text-right">
                 {{ confirmError }}
@@ -289,7 +305,7 @@ const handleSubmit = async () => {
             <!-- Submit -->
             <Button type="submit" class="w-full cursor-pointer" @click.prevent="handleSubmit" :disabled="loading">
               <span v-if="loading">جاري التسجيل...</span>
-              <span v-else>إنشاء حساب</span>
+              <span v-else>{{ t('create-account') }}</span>
             </Button>
 
             <p class="text-red-500 text-sm mt-2 text-right" v-if="error">
@@ -298,16 +314,11 @@ const handleSubmit = async () => {
           </div>
 
           <div class="mt-4 text-center text-sm">
-            لديك حساب بالفعل؟
-            <a href="login" class="underline">تسجيل الدخول</a>
+            {{ t('have-account') }}
+            <a href="login" class="underline">{{ t('log-in') }}</a>
           </div>
         </CardContent>
       </Card>
-    </div>
-
-    <!-- Right Image -->
-    <div class="hidden bg-muted lg:block">
-      <img src="/assets/images/course-new.jpg" alt="Image" width="1920" height="1080" class="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale" />
     </div>
   </div>
 </template>

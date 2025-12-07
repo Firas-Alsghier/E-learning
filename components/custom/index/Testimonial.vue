@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useAuthStore } from '~/stores/auth';
+import { useI18n } from 'vue-i18n';
+const auth = useAuthStore();
+const { t } = useI18n();
 defineProps<{
   title?: string;
   likes?: number;
@@ -32,15 +36,15 @@ const studentPropData = [
   <CustomContainer>
     <section class="py-16 px-4">
       <div class="text-center mb-12">
-        <h2 class="text-xl sm:text-2xl font-semibold text-primary-custom">ماذا يقول الطلاب عن منصة راوية</h2>
-        <p class="mt-2 text-secondary-custom text-sm sm:text-base">استكشف آراء طلابنا وانطباعاتهم بعد تجربة التعلم معنا.</p>
+        <h2 class="text-xl sm:text-2xl font-semibold text-primary-custom">{{ t('say-about-us') }}</h2>
+        <p class="mt-2 text-secondary-custom text-sm sm:text-base">{{ t('explore-student-rate') }}</p>
       </div>
 
       <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 max-w-7xl mx-auto">
-        <CustomIndexTestimonialCard :-student-name="studentPropData[0].studentName" :-student-quote="studentPropData[0].StudentQuote" :-studentcountry="studentPropData[0].Studentcountry" />
-        <CustomIndexTestimonialCard :-student-name="studentPropData[1].studentName" :-student-quote="studentPropData[1].StudentQuote" :-studentcountry="studentPropData[1].Studentcountry" />
-        <CustomIndexTestimonialCard :-student-name="studentPropData[2].studentName" :-student-quote="studentPropData[2].StudentQuote" :-studentcountry="studentPropData[2].Studentcountry" />
-        <CustomIndexTestimonialCard :-student-name="studentPropData[3].studentName" :-student-quote="studentPropData[3].StudentQuote" :-studentcountry="studentPropData[3].Studentcountry" />
+        <CustomIndexTestimonialCard :-student-name="t('review-name-one')" :-student-quote="t('review-one')" :-studentcountry="t('review-country-one')" />
+        <CustomIndexTestimonialCard :-student-name="t('review-name-two')" :-student-quote="t('review-two')" :-studentcountry="t('review-country-two')" />
+        <CustomIndexTestimonialCard :-student-name="t('review-name-three')" :-student-quote="t('review-three')" :-studentcountry="t('review-country-three')" />
+        <CustomIndexTestimonialCard :-student-name="t('review-name-four')" :-student-quote="t('review-four')" :-studentcountry="t('review-country-four')" />
       </div>
     </section>
   </CustomContainer>

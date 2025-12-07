@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import { Timer, UsersRound, Heart } from 'lucide-vue-next';
+import { useAuthStore } from '~/stores/auth';
+import { useI18n } from 'vue-i18n';
+const auth = useAuthStore();
+const { t } = useI18n();
 
 const courses = [
   {
@@ -89,11 +93,13 @@ const courses = [
       <!-- العنوان والزر -->
       <div class="flex flex-row-reverse items-start justify-between gap-6 mb-6">
         <div class="text-right">
-          <h3 class="text-2xl text-primary-custom mb-3 font-semibold">أفضل الكورسات</h3>
-          <p class="text-lg sm:text-base text-secondary-custom">.اختر من أحد هذه الدورات لتطوير مهاراتك في مجالات مختلفة</p>
+          <h3 class="text-2xl text-primary-custom mb-3 font-semibold" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('most-requested') }}</h3>
+          <p class="text-lg sm:text-base text-secondary-custom" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('choose-course') }}</p>
         </div>
         <div>
-          <NuxtLink to="courses"><Button class="btn-custom text-primary-custom border-custom border-custom text-base cursor-pointer rounded-2xl">كل الكورسات</Button></NuxtLink>
+          <NuxtLink to="courses"
+            ><Button class="btn-custom text-primary-custom border-custom border-custom text-base cursor-pointer rounded-2xl">{{ t('all-courses') }}</Button></NuxtLink
+          >
         </div>
       </div>
 
@@ -124,7 +130,7 @@ const courses = [
               <p class="text-sm text-secondary-custom mb-3">by {{ course.author }}</p>
               <div class="flex items-center text-sm text-primary-custom gap-4 mb-3">
                 <p class="flex items-center"><Timer class="mr-1 text-secondary-custom" /> {{ course.duration }}</p>
-                <p class="flex items-center"><UsersRound class="mr-1 text-secondary-custom" /> {{ course.students }} طلاب</p>
+                <p class="flex items-center"><UsersRound class="mr-1 text-secondary-custom" /> {{ course.students }} {{ t('student') }}</p>
               </div>
             </div>
             <p class="text-secondary-custom text-sm mt-1 line-clamp-2">
@@ -138,7 +144,9 @@ const courses = [
                   {{ course.free ? 'Free' : `$${course.newPrice}` }}
                 </span>
               </div>
-              <NuxtLink :to="`/courses/${course.id}`" class="text-secondary-custom font-medium text-lg hover:underline"> → المزيد </NuxtLink>
+              <NuxtLink :to="`/courses/${course.id}`" class="text-secondary-custom font-medium text-lg hover:underline" :class="auth.isEnglish ? 'text-left' : 'text-right'">
+                → {{ t('more') }}
+              </NuxtLink>
             </div>
           </div>
         </div>

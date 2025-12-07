@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { useUser } from '~/composables/useUser';
+import { useI18n } from 'vue-i18n';
+import { useAuthStore } from '~/stores/auth';
+
 definePageMeta({
   layout: false,
   middleware: ['guest-only'],
 });
-
+const { t } = useI18n();
+const auth = useAuthStore();
 const router = useRouter();
 const { setUser } = useUser();
 
@@ -80,35 +84,40 @@ const handleLogin = async () => {
 </script>
 
 <template>
+  <LanguageBanner />
+
   <div class="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
+    <div class="hidden bg-muted lg:block">
+      <img src="/assets/images/course.jpg" alt="Image" width="1920" height="1080" class="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale" />
+    </div>
     <div class="flex items-center justify-center py-12">
       <Card class="mx-auto max-w-sm">
         <CardHeader>
-          <CardTitle class="text-2xl text-right">تسجيل الدخول</CardTitle>
-          <CardDescription class="text-right"> أدخل بريدك الإلكتروني وكلمة المرور </CardDescription>
+          <CardTitle class="text-2xl" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('log-in') }}</CardTitle>
+          <CardDescription :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('enter-email-password') }}</CardDescription>
         </CardHeader>
 
         <CardContent>
           <div class="grid gap-4">
             <!-- email -->
             <div class="flex flex-col gap-2">
-              <Label for="email" class="self-end">بريدك الإلكتروني</Label>
+              <Label for="email" class="self-end" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('your-email') }}</Label>
               <Input id="email" v-model="email" type="email" placeholder="m@example.com" />
               <p v-if="emailError" class="text-red-500 text-sm text-right">{{ emailError }}</p>
             </div>
 
             <!-- password -->
             <div class="flex flex-col gap-2">
-              <Label for="password" class="self-end">كلمة المرور</Label>
+              <Label for="password" class="self-end" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('password') }}</Label>
               <Input id="password" v-model="password" type="password" />
               <p v-if="passwordError" class="text-red-500 text-sm text-right">{{ passwordError }}</p>
             </div>
-
-            <a href="forgot-password" class="ml-auto inline-block text-sm text-right underline"> نسيت كلمة السر؟ </a>
-
+            <div :class="auth.isEnglish ? 'text-left' : 'text-right'">
+              <a href="forgot-password" class="ml-auto inline-block text-sm underline">{{ t('forgot-password') }}</a>
+            </div>
             <Button class="w-full cursor-pointer" @click.prevent="handleLogin" :disabled="loading">
               <span v-if="loading">جاري تسجيل الدخول...</span>
-              <span v-else>الدخول</span>
+              <span v-else>{{ t('log-in') }}</span>
             </Button>
 
             <p class="text-red-500 text-sm mt-2" v-if="error">{{ error }}</p>
@@ -117,15 +126,11 @@ const handleLogin = async () => {
           </div>
 
           <div class="mt-4 text-center text-sm">
-            ليس لديك حساب؟
-            <a href="signup" class="underline">التسجيل</a>
+            {{ t('dont-have-account') }}
+            <a href="signup" class="underline">{{ t('sign-up') }}</a>
           </div>
         </CardContent>
       </Card>
-    </div>
-
-    <div class="hidden bg-muted lg:block">
-      <img src="/assets/images/course.jpg" alt="Image" width="1920" height="1080" class="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale" />
     </div>
   </div>
 </template>

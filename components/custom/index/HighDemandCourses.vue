@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { Category } from '~/types';
-
+import { useAuthStore } from '~/stores/auth';
+import { useI18n } from 'vue-i18n';
+const auth = useAuthStore();
+const { t } = useI18n();
 const categories: Category[] = [
   { icon: '🎨', name: 'Design', courses: 38 },
   { icon: '💻', name: 'Development', courses: 38 },
@@ -20,11 +23,11 @@ const categories: Category[] = [
     <section class="text-center py-10">
       <div class="flex flex-row-reverse items-start justify-between gap-6 mb-6">
         <div class="text-right">
-          <h3 class="text-2xl mb-3 font-semibold text-primary-custom">الدّورات الأكثر طلباً</h3>
-          <p class="text-lg sm:text-base text-secondary-custom">.اختر من أحد هذه الدورات لتطوير مهاراتك في مجالات مختلفة</p>
+          <h3 class="text-2xl mb-3 font-semibold text-primary-custom" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('most-requested') }}</h3>
+          <p class="text-lg sm:text-base text-secondary-custom" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('choose-course') }}</p>
         </div>
         <div>
-          <Button class="btn-custom text-primary-custom border-custom text-base cursor-pointer rounded-2xl border-2">كل التصنيفات</Button>
+          <Button class="btn-custom text-primary-custom border-custom text-base cursor-pointer rounded-2xl border-2">{{ t('all-categories') }}</Button>
         </div>
       </div>
 

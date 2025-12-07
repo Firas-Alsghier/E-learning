@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Calendar, GraduationCap, Gauge, FileVideo2, Heart } from 'lucide-vue-next'; // Added Heart icon
 import { useRouter } from 'vue-router';
-
+import { useI18n } from 'vue-i18n';
+import { useAuthStore } from '~/stores/auth';
 // Define Props, including the new isWishlisted state
 const { course } = defineProps<{
   course: {
@@ -19,7 +20,8 @@ const { course } = defineProps<{
     isWishlisted: boolean; // New prop to determine heart state
   };
 }>();
-
+const { t } = useI18n();
+const auth = useAuthStore();
 // Define emits for handling user interaction (wishlist toggle)
 const emit = defineEmits(['toggle-wishlist']);
 
@@ -63,10 +65,10 @@ const handleWishlistToggle = () => {
     <div class="w-full sm:w-[55%] h-auto sm:h-full px-4 py-5 flex flex-col justify-between gap-2">
       <!-- Top -->
       <div class="space-y-2">
-        <p class="text-sm text-gray-500">
+        <p class="text-sm text-gray-500" :class="auth.isEnglish ? 'text-left' : 'text-right'">
           by <span class="font-medium text-black">{{ course.author }}</span>
         </p>
-        <h3 class="font-semibold text-[20px] text-gray-900">{{ course.title }}</h3>
+        <h3 class="font-semibold text-[20px] text-gray-900" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ course.title }}</h3>
 
         <div class="flex items-center text-sm text-gray-500 gap-4 flex-wrap">
           <div class="flex items-center gap-1">
@@ -98,7 +100,7 @@ const handleWishlistToggle = () => {
             <span v-else class="text-red-500 text-lg font-bold">${{ course.price }}</span>
           </div>
 
-          <button class="text-lg cursor-pointer text-black font-medium hover:text-orange-600 transition" @click="goToCourse">المزيد</button>
+          <button class="text-lg cursor-pointer text-black font-medium hover:text-orange-600 transition" @click="goToCourse">{{ t('more') }}</button>
         </div>
       </div>
     </div>

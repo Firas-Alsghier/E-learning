@@ -150,6 +150,22 @@ Optional alternate:
 #343E49 (neutral borders)
 
 */
+
+.english-style {
+  direction: ltr !important; /* or rtl, your choice */
+  text-align: left !important;
+}
+
+.mixt-style {
+  direction: ltr !important; /* or rtl, your choice */
+  text-align: right !important;
+}
+
+.arabic-style {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
 .btn-custom {
   background: #be9680;
 }

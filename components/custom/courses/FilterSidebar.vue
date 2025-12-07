@@ -4,9 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Filter, X } from 'lucide-vue-next';
-
+import { useI18n } from 'vue-i18n';
+import { useAuthStore } from '~/stores/auth';
 const isOpen = ref(false);
-
+const { t } = useI18n();
+const auth = useAuthStore();
 // --- filters state
 const selectedCategories = ref<string[]>([]);
 const selectedLevels = ref<string[]>([]);
@@ -39,7 +41,7 @@ const resetFilters = () => {
       </div>
 
       <!-- Title -->
-      <h2 class="text-xl font-bold mb-4 hidden md:block">Filter Courses</h2>
+      <h2 class="text-xl font-bold mb-4 hidden md:block" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('filter-courses') }}</h2>
 
       <!-- Scrollable area for filters -->
       <ScrollArea class="flex-1">

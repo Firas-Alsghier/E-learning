@@ -1,3 +1,16 @@
+<script setup lang="ts">
+import { ArrowUp, Facebook, X, Instagram, Youtube } from 'lucide-vue-next';
+import { useAuthStore } from '~/stores/auth';
+import { useI18n } from 'vue-i18n';
+const auth = useAuthStore();
+const { t } = useI18n();
+
+// Function to scroll to top
+const scrollToTop = () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+</script>
+
 <template>
   <footer class="bg-[#1E262E] py-10 border-t">
     <CustomContainer>
@@ -9,17 +22,17 @@
         </div>
 
         <!-- Get Help Section -->
-        <div>
+        <div class="help-zone">
           <h3 class="text-lg font-semibold mb-3">GET HELP</h3>
           <ul class="space-y-2 text-sm">
             <li>
-              <NuxtLink to="#">تواصل معنا</NuxtLink>
+              <NuxtLink to="#">{{ t('contact-us') }}</NuxtLink>
             </li>
             <li>
-              <NuxtLink to="#">أحدث المقالات</NuxtLink>
+              <NuxtLink to="#">{{ t('latest-articles') }}</NuxtLink>
             </li>
             <li>
-              <NuxtLink to="#">أهم الأسئلة والأجوبة</NuxtLink>
+              <NuxtLink to="#">{{ t('most-common-questions-answers') }}</NuxtLink>
             </li>
           </ul>
         </div>
@@ -70,12 +83,12 @@
 
       <!-- Copyright & Scroll to Top -->
       <div class="mt-10 flex items-center justify-center relative">
-        <p class="text-sm text-text-secondary-custom">© {{ new Date().getFullYear() }} | منصة راوِية جميع الحقوق محفوظة</p>
+        <p class="text-sm text-text-secondary-custom" :class="auth.isEnglish ? 'text-left' : 'text-right'">© {{ new Date().getFullYear() }} | {{ t('reserved') }}</p>
 
         <!-- Scroll to Top Button in the Right Corner -->
         <button
           @click="scrollToTop"
-          class="absolute cursor-pointer right-0 bottom-0 mb-2 w-12 h-12 bg-black text-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-800 transition"
+          class="absolute cursor-pointer right-0 bottom-0 mb-2 w-12 h-12 btn-custom text-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-800 transition"
         >
           <ArrowUp class="w-6 h-6" />
         </button>
@@ -83,15 +96,6 @@
     </CustomContainer>
   </footer>
 </template>
-
-<script setup lang="ts">
-import { ArrowUp, Facebook, X, Instagram, Youtube } from 'lucide-vue-next';
-
-// Function to scroll to top
-const scrollToTop = () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-};
-</script>
 
 <style>
 .rtl {

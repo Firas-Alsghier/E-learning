@@ -4,32 +4,35 @@ import type { Stat } from '~/types';
 import { useElementVisibility } from '@vueuse/core';
 // @ts-ignore
 import { CountUp } from 'countup.js';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const stats: Stat[] = [
-  { number: 4.9, label: 'معدل التقييم' },
-  { number: 12, label: 'المعلّم' },
-  { number: 72, label: 'مجموع الدورات' },
-  { number: 1200, label: 'الطلاب النشطين' },
+  { number: 4.9, key: 'rating-rate' },
+  { number: 12, key: 'teacher' },
+  { number: 72, key: 'total-courses' },
+  { number: 1200, key: 'active-students' },
 ];
 
-// DOM reference for the section
 const statsSection = ref<HTMLElement | null>(null);
 const isVisible = useElementVisibility(statsSection);
 
-// reactive state
 const animatedNumbers = ref<number[]>(stats.map(() => 0));
-const hasCounted = ref(false); // prevents re-triggering animation
+const hasCounted = ref(false);
 
 watch(isVisible, (visible) => {
   if (visible && !hasCounted.value) {
     hasCounted.value = true;
+
     stats.forEach((stat, index) => {
-      const countUp = new CountUp(`stat-${index}`, stat.number, {
+      const counter = new CountUp(`stat-${index}`, stat.number, {
         duration: 3,
         separator: ',',
       });
-      if (!countUp.error) {
-        countUp.start(() => {
+
+      if (!counter.error) {
+        counter.start(() => {
           animatedNumbers.value[index] = stat.number;
         });
       }
@@ -46,7 +49,11 @@ watch(isVisible, (visible) => {
           <h2 class="text-4xl font-bold text-primary-custom mb-2" :id="`stat-${index}`">
             {{ animatedNumbers[index] }}
           </h2>
-          <p class="text-base font-medium text-secondary-custom">{{ stat.label }}</p>
+
+          <!-- translate using the key -->
+          <p class="text-base font-medium text-secondary-custom">
+            {{ t(stat.key) }}
+          </p>
         </div>
       </div>
     </CustomContainer>

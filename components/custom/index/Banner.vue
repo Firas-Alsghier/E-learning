@@ -1,5 +1,8 @@
 <script setup lang="ts">
 const { isLoggedIn } = useUser();
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 </script>
 
 <template>
@@ -18,10 +21,12 @@ const { isLoggedIn } = useUser();
         <!-- Left side (text + buttons) -->
         <div class="flex flex-col gap-4 items-start sm:items-end z-10">
           <div class="flex gap-4">
-            <button class="bg-white cursor-pointer text-gray-600 text-sm sm:text-base font-medium px-6 py-2 rounded-full hover:bg-gray-100 transition">انضم كمعلم</button>
+            <!-- <LanguageSwitcher />
+            <p>{{ $t('hello') }}</p> -->
+            <button class="bg-white cursor-pointer text-gray-600 text-sm sm:text-base font-medium px-6 py-2 rounded-full hover:bg-gray-100 transition">{{ t('join-as-teacher') }}</button>
             <NuxtLink to="signup"
               ><button class="border cursor-pointer border-white text-white text-sm sm:text-base font-medium px-6 py-2 rounded-full hover:bg-white hover:text-gray-700 transition">
-                أنا طالب
+                {{ t('join-as-student') }}
               </button></NuxtLink
             >
           </div>
@@ -29,7 +34,7 @@ const { isLoggedIn } = useUser();
 
         <!-- Right side (text + image) -->
         <div class="flex items-center gap-4 z-10">
-          <p class="text-black font-semibold text-sm sm:text-base">لنبدأ مع منصة راوية</p>
+          <!-- <p class="text-black font-semibold text-sm sm:text-base">لنبدأ مع منصة راوية</p> -->
           <div class="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full flex items-center justify-center shadow">
             <img src="/assets/images/student.png" alt="Student Icon" class="w-10 h-10" />
           </div>

@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { Search } from 'lucide-vue-next';
-
+import { useI18n } from 'vue-i18n';
+import { useAuthStore } from '~/stores/auth';
 // Fake courses array
+const { t } = useI18n();
+const auth = useAuthStore();
 const courses = [
   {
     title: 'Create An LMS Website With LearnPress',
@@ -68,7 +71,7 @@ const showMobileFilter = ref(false);
                   <span class="text-sm font-semibold">Filter</span>
                 </button>
               </div>
-              <h2 class="text-2xl text-right font-semibold">كل الكورسات</h2>
+              <h2 class="text-2xl font-semibold" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('all-courses') }}</h2>
             </div>
           </div>
 
