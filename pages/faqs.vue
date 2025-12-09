@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { ChevronUp, ChevronDown } from 'lucide-vue-next';
+import { useI18n } from 'vue-i18n';
+import { useAuthStore } from '~/stores/auth';
 
 const openIndexes = ref<number[]>([]);
+const { t } = useI18n();
+const auth = useAuthStore();
 
 const toggleItem = (index: number) => {
   if (openIndexes.value.includes(index)) {
@@ -11,37 +15,46 @@ const toggleItem = (index: number) => {
   }
 };
 
+// store i18n keys (call t(...) in template so it's reactive)
 const faqs = [
-  { question: 'ما المقصود بحقوق النشر المجانية؟', answer: 'تعني أنه يمكنك استخدام المحتوى بدون دفع رسوم متكررة.' },
-  { question: 'هل يمكنني استخدام الكورس بعد انتهاء الاشتراك؟', answer: 'نعم، إذا قمت بشرائه، يبقى لديك مدى الحياة.' },
-  { question: 'هل يوجد شهادات بعد إكمال الدورة؟', answer: 'نعم، تحصل على شهادة إتمام بعد اجتياز الدورة.' },
-  { question: 'هل أستطيع تحميل الدروس؟', answer: 'نعم، يمكنك تحميلها ومشاهدتها بدون إنترنت.' },
-  { question: 'هل الكورسات محدثة؟', answer: 'نعم، يتم تحديث المحتوى بشكل منتظم.' },
-  { question: 'هل يوجد دعم فني؟', answer: 'نعم، لدينا فريق جاهز للمساعدة على مدار الساعة.' },
-  { question: 'ما طرق الدفع المتاحة؟', answer: 'نقبل الدفع بالبطاقات، بايبال، وأبل باي.' },
-  { question: 'هل أستطيع استرجاع المبلغ؟', answer: 'نعم، يوجد ضمان استرجاع خلال 30 يوم.' },
+  { q: 'faq.q1', a: 'faq.a1' },
+  { q: 'faq.q2', a: 'faq.a2' },
+  { q: 'faq.q3', a: 'faq.a3' },
+  { q: 'faq.q4', a: 'faq.a4' },
+  { q: 'faq.q5', a: 'faq.a5' },
+  { q: 'faq.q6', a: 'faq.a6' },
+  { q: 'faq.q7', a: 'faq.a7' },
+  { q: 'faq.q8', a: 'faq.a8' },
 ];
 </script>
 
 <template>
   <div class="py-10">
     <CustomContainer>
-      <h2 class="text-3xl font-bold mb-8 text-right">الأسئلة الشائعة</h2>
+      <!-- Title -->
+      <h2 class="text-3xl font-bold mb-8" :class="auth.isEnglish ? 'text-left' : 'text-right'">
+        {{ t('faq-title') }}
+      </h2>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div v-for="(faq, index) in faqs" :key="index" class="bg-gray-100 rounded-md p-4 transition-all duration-300">
+          <!-- Question -->
           <button @click="toggleItem(index)" class="w-full flex justify-between items-center font-semibold text-black">
-            <span>{{ faq.question }}</span>
             <span class="text-xl">
-              <span v-if="openIndexes.includes(index)"><ChevronUp /></span>
-              <span v-else><ChevronDown /></span>
+              <span v-if="openIndexes.includes(index)">
+                <ChevronUp />
+              </span>
+              <span v-else>
+                <ChevronDown />
+              </span>
             </span>
+            <span>{{ t(faq.q) }}</span>
           </button>
 
-          <!-- Animated answer -->
+          <!-- Answer (animated) -->
           <transition name="fade-slide">
-            <p v-show="openIndexes.includes(index)" class="text-sm text-gray-600 mt-2">
-              {{ faq.answer }}
+            <p v-show="openIndexes.includes(index)" class="text-sm text-gray-600 mt-2" :class="auth.isEnglish ? 'text-left' : 'text-right'">
+              {{ t(faq.a) }}
             </p>
           </transition>
         </div>

@@ -70,5 +70,39 @@
   "enter-email-password": "Enter your Email and Password",
   "forgot-password": "?Forgot your password",
   "dont-have-account": "Don't have an account?",
-  "filter-courses": "Filter Courses"
+  "filter-courses": "Filter Courses",
+  "faq-title": "FAQ",
+  "faq": {
+    "q1": "What is meant by royalty-free rights?",
+    "a1": "It means you can use the content without paying recurring fees.",
+
+    "q2": "Can I access the course after my subscription ends?",
+    "a2": "Yes, if you purchased it, it remains yours for life.",
+
+    "q3": "Are there certificates after completing the course?",
+    "a3": "Yes, you receive a completion certificate after finishing the course.",
+
+    "q4": "Can I download the lessons?",
+    "a4": "Yes, you can download them and watch offline.",
+
+    "q5": "Are the courses up to date?",
+    "a5": "Yes, the content is updated regularly.",
+
+    "q6": "Is there technical support?",
+    "a6": "Yes, we have a support team available 24/7.",
+
+    "q7": "What payment methods are available?",
+    "a7": "We accept card payments, PayPal, and Apple Pay.",
+
+    "q8": "Can I request a refund?",
+    "a8": "Yes, there is a 30-day money-back guarantee."
+  },
+  "headline": "Headline",
+  "cv-label": "Resume",
+  "language": "Language",
+  "links": ":Links",
+  "avatar": "Add a picture to your profile",
+  "profile-title": "Public profile",
+  "profile-sub-title": "Add information about yourself",
+  "save-btn": "Save"
 }

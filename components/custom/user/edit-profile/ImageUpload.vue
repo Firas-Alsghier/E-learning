@@ -1,22 +1,9 @@
-<template>
-  <div class="flex flex-col space-y-3">
-    <!-- Avatar clickable image -->
-
-    <h1>أضف صورة جميلة لنفسك لملفك الشخصي</h1>
-    <label for="avatar-upload" class="cursor-pointer relative">
-      <img :src="preview || defaultAvatar" alt="avatar" class="w-24 h-24 rounded-full border object-cover shadow" />
-      <div class="absolute inset-0 bg-black/30 rounded-full flex items-center justify-center opacity-0 hover:opacity-100 transition">
-        <span class="text-white text-xs">تغيير</span>
-      </div>
-    </label>
-
-    <!-- Hidden file input -->
-    <Input id="avatar-upload" type="file" accept="image/*" class="hidden" @change="handleFileUpload" />
-  </div>
-</template>
-
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+
 // Bind these to your actual form data
+const { t } = useI18n();
+
 const firstName = ref('Feras');
 const lastName = ref('Alshghier');
 
@@ -42,3 +29,20 @@ function handleFileUpload(event: Event) {
   }
 }
 </script>
+
+<template>
+  <div class="flex items-center flex-col space-y-3">
+    <!-- Avatar clickable image -->
+
+    <h1>{{ t('avatar') }}</h1>
+    <label for="avatar-upload" class="cursor-pointer relative">
+      <img :src="preview || defaultAvatar" alt="avatar" class="w-24 h-24 rounded-full border object-cover shadow" />
+      <div class="absolute inset-0 bg-black/30 rounded-full flex items-center justify-center opacity-0 hover:opacity-100 transition">
+        <span class="text-white text-xs">تغيير</span>
+      </div>
+    </label>
+
+    <!-- Hidden file input -->
+    <Input id="avatar-upload" type="file" accept="image/*" class="hidden" @change="handleFileUpload" />
+  </div>
+</template>

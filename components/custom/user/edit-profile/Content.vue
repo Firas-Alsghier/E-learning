@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth';
+import { useI18n } from 'vue-i18n';
 import type { Profile } from '@/types/edit-profile';
 const auth = useAuthStore();
+const { t } = useI18n();
 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: currentYear - 1950 + 1 }, (_, i) => currentYear - i);
@@ -103,12 +105,16 @@ const saveChanges = async () => {
     <!-- First / Last name -->
     <div class="grid grid-cols-1 text-right md:grid-cols-2 gap-6">
       <div class="space-y-2">
-        <label class="font-medium">الاسم الأول:</label>
-        <Input v-model="form.firstName" class="w-[95%] bg-white" />
+        <div class="w-[95%]" :class="auth.isEnglish ? 'text-left' : 'text-right'">
+          <label class="font-medium">{{ t('first-name') }}</label>
+        </div>
+        <Input v-model="form.firstName" class="w-[95%] bg-white" :class="auth.isEnglish ? 'text-left' : 'text-right'" />
       </div>
       <div class="space-y-2">
-        <label class="font-medium">اسم العائلة:</label>
-        <Input v-model="form.lastName" class="w-[95%] bg-white" />
+        <div class="w-[95%]" :class="auth.isEnglish ? 'text-left' : 'text-right'">
+          <label class="font-medium">{{ t('last-name') }}</label>
+        </div>
+        <Input v-model="form.lastName" class="w-[95%] bg-white" :class="auth.isEnglish ? 'text-left' : 'text-right'" />
       </div>
     </div>
 
@@ -116,24 +122,29 @@ const saveChanges = async () => {
 
     <!-- Headline -->
     <div class="space-y-2">
-      <label class="font-medium">العنوان الوظيفي (Headline)</label>
-      <Input v-model="form.headline" class="w-[95%] bg-white" />
+      <div class="w-[95%]" :class="auth.isEnglish ? 'text-left' : 'text-right'">
+        <label class="font-medium">{{ t('headline') }}</label>
+      </div>
+      <Input v-model="form.headline" class="w-[95%] bg-white" :class="auth.isEnglish ? 'text-left' : 'text-right'" />
     </div>
 
     <hr />
 
     <!-- Bio -->
     <div class="space-y-2">
-      <label class="font-medium">السيرة الذاتية</label>
-      <Textarea v-model="form.bio" class="w-[95%] bg-white" />
+      <div class="w-[95%]" :class="auth.isEnglish ? 'text-left' : 'text-right'">
+        <label class="font-medium">{{ t('cv-label') }}</label>
+      </div>
+      <Textarea v-model="form.bio" class="w-[95%] bg-white" :class="auth.isEnglish ? 'text-left' : 'text-right'" />
     </div>
 
     <hr />
 
     <!-- Language -->
     <div class="space-y-2">
-      <label class="font-medium">اللغة</label>
-
+      <div class="w-[95%]" :class="auth.isEnglish ? 'text-left' : 'text-right'">
+        <label class="font-medium">{{ t('language') }}</label>
+      </div>
       <Select v-model="form.language" :default-value="form.language">
         <SelectTrigger class="w-[95%] bg-white">
           <SelectValue placeholder="اختر لغة" />
@@ -150,8 +161,9 @@ const saveChanges = async () => {
 
     <!-- Country -->
     <div class="space-y-2">
-      <label class="font-medium">البلد</label>
-
+      <div class="w-[95%]" :class="auth.isEnglish ? 'text-left' : 'text-right'">
+        <label class="font-medium">{{ t('country') }}</label>
+      </div>
       <Select v-model="form.country" :default-value="form.country">
         <SelectTrigger class="w-[95%] bg-white">
           <SelectValue placeholder="اختر البلد" />
@@ -183,16 +195,17 @@ const saveChanges = async () => {
 
     <!-- Gender -->
     <div class="space-y-2">
-      <label class="font-medium">الجنس</label>
-
+      <div class="w-[95%]" :class="auth.isEnglish ? 'text-left' : 'text-right'">
+        <label class="font-medium">{{ t('gender') }}</label>
+      </div>
       <Select v-model="form.gender" :default-value="form.gender">
         <SelectTrigger class="w-[95%] bg-white">
           <SelectValue placeholder="اختر الجنس" />
         </SelectTrigger>
 
         <SelectContent>
-          <SelectItem value="male">ذكر</SelectItem>
-          <SelectItem value="female">أنثى</SelectItem>
+          <SelectItem value="male">{{ t('male') }}</SelectItem>
+          <SelectItem value="female">{{ t('female') }}</SelectItem>
         </SelectContent>
       </Select>
     </div>
@@ -201,9 +214,10 @@ const saveChanges = async () => {
 
     <!-- Date of Birth -->
     <div class="space-y-2">
-      <label class="font-medium">تاريخ الميلاد</label>
-
-      <div class="flex gap-3">
+      <div class="w-[100%] text-center">
+        <label class="font-medium">{{ t('date-birth') }}</label>
+      </div>
+      <div class="flex justify-center gap-3">
         <!-- Day -->
         <Select v-model="form.birthDay" :default-value="form.birthDay">
           <SelectTrigger class="w-28 bg-white">
@@ -255,30 +269,40 @@ const saveChanges = async () => {
 
     <!-- Social links -->
     <div class="space-y-6">
-      <h3 class="font-semibold text-lg">روابط:</h3>
+      <h3 class="font-semibold text-lg" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('links') }}</h3>
 
       <div class="space-y-2">
-        <label class="font-medium">موقع الويب ://https</label>
-        <Input v-model="form.website" class="w-[95%] bg-white" />
+        <div class="w-[95%]" :class="auth.isEnglish ? 'text-left' : 'text-right'">
+          <label class="font-medium text-left">//:https</label>
+        </div>
+        <Input v-model="form.website" class="w-[95%] bg-white text-left" />
       </div>
 
       <div class="space-y-2">
-        <label class="font-medium">facebook.com</label>
+        <div class="w-[95%]" :class="auth.isEnglish ? 'text-left' : 'text-right'">
+          <label class="font-medium text-left">facebook.com</label>
+        </div>
         <Input v-model="form.facebook" class="w-[95%] bg-white" />
       </div>
 
       <div class="space-y-2">
-        <label class="font-medium">instagram.com</label>
+        <div class="w-[95%]" :class="auth.isEnglish ? 'text-left' : 'text-right'">
+          <label class="font-medium text-left">instagram.com</label>
+        </div>
         <Input v-model="form.instagram" class="w-[95%] bg-white" />
       </div>
 
       <div class="space-y-2">
-        <label class="font-medium">linkedin.com</label>
+        <div class="w-[95%]" :class="auth.isEnglish ? 'text-left' : 'text-right'">
+          <label class="font-medium text-left">linkedin.com</label>
+        </div>
         <Input v-model="form.linkedin" class="w-[95%] bg-white" />
       </div>
 
       <div class="space-y-2">
-        <label class="font-medium">x.com</label>
+        <div class="w-[95%]" :class="auth.isEnglish ? 'text-left' : 'text-right'">
+          <label class="font-medium text-left">x.com</label>
+        </div>
         <Input v-model="form.x" class="w-[95%] bg-white" />
       </div>
     </div>
@@ -287,6 +311,6 @@ const saveChanges = async () => {
 
     <CustomUserEditProfileImageUpload />
 
-    <Button class="mt-6 cursor-pointer" type="submit">حفظ</Button>
+    <Button class="mt-6 cursor-pointer" type="submit">{{ t('save-btn') }}</Button>
   </form>
 </template>

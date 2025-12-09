@@ -6,17 +6,25 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Filter, X } from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '~/stores/auth';
+
 const isOpen = ref(false);
 const { t } = useI18n();
 const auth = useAuthStore();
+
 // --- filters state
 const selectedCategories = ref<string[]>([]);
 const selectedLevels = ref<string[]>([]);
+const selectedRatings = ref<number[]>([]);
+const selectedHours = ref<string[]>([]);
+const selectedPrice = ref<string[]>([]); // 🔥 NEW PRICE FILTER
 
 // --- reset filters function
 const resetFilters = () => {
   selectedCategories.value = [];
   selectedLevels.value = [];
+  selectedRatings.value = [];
+  selectedHours.value = [];
+  selectedPrice.value = []; // 🔥 reset price filter
 };
 </script>
 
@@ -28,7 +36,7 @@ const resetFilters = () => {
     <!-- Filter Sidebar -->
     <div
       :class="[
-        'fixed md:static top-0 left-0  md:h-auto w-72 md:w-80 bg-white shadow-lg md:shadow-none p-4 flex flex-col transition-transform duration-300 z-50',
+        'fixed md:static top-0 left-0 md:h-auto w-72 md:w-80 bg-white shadow-lg md:shadow-none p-4 flex flex-col transition-transform duration-300 z-50',
         isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
       ]"
     >
@@ -41,11 +49,14 @@ const resetFilters = () => {
       </div>
 
       <!-- Title -->
-      <h2 class="text-xl font-bold mb-4 hidden md:block" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('filter-courses') }}</h2>
+      <h2 class="text-xl font-bold mb-4 hidden md:block" :class="auth.isEnglish ? 'text-left' : 'text-right'">
+        {{ t('filter-courses') }}
+      </h2>
 
-      <!-- Scrollable area for filters -->
+      <!-- Scrollable area -->
       <ScrollArea class="flex-1">
         <Accordion type="multiple" class="w-full space-y-3">
+          <!-- Category -->
           <AccordionItem value="category">
             <AccordionTrigger>Category</AccordionTrigger>
             <AccordionContent>
@@ -62,6 +73,7 @@ const resetFilters = () => {
             </AccordionContent>
           </AccordionItem>
 
+          <!-- Level -->
           <AccordionItem value="level">
             <AccordionTrigger>Level</AccordionTrigger>
             <AccordionContent>
@@ -77,13 +89,88 @@ const resetFilters = () => {
               </div>
             </AccordionContent>
           </AccordionItem>
+
+          <!-- ⭐ Ratings -->
+          <AccordionItem value="ratings">
+            <AccordionTrigger>Rating</AccordionTrigger>
+            <AccordionContent>
+              <div class="space-y-2">
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" v-model="selectedRatings" :value="5" />
+                  <span>⭐⭐⭐⭐⭐ (5+)</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" v-model="selectedRatings" :value="4" />
+                  <span>⭐⭐⭐⭐ (4+)</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" v-model="selectedRatings" :value="3" />
+                  <span>⭐⭐⭐ (3+)</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" v-model="selectedRatings" :value="2" />
+                  <span>⭐⭐ (2+)</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" v-model="selectedRatings" :value="1" />
+                  <span>⭐ (1+)</span>
+                </label>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          <!-- ⏳ Hours -->
+          <AccordionItem value="hours">
+            <AccordionTrigger>Hours</AccordionTrigger>
+            <AccordionContent>
+              <div class="space-y-2">
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" v-model="selectedHours" value="0-2" />
+                  <span>0 – 2 hours</span>
+                </label>
+
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" v-model="selectedHours" value="2-5" />
+                  <span>2 – 5 hours</span>
+                </label>
+
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" v-model="selectedHours" value="5-10" />
+                  <span>5 – 10 hours</span>
+                </label>
+
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" v-model="selectedHours" value="10+" />
+                  <span>10+ hours</span>
+                </label>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          <!-- 💲 Price Filter -->
+          <AccordionItem value="price">
+            <AccordionTrigger>Price</AccordionTrigger>
+            <AccordionContent>
+              <div class="space-y-2">
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" v-model="selectedPrice" value="free" />
+                  <span>Free</span>
+                </label>
+
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" v-model="selectedPrice" value="paid" />
+                  <span>Paid</span>
+                </label>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
         </Accordion>
       </ScrollArea>
 
-      <!-- Footer buttons (always visible) -->
+      <!-- Footer -->
       <div class="flex gap-2 pt-4 border-t mt-4">
-        <Button class="w-1/2 bg-indigo-600 hover:bg-indigo-700 text-white"> Save Filters </Button>
-        <Button variant="outline" class="w-1/2" @click="resetFilters"> Reset Filters </Button>
+        <Button class="w-1/2 bg-indigo-600 hover:bg-indigo-700 text-white">Save Filters</Button>
+        <Button variant="outline" class="w-1/2" @click="resetFilters">Reset Filters</Button>
       </div>
     </div>
   </div>
