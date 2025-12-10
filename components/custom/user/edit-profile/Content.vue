@@ -1,22 +1,27 @@
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import { useAuthStore } from '~/stores/auth';
 import { useI18n } from 'vue-i18n';
 import type { Profile } from '@/types/edit-profile';
+
+// 1. Define the specific language type for type safety
+type LanguageCode = 'en' | 'ar';
+
 const auth = useAuthStore();
-const { t } = useI18n();
+const { t, locale } = useI18n(); // 💡 Destructured locale to check current language
 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: currentYear - 1950 + 1 }, (_, i) => currentYear - i);
 
 // --------------------------------------
-// 3) Form State
+// 3) Form State (Updated with LanguageCode)
 // --------------------------------------
 const form = ref({
   firstName: '',
   lastName: '',
   headline: '',
   bio: '',
-  language: '',
+  language: '' as LanguageCode, // Strictly typed
   country: '',
 
   gender: '',
@@ -43,12 +48,15 @@ onMounted(async () => {
     });
     auth.user = user;
 
+    // Type casting the fetched language
+    const fetchedLanguage: LanguageCode = (user.language as LanguageCode) || 'en';
+
     form.value = {
       firstName: user.firstName || '',
       lastName: user.lastName || '',
       headline: user.headline || '',
       bio: user.bio || '',
-      language: user.language || '',
+      language: fetchedLanguage, // Assign the strictly typed value
       country: user.country || '',
 
       gender: user.gender || '',
@@ -63,6 +71,10 @@ onMounted(async () => {
       linkedin: user.social?.linkedin || '',
       x: user.social?.x || '',
     };
+
+    // Ensure the Pinia flag reflects the fetched language for template rendering
+    auth.isEnglish = form.value.language === 'en';
+
     console.log(user);
   } catch (err) {
     console.error('Error fetching profile:', err);
@@ -70,12 +82,15 @@ onMounted(async () => {
 });
 
 // --------------------------------------
-// 5) Save Changes
+// 5) Save Changes (UPDATED for Global Language Switch)
 // --------------------------------------
 const saveChanges = async () => {
   let token = useCookie('token').value;
   if (!token && import.meta.client) token = localStorage.getItem('token');
   if (!token) return alert('You are not logged in.');
+
+  // Get the potentially new language from the form
+  const newLanguage: LanguageCode = form.value.language as LanguageCode;
 
   try {
     const response = await $fetch('http://localhost:3001/api/auth/edit-profile', {
@@ -87,12 +102,22 @@ const saveChanges = async () => {
       body: form.value,
     });
 
+    // Update the local user state in the store
     auth.user = { ...auth.user, ...form.value };
+
+    // 💡 CORE FIX: Change language only AFTER successful save
+    if (newLanguage && newLanguage !== locale.value) {
+      // Use the centralized Pinia action to handle the change globally:
+      // This calls useDirection().setLocale() which updates everything.
+      auth.setAppLanguage(newLanguage);
+    }
 
     alert('Profile updated successfully');
     console.log('Response:', response);
 
-    location.reload();
+    // We rely on the reactivity of Vue/Pinia to update the UI instead of a hard reload.
+    // If you experience any persistent styling/translation issues, you can reintroduce:
+    // location.reload();
   } catch (error) {
     alert('Failed to update profile');
     console.error('Error updating profile:', error);
@@ -102,7 +127,6 @@ const saveChanges = async () => {
 
 <template>
   <form class="space-y-8 bg-[#f9f9f9] p-8 rounded-lg" @submit.prevent="saveChanges">
-    <!-- First / Last name -->
     <div class="grid grid-cols-1 text-right md:grid-cols-2 gap-6">
       <div class="space-y-2">
         <div class="w-[95%]" :class="auth.isEnglish ? 'text-left' : 'text-right'">
@@ -120,7 +144,6 @@ const saveChanges = async () => {
 
     <hr />
 
-    <!-- Headline -->
     <div class="space-y-2">
       <div class="w-[95%]" :class="auth.isEnglish ? 'text-left' : 'text-right'">
         <label class="font-medium">{{ t('headline') }}</label>
@@ -130,7 +153,6 @@ const saveChanges = async () => {
 
     <hr />
 
-    <!-- Bio -->
     <div class="space-y-2">
       <div class="w-[95%]" :class="auth.isEnglish ? 'text-left' : 'text-right'">
         <label class="font-medium">{{ t('cv-label') }}</label>
@@ -140,7 +162,6 @@ const saveChanges = async () => {
 
     <hr />
 
-    <!-- Language -->
     <div class="space-y-2">
       <div class="w-[95%]" :class="auth.isEnglish ? 'text-left' : 'text-right'">
         <label class="font-medium">{{ t('language') }}</label>
@@ -159,7 +180,6 @@ const saveChanges = async () => {
 
     <hr />
 
-    <!-- Country -->
     <div class="space-y-2">
       <div class="w-[95%]" :class="auth.isEnglish ? 'text-left' : 'text-right'">
         <label class="font-medium">{{ t('country') }}</label>
@@ -193,7 +213,6 @@ const saveChanges = async () => {
 
     <hr />
 
-    <!-- Gender -->
     <div class="space-y-2">
       <div class="w-[95%]" :class="auth.isEnglish ? 'text-left' : 'text-right'">
         <label class="font-medium">{{ t('gender') }}</label>
@@ -212,13 +231,11 @@ const saveChanges = async () => {
 
     <hr />
 
-    <!-- Date of Birth -->
     <div class="space-y-2">
       <div class="w-[100%] text-center">
         <label class="font-medium">{{ t('date-birth') }}</label>
       </div>
       <div class="flex justify-center gap-3">
-        <!-- Day -->
         <Select v-model="form.birthDay" :default-value="form.birthDay">
           <SelectTrigger class="w-28 bg-white">
             <SelectValue :placeholder="t('day')" />
@@ -230,7 +247,6 @@ const saveChanges = async () => {
           </SelectContent>
         </Select>
 
-        <!-- Month -->
         <Select v-model="form.birthMonth" :default-value="form.birthMonth">
           <SelectTrigger class="w-36 bg-white">
             <SelectValue :placeholder="t('month')" />
@@ -251,7 +267,6 @@ const saveChanges = async () => {
           </SelectContent>
         </Select>
 
-        <!-- Year -->
         <Select v-model="form.birthYear" :default-value="form.birthYear">
           <SelectTrigger class="w-36 bg-white">
             <SelectValue :placeholder="t('year')" />
@@ -267,7 +282,6 @@ const saveChanges = async () => {
 
     <hr />
 
-    <!-- Social links -->
     <div class="space-y-6">
       <h3 class="font-semibold text-lg" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('links') }}</h3>
 

@@ -1,7 +1,11 @@
+// stores/auth.ts
 import { defineStore } from 'pinia';
 import type { User } from '~/types/user';
 import { useDirection } from '~/composables/useDirection';
 import { useI18n } from 'vue-i18n';
+
+// Define the type for better consistency
+type LanguageCode = 'en' | 'ar';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -36,76 +40,53 @@ export const useAuthStore = defineStore('auth', {
     // LANGUAGE SYSTEM
     // --------------------------
 
+    /** 💡 NEW: Centralized action to update the Pinia store's language flag
+     * This is called by the Profile Edit page after successful save.
+     */
+    setAppLanguage(lang: LanguageCode) {
+      const dir = useDirection();
+
+      // 1. Update the store state
+      this.isEnglish = lang === 'en';
+
+      // 2. Delegate the actual heavy lifting (i18n, HTML, localStorage) to the composable
+      dir.setLocale(lang);
+    },
+
     /** Run ONCE in app.vue — loads saved language + applies direction */
     initLanguage() {
       const dir = useDirection();
-      const { locale } = useI18n();
 
-      // Load saved language (must be 'en' or 'ar')
-      const saved = import.meta.client ? localStorage.getItem('site_lang') : null;
+      // The composable handles initialization. We just synchronize Pinia state.
+      this.isEnglish = dir.current.value === 'en';
 
-      let currentLang: 'en' | 'ar' = 'en'; // default
-
-      if (saved === 'en' || saved === 'ar') {
-        currentLang = saved;
-      }
-
-      this.isEnglish = currentLang === 'en';
-
-      // apply direction
-      dir.setLocale(currentLang);
-
-      // sync i18n
-      locale.value = currentLang;
+      // Ensure the composable runs its initialization if not already done.
+      dir.setLocale(dir.current.value);
     },
 
-    /** Change language to English */
+    /** Change language to English (simplified) */
     setEnglish() {
-      const dir = useDirection();
-      const { locale } = useI18n();
-
-      this.isEnglish = true;
-
-      dir.setLocale('en');
-      locale.value = 'en';
-
-      if (import.meta.client) {
-        localStorage.setItem('site_lang', 'en');
-        // window.location.reload(); // 🔥
-      }
+      this.setAppLanguage('en');
     },
 
-    /** Change language to Arabic */
+    /** Change language to Arabic (simplified) */
     setArabic() {
-      const dir = useDirection();
-      const { locale } = useI18n();
-
-      this.isEnglish = false;
-
-      dir.setLocale('ar');
-      locale.value = 'ar';
-
-      if (import.meta.client) {
-        localStorage.setItem('site_lang', 'ar');
-        // window.location.reload(); // 🔥
-      }
+      this.setAppLanguage('ar');
     },
 
-    /** Toggle EN ↔ AR */
+    /** Toggle EN ↔ AR (simplified) */
     toggleLanguage() {
       const dir = useDirection();
-      const { locale } = useI18n();
 
-      this.isEnglish = !this.isEnglish;
+      // The composable handles the toggling and state change internally.
+      dir.toggle();
 
-      const lang: 'en' | 'ar' = this.isEnglish ? 'en' : 'ar';
+      // Synchronize Pinia state
+      this.isEnglish = dir.current.value === 'en';
 
-      dir.setLocale(lang);
-      locale.value = lang;
-
+      // Keep full page reload here for the dedicated toggle button
       if (import.meta.client) {
-        localStorage.setItem('site_lang', lang);
-        window.location.reload(); // 🔥 FULL reload
+        window.location.reload();
       }
     },
   },
