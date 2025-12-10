@@ -147,7 +147,7 @@ const saveChanges = async () => {
       </div>
       <Select v-model="form.language" :default-value="form.language">
         <SelectTrigger class="w-[95%] bg-white">
-          <SelectValue placeholder="اختر لغة" />
+          <SelectValue :placeholder="t('choose-language')" />
         </SelectTrigger>
 
         <SelectContent>
@@ -166,27 +166,27 @@ const saveChanges = async () => {
       </div>
       <Select v-model="form.country" :default-value="form.country">
         <SelectTrigger class="w-[95%] bg-white">
-          <SelectValue placeholder="اختر البلد" />
+          <SelectValue :placeholder="t('choose-country')" />
         </SelectTrigger>
 
         <SelectContent>
-          <SelectItem value="Libya">ليبيا</SelectItem>
-          <SelectItem value="Egypt">مصر</SelectItem>
-          <SelectItem value="Morocco">المغرب</SelectItem>
-          <SelectItem value="Tunisia">تونس</SelectItem>
-          <SelectItem value="Algeria">الجزائر</SelectItem>
-          <SelectItem value="Sudan">السودان</SelectItem>
-          <SelectItem value="Saudi Arabia">السعودية</SelectItem>
-          <SelectItem value="UAE">الإمارات</SelectItem>
-          <SelectItem value="Qatar">قطر</SelectItem>
-          <SelectItem value="Kuwait">الكويت</SelectItem>
-          <SelectItem value="Bahrain">البحرين</SelectItem>
-          <SelectItem value="Oman">عُمان</SelectItem>
-          <SelectItem value="Jordan">الأردن</SelectItem>
-          <SelectItem value="Lebanon">لبنان</SelectItem>
-          <SelectItem value="Syria">سوريا</SelectItem>
-          <SelectItem value="Iraq">العراق</SelectItem>
-          <SelectItem value="Yemen">اليمن</SelectItem>
+          <SelectItem value="Libya">{{ t('country-libya') }}</SelectItem>
+          <SelectItem value="Egypt">{{ t('country-egypt') }}</SelectItem>
+          <SelectItem value="Morocco">{{ t('country-morocco') }}</SelectItem>
+          <SelectItem value="Tunisia">{{ t('country-tunisia') }}</SelectItem>
+          <SelectItem value="Algeria">{{ t('country-algeria') }}</SelectItem>
+          <SelectItem value="Sudan">{{ t('country-sudan') }}</SelectItem>
+          <SelectItem value="Saudi Arabia">{{ t('country-saudi-arabia') }}</SelectItem>
+          <SelectItem value="UAE">{{ t('country-uae') }}</SelectItem>
+          <SelectItem value="Qatar">{{ t('country-qatar') }}</SelectItem>
+          <SelectItem value="Kuwait">{{ t('country-kuwait') }}</SelectItem>
+          <SelectItem value="Bahrain">{{ t('country-bahrain') }}</SelectItem>
+          <SelectItem value="Oman">{{ t('country-oman') }}</SelectItem>
+          <SelectItem value="Jordan">{{ t('country-jordan') }}</SelectItem>
+          <SelectItem value="Lebanon">{{ t('country-lebanon') }}</SelectItem>
+          <SelectItem value="Syria">{{ t('country-syria') }}</SelectItem>
+          <SelectItem value="Iraq">{{ t('country-iraq') }}</SelectItem>
+          <SelectItem value="Yemen">{{ t('country-yemen') }}</SelectItem>
         </SelectContent>
       </Select>
     </div>
@@ -200,7 +200,7 @@ const saveChanges = async () => {
       </div>
       <Select v-model="form.gender" :default-value="form.gender">
         <SelectTrigger class="w-[95%] bg-white">
-          <SelectValue placeholder="اختر الجنس" />
+          <SelectValue :placeholder="t('choose-gender')" />
         </SelectTrigger>
 
         <SelectContent>
@@ -221,7 +221,7 @@ const saveChanges = async () => {
         <!-- Day -->
         <Select v-model="form.birthDay" :default-value="form.birthDay">
           <SelectTrigger class="w-28 bg-white">
-            <SelectValue placeholder="اليوم" />
+            <SelectValue :placeholder="t('day')" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem v-for="d in 31" :key="d" :value="String(d)">
@@ -233,28 +233,28 @@ const saveChanges = async () => {
         <!-- Month -->
         <Select v-model="form.birthMonth" :default-value="form.birthMonth">
           <SelectTrigger class="w-36 bg-white">
-            <SelectValue placeholder="الشهر" />
+            <SelectValue :placeholder="t('month')" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="1">يناير</SelectItem>
-            <SelectItem value="2">فبراير</SelectItem>
-            <SelectItem value="3">مارس</SelectItem>
-            <SelectItem value="4">أبريل</SelectItem>
-            <SelectItem value="5">مايو</SelectItem>
-            <SelectItem value="6">يونيو</SelectItem>
-            <SelectItem value="7">يوليو</SelectItem>
-            <SelectItem value="8">أغسطس</SelectItem>
-            <SelectItem value="9">سبتمبر</SelectItem>
-            <SelectItem value="10">أكتوبر</SelectItem>
-            <SelectItem value="11">نوفمبر</SelectItem>
-            <SelectItem value="12">ديسمبر</SelectItem>
+            <SelectItem value="1">{{ t('month-jan') }}</SelectItem>
+            <SelectItem value="2">{{ t('month-feb') }}</SelectItem>
+            <SelectItem value="3">{{ t('month-mar') }}</SelectItem>
+            <SelectItem value="4">{{ t('month-apr') }}</SelectItem>
+            <SelectItem value="5">{{ t('month-may') }}</SelectItem>
+            <SelectItem value="6">{{ t('month-jun') }}</SelectItem>
+            <SelectItem value="7">{{ t('month-jul') }}</SelectItem>
+            <SelectItem value="8">{{ t('month-aug') }}</SelectItem>
+            <SelectItem value="9">{{ t('month-sep') }}</SelectItem>
+            <SelectItem value="10">{{ t('month-oct') }}</SelectItem>
+            <SelectItem value="11">{{ t('month-nov') }}</SelectItem>
+            <SelectItem value="12">{{ t('month-dec') }}</SelectItem>
           </SelectContent>
         </Select>
 
         <!-- Year -->
         <Select v-model="form.birthYear" :default-value="form.birthYear">
           <SelectTrigger class="w-36 bg-white">
-            <SelectValue placeholder="السنة" />
+            <SelectValue :placeholder="t('year')" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem v-for="y in years" :key="y" :value="String(y)">
