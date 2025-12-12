@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import type { Profile } from '@/types/edit-profile';
 import { useAuthStore } from '~/stores/auth';
 import { useI18n } from 'vue-i18n';
-import type { Profile } from '@/types/edit-profile';
 
 // 1. Define the specific language type for type safety
-type LanguageCode = 'en' | 'ar';
 
 const auth = useAuthStore();
-const { t, locale } = useI18n(); // 💡 Destructured locale to check current language
+const { t } = useI18n(); // 💡 Destructured locale to check current language
 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: currentYear - 1950 + 1 }, (_, i) => currentYear - i);
@@ -21,7 +19,6 @@ const form = ref({
   lastName: '',
   headline: '',
   bio: '',
-  language: '' as LanguageCode, // Strictly typed
   country: '',
 
   gender: '',
@@ -49,14 +46,12 @@ onMounted(async () => {
     auth.user = user;
 
     // Type casting the fetched language
-    const fetchedLanguage: LanguageCode = (user.language as LanguageCode) || 'en';
 
     form.value = {
       firstName: user.firstName || '',
       lastName: user.lastName || '',
       headline: user.headline || '',
       bio: user.bio || '',
-      language: fetchedLanguage, // Assign the strictly typed value
       country: user.country || '',
 
       gender: user.gender || '',
@@ -73,7 +68,6 @@ onMounted(async () => {
     };
 
     // Ensure the Pinia flag reflects the fetched language for template rendering
-    auth.isEnglish = form.value.language === 'en';
 
     console.log(user);
   } catch (err) {
@@ -90,7 +84,6 @@ const saveChanges = async () => {
   if (!token) return alert('You are not logged in.');
 
   // Get the potentially new language from the form
-  const newLanguage: LanguageCode = form.value.language as LanguageCode;
 
   try {
     const response = await $fetch('http://localhost:3001/api/auth/edit-profile', {
@@ -105,19 +98,8 @@ const saveChanges = async () => {
     // Update the local user state in the store
     auth.user = { ...auth.user, ...form.value };
 
-    // 💡 CORE FIX: Change language only AFTER successful save
-    if (newLanguage && newLanguage !== locale.value) {
-      // Use the centralized Pinia action to handle the change globally:
-      // This calls useDirection().setLocale() which updates everything.
-      auth.setAppLanguage(newLanguage);
-    }
-
     alert('Profile updated successfully');
     console.log('Response:', response);
-
-    // We rely on the reactivity of Vue/Pinia to update the UI instead of a hard reload.
-    // If you experience any persistent styling/translation issues, you can reintroduce:
-    // location.reload();
   } catch (error) {
     alert('Failed to update profile');
     console.error('Error updating profile:', error);
@@ -130,15 +112,15 @@ const saveChanges = async () => {
     <div class="grid grid-cols-1 text-right md:grid-cols-2 gap-6">
       <div class="space-y-2">
         <div class="w-[95%]" :class="auth.isEnglish ? 'text-left' : 'text-right'">
-          <label class="font-medium">{{ t('first-name') }}</label>
-        </div>
-        <Input v-model="form.firstName" class="w-[95%] bg-white" :class="auth.isEnglish ? 'text-left' : 'text-right'" />
-      </div>
-      <div class="space-y-2">
-        <div class="w-[95%]" :class="auth.isEnglish ? 'text-left' : 'text-right'">
           <label class="font-medium">{{ t('last-name') }}</label>
         </div>
         <Input v-model="form.lastName" class="w-[95%] bg-white" :class="auth.isEnglish ? 'text-left' : 'text-right'" />
+      </div>
+      <div class="space-y-2">
+        <div class="w-[95%]" :class="auth.isEnglish ? 'text-left' : 'text-right'">
+          <label class="font-medium">{{ t('first-name') }}</label>
+        </div>
+        <Input v-model="form.firstName" class="w-[95%] bg-white" :class="auth.isEnglish ? 'text-left' : 'text-right'" />
       </div>
     </div>
 
@@ -158,24 +140,6 @@ const saveChanges = async () => {
         <label class="font-medium">{{ t('cv-label') }}</label>
       </div>
       <Textarea v-model="form.bio" class="w-[95%] bg-white" :class="auth.isEnglish ? 'text-left' : 'text-right'" />
-    </div>
-
-    <hr />
-
-    <div class="space-y-2">
-      <div class="w-[95%]" :class="auth.isEnglish ? 'text-left' : 'text-right'">
-        <label class="font-medium">{{ t('language') }}</label>
-      </div>
-      <Select v-model="form.language" :default-value="form.language">
-        <SelectTrigger class="w-[95%] bg-white">
-          <SelectValue :placeholder="t('choose-language')" />
-        </SelectTrigger>
-
-        <SelectContent>
-          <SelectItem value="ar">العربية</SelectItem>
-          <SelectItem value="en">English</SelectItem>
-        </SelectContent>
-      </Select>
     </div>
 
     <hr />

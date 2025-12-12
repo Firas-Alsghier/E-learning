@@ -1,14 +1,14 @@
 // composables/useDirection.ts
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-const STORAGE_KEY = 'site_lang'; // store chosen locale
-const current = ref<'en' | 'ar'>('en'); // global reactive value
+const STORAGE_KEY = 'site_lang';
+const current = ref<'en' | 'ar'>('en');
 
 export const useDirection = () => {
   const { locale } = useI18n();
 
-  /** Apply <html dir=""> + <html lang=""> */
+  /** Apply <html dir> and <html lang> */
   const applyDirection = (lang: 'en' | 'ar') => {
     if (!import.meta.client) return;
 
@@ -16,7 +16,7 @@ export const useDirection = () => {
     document.documentElement.dir = lang === 'ar' ? 'ltr' : 'rtl';
   };
 
-  /** Set language everywhere (direction + i18n + localStorage) */
+  /** Set language globally */
   const setLocale = (lang: 'en' | 'ar') => {
     current.value = lang;
 
@@ -28,22 +28,21 @@ export const useDirection = () => {
     applyDirection(lang);
   };
 
-  /** Toggle EN ↔ AR */
+  /** Toggle EN <-> AR */
   const toggle = () => {
     const lang = current.value === 'en' ? 'ar' : 'en';
     setLocale(lang);
   };
 
-  /** Initialize when app loads (client only) */
+  /** Initialize on app load */
   onMounted(() => {
     if (!import.meta.client) return;
 
-    const saved = (localStorage.getItem(STORAGE_KEY) as 'en' | 'ar' | null) || null;
+    const saved = localStorage.getItem(STORAGE_KEY) as 'en' | 'ar' | null;
 
     const lang = saved || locale.value || 'en';
     current.value = lang;
 
-    // Apply direction + i18n
     locale.value = lang;
     applyDirection(lang);
   });

@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth';
+import { useI18n } from 'vue-i18n';
 
 import { useUser } from '~/composables/useUser';
 const { setUser } = useUser();
 const router = useRouter();
+const { t } = useI18n(); // 💡 Destructured locale to check current language
 
 const auth = useAuthStore();
 const token = localStorage.getItem('token');
@@ -93,30 +95,30 @@ const changePassword = async () => {
     <!-- Email -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div class="space-y-2 text-right">
-        <label class="font-medium">بريدك الإلكتروني:</label>
+        <label class="font-medium" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('your-email-password') }}:</label>
         <div class="flex gap-2">
           <!-- Dialog for editing email -->
           <AlertDialog>
-            <AlertDialogTrigger class="bg-[#171717] text-white py-2 px-4 rounded-lg text-sm cursor-pointer"> تعديل </AlertDialogTrigger>
+            <AlertDialogTrigger class="bg-[#171717] text-white py-2 px-4 rounded-lg text-sm cursor-pointer"> {{ t('edit-btn') }} </AlertDialogTrigger>
             <AlertDialogContent class="flex flex-col w-full">
               <AlertDialogHeader>
-                <AlertDialogTitle class="text-right">تغيير بريدك الإلكتروني</AlertDialogTitle>
-                <AlertDialogDescription class="text-right"> يرجى إدخال عنوان البريد الإلكتروني الجديد وكلمة المرور الحالية. </AlertDialogDescription>
+                <AlertDialogTitle class="text-right">{{ t('change-email-title') }}</AlertDialogTitle>
+                <AlertDialogDescription class="text-right">{{ t('change-email-desc') }}</AlertDialogDescription>
               </AlertDialogHeader>
 
               <div class="space-y-2">
-                <label class="font-medium w-full text-right inline-block"> البريد الإلكتروني الجديد </label>
+                <label class="font-medium w-full text-right inline-block">{{ t('new-email') }}</label>
                 <Input v-model="newEmail" class="bg-white" />
               </div>
 
               <div class="space-y-2">
-                <label class="font-medium w-full text-right inline-block">كلمة المرور</label>
+                <label class="font-medium w-full text-right inline-block">{{ t('password') }}</label>
                 <Input v-model="passwordForEmail" type="password" class="bg-white" />
               </div>
 
               <AlertDialogFooter>
-                <AlertDialogCancel class="cursor-pointer">إلغاء</AlertDialogCancel>
-                <AlertDialogAction class="cursor-pointer" @click.prevent="changeEmail"> تأكيد </AlertDialogAction>
+                <AlertDialogCancel class="cursor-pointer">{{ t('cancel') }}</AlertDialogCancel>
+                <AlertDialogAction class="cursor-pointer" @click.prevent="changeEmail">{{ t('confirm') }}</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
@@ -132,22 +134,22 @@ const changePassword = async () => {
     <!-- Change Password -->
     <div class="space-y-6">
       <div class="space-y-2">
-        <label class="font-medium">كلمة المرور الحالية</label>
+        <label class="font-medium" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('current-password') }}</label>
         <Input v-model="currentPassword" type="password" class="w-[95%] bg-white" />
       </div>
 
       <div class="space-y-2">
-        <label class="font-medium">كلمة مرور جديدة</label>
+        <label class="font-medium" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('new-password') }}</label>
         <Input v-model="newPassword" type="password" class="w-[95%] bg-white" />
       </div>
 
       <div class="space-y-2">
-        <label class="font-medium">تأكيد كلمة المرور الجديدة</label>
+        <label class="font-medium" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('confirm-new-password') }}</label>
         <Input v-model="confirmPassword" type="password" class="w-[95%] bg-white" />
       </div>
     </div>
 
     <!-- Save button -->
-    <Button type="submit" class="mt-6 cursor-pointer">حفظ</Button>
+    <Button type="submit" class="mt-6 cursor-pointer">{{ t('save-btn') }}</Button>
   </form>
 </template>

@@ -26,11 +26,14 @@ const bannerText = computed(() => (locale.value === 'ar' ? 'If you want to switc
 const buttonLabel = computed(() => (locale.value === 'ar' ? 'English' : 'العربية'));
 
 const switchLang = () => {
-  // Use custom composable to switch locale and update HTML dir
+  // Switch locale + HTML dir
+  location.reload();
   dir.toggle();
 
-  // also update pinia using the current value from the custom composable
+  // Update pinia isEnglish flag
   langStore.isEnglish = dir.current.value !== 'ar';
+
+  // 🔥 Reload page AFTER switching language
 };
 
 // const dismiss = () => {

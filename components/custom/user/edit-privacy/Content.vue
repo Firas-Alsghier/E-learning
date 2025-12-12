@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useAuthStore } from '~/stores/auth';
+import { useI18n } from 'vue-i18n';
 type Privacy = {
   showProfile: boolean;
   showReviews: boolean;
@@ -13,7 +15,8 @@ const showProfile = ref<boolean>(false);
 const showReviews = ref<boolean>(false);
 const allowMessages = ref<boolean>(false);
 const isSaving = ref(false);
-
+const auth = useAuthStore();
+const { t } = useI18n();
 // Load saved privacy settings on mount (client-side)
 const loadPrivacy = async () => {
   try {
@@ -72,24 +75,25 @@ const savePrivacy = async () => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-4">
-    <h2 class="font-bold">إعدادات صفحة الملف الشخصي</h2>
+  <div class="flex flex-col my-6 gap-4">
+    <!-- <h2 class="font-bold text-center my-4">إعدادات صفحة الملف الشخصي</h2> -->
 
-    <div>
+    <div :class="auth.isEnglish ? 'text-left' : 'text-right'">
       <Checkbox v-model="showProfile" id="profile" />
-      <label for="profile">إظهار ملفك الشخصي للمستخدمين المسجلين</label>
+      <label for="profile">{{ t('show-profile-label') }}</label>
     </div>
 
-    <div>
+    <div :class="auth.isEnglish ? 'text-left' : 'text-right'">
       <Checkbox v-model="showReviews" id="reviews" />
-      <label for="reviews">السماح للمستخدمين بمشاهدة تعليقاتي على الدورات</label>
+      <label for="reviews">{{ t('show-reviews-label') }}</label>
     </div>
 
-    <div>
+    <div :class="auth.isEnglish ? 'text-left' : 'text-right'">
       <Checkbox v-model="allowMessages" id="message" />
-      <label for="message">السماح للآخرين بمراسلتي</label>
+      <label for="message">{{ t('allow-messages-label') }}</label>
     </div>
-
-    <Button class="cursor-pointer w-fit" :disabled="isSaving" @click="savePrivacy">حفظ</Button>
+    <div :class="auth.isEnglish ? 'text-left' : 'text-right'">
+      <Button class="cursor-pointer w-fit" :disabled="isSaving" @click="savePrivacy">{{ t('save-btn') }}</Button>
+    </div>
   </div>
 </template>

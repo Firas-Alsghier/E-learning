@@ -8,7 +8,7 @@ definePageMeta({
 });
 </script>
 <template>
-  <SidebarProvider>
+  <SidebarProvider class="mixt-style">
     <AppSidebar />
     <SidebarInset>
       <header class="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
@@ -30,7 +30,7 @@ definePageMeta({
           <div class="aspect-video rounded-xl bg-muted/50" />
           <div class="aspect-video rounded-xl bg-muted/50" />
         </div> -->
-        <div class="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min p-4" dir="rtl">
+        <div class="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min p-4">
           <CustomUserEditPrivacyTitle />
           <CustomUserEditPrivacyContent />
         </div>

@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-
+import { useI18n } from 'vue-i18n';
+import { useAuthStore } from '~/stores/auth';
+const auth = useAuthStore();
+const { t } = useI18n();
 type Offers = {
   productUpdates: boolean;
   promotions: boolean;
@@ -101,56 +103,56 @@ const savePreferences = async () => {
   <form class="space-y-8 bg-[#f9f9f9] p-6 rounded-xl" @submit.prevent="savePreferences">
     <!-- Section 1: Offers & Updates -->
     <div class="border rounded-lg overflow-hidden">
-      <div class="flex items-center justify-between p-4 border-b">
-        <h2 class="text-lg font-semibold">التحديثات والعروض</h2>
+      <div class="flex items-center justify-center p-4 border-b">
+        <h2 class="text-lg font-semibold">{{ t('updates-offers-title') }}</h2>
       </div>
 
       <div class="space-y-2 px-4 py-3">
-        <div class="flex items-center justify-end gap-2">
+        <div class="flex items-center gap-2" :class="auth.isEnglish ? 'justify-end' : 'justify-start'">
           <Checkbox v-model="offers.productUpdates" />
-          <label>إطلاق المنتجات والإعلانات</label>
+          <label>{{ t('product-updates-label') }}</label>
         </div>
-        <div class="flex items-center justify-end gap-2">
+        <div class="flex items-center gap-2" :class="auth.isEnglish ? 'justify-end' : 'justify-start'">
           <Checkbox v-model="offers.promotions" />
-          <label>العروض والترويج</label>
+          <label>{{ t('promotions-label') }}</label>
         </div>
       </div>
     </div>
 
     <!-- Section 2: Your Learning -->
     <div class="border rounded-lg overflow-hidden">
-      <div class="flex items-center justify-between p-4 border-b">
-        <h2 class="text-lg font-semibold">التعلم الخاص بك</h2>
+      <div class="flex items-center justify-center p-4 border-b">
+        <h2 class="text-lg font-semibold">{{ t('your-learning-title') }}</h2>
       </div>
 
       <div class="space-y-2 px-4 py-3">
-        <div class="flex items-center justify-end gap-2">
+        <div class="flex items-center gap-2" :class="auth.isEnglish ? 'justify-end' : 'justify-start'">
           <Checkbox v-model="learning.stats" />
-          <label>إحصاءات التعلم</label>
+          <label>{{ t('learning-stats-label') }}</label>
         </div>
-        <div class="flex items-center justify-end gap-2">
+        <div class="flex items-center gap-2" :class="auth.isEnglish ? 'justify-end' : 'justify-start'">
           <Checkbox v-model="learning.inspiration" />
-          <label>الإلهام (النصائح والقصص وما إلى ذلك)</label>
+          <label>{{ t('inspiration-label') }}</label>
         </div>
-        <div class="flex items-center justify-end gap-2">
+        <div class="flex items-center gap-2" :class="auth.isEnglish ? 'justify-end' : 'justify-start'">
           <Checkbox v-model="learning.courseRecs" />
-          <label>توصيات الدورة</label>
+          <label>{{ t('course-recs-label') }}</label>
         </div>
-        <div class="flex items-center justify-end gap-2">
+        <div class="flex items-center gap-2" :class="auth.isEnglish ? 'justify-end' : 'justify-start'">
           <Checkbox v-model="learning.lecturerNotifs" />
-          <label>الإشعارات من المحاضرين</label>
+          <label>{{ t('lecturer-notifs-label') }}</label>
         </div>
       </div>
     </div>
 
     <!-- Note -->
-    <p class="text-sm text-right text-muted-foreground leading-relaxed">
-      .لاحظة: قد يستغرق الأمر بضع ساعات لتظهر التغييرات في تفضيلاتك. ستستمر في تلقي رسائل بريد إلكتروني بالمعاملات التي تتعلق بحسابك ومشتركاتك إذا قمت بإلغاء الاشتراك
+    <p class="text-sm text-muted-foreground leading-relaxed" :class="auth.isEnglish ? 'text-left' : 'text-right'">
+      {{ t('prefs-note') }}
     </p>
 
     <!-- Save Button -->
     <div class="flex justify-end">
-      <Button class="cursor-pointer" :disabled="isSaving">حفظ</Button>
+      <Button class="cursor-pointer" :disabled="isSaving">{{ t('save-btn') }}</Button>
     </div>
   </form>
 </template>
