@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n';
 import { onMounted } from 'vue';
 import { useAuthStore } from '~/stores/auth';
-const auth = useAuthStore();
-// :class="auth.isEnglish ? 'text-left' : 'text-right'"
-const { locale } = useI18n();
 
+const auth = useAuthStore();
+
+/**
+ * ❗ Only call initLanguage()
+ * Do NOT manually reassign locale.value here.
+ */
 onMounted(() => {
   auth.initLanguage();
-  locale.value = auth.isEnglish ? 'en' : 'ar';
 });
 </script>
 
@@ -17,5 +18,3 @@ onMounted(() => {
     <NuxtPage />
   </NuxtLayout>
 </template>
-
-<script setup lang="ts"></script>

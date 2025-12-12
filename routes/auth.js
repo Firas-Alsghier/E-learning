@@ -383,7 +383,6 @@ router.get('/me', authMiddleware, async (req, res) => {
       email: user.email,
       headline: user.headline,
       bio: user.bio,
-      language: user.language,
       country: user.country,
       gender: user.gender,
       birthDay: user.birthDate.day,

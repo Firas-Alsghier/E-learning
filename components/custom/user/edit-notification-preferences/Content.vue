@@ -108,11 +108,11 @@ const savePreferences = async () => {
       </div>
 
       <div class="space-y-2 px-4 py-3">
-        <div class="flex items-center gap-2" :class="auth.isEnglish ? 'justify-end' : 'justify-start'">
+        <div class="flex items-center gap-2" :class="auth.isEnglish ? 'justify-start' : 'justify-end'">
           <Checkbox v-model="offers.productUpdates" />
           <label>{{ t('product-updates-label') }}</label>
         </div>
-        <div class="flex items-center gap-2" :class="auth.isEnglish ? 'justify-end' : 'justify-start'">
+        <div class="flex items-center gap-2" :class="auth.isEnglish ? 'justify-start' : 'justify-end'">
           <Checkbox v-model="offers.promotions" />
           <label>{{ t('promotions-label') }}</label>
         </div>
@@ -126,19 +126,19 @@ const savePreferences = async () => {
       </div>
 
       <div class="space-y-2 px-4 py-3">
-        <div class="flex items-center gap-2" :class="auth.isEnglish ? 'justify-end' : 'justify-start'">
+        <div class="flex items-center gap-2" :class="auth.isEnglish ? 'justify-start' : 'justify-end'">
           <Checkbox v-model="learning.stats" />
           <label>{{ t('learning-stats-label') }}</label>
         </div>
-        <div class="flex items-center gap-2" :class="auth.isEnglish ? 'justify-end' : 'justify-start'">
+        <div class="flex items-center gap-2" :class="auth.isEnglish ? 'justify-start' : 'justify-end'">
           <Checkbox v-model="learning.inspiration" />
           <label>{{ t('inspiration-label') }}</label>
         </div>
-        <div class="flex items-center gap-2" :class="auth.isEnglish ? 'justify-end' : 'justify-start'">
+        <div class="flex items-center gap-2" :class="auth.isEnglish ? 'justify-start' : 'justify-end'">
           <Checkbox v-model="learning.courseRecs" />
           <label>{{ t('course-recs-label') }}</label>
         </div>
-        <div class="flex items-center gap-2" :class="auth.isEnglish ? 'justify-end' : 'justify-start'">
+        <div class="flex items-center gap-2" :class="auth.isEnglish ? 'justify-start' : 'justify-end'">
           <Checkbox v-model="learning.lecturerNotifs" />
           <label>{{ t('lecturer-notifs-label') }}</label>
         </div>

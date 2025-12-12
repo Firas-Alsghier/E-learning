@@ -8,6 +8,7 @@ definePageMeta({
 });
 </script>
 <template>
+  <LanguageBanner />
   <SidebarProvider class="mixt-style">
     <AppSidebar />
     <SidebarInset>

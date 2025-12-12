@@ -7,7 +7,6 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } fr
 import { useI18n } from 'vue-i18n';
 
 import { BookOpen, Bot, Settings2, SquareTerminal } from 'lucide-vue-next';
-import SidebarProvider from './ui/sidebar/SidebarProvider.vue';
 
 const { t } = useI18n();
 

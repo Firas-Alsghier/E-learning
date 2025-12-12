@@ -109,7 +109,7 @@ const saveChanges = async () => {
 
 <template>
   <form class="space-y-8 bg-[#f9f9f9] p-8 rounded-lg" @submit.prevent="saveChanges">
-    <div class="grid grid-cols-1 text-right md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div class="space-y-2">
         <div class="w-[95%]" :class="auth.isEnglish ? 'text-left' : 'text-right'">
           <label class="font-medium">{{ t('last-name') }}</label>
