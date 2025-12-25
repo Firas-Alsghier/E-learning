@@ -179,5 +179,11 @@
   "warning-close": "Warning: If you close your account, you will be canceled from all 266 of your courses and will lose access to your account and associated data permanently, even if you choose to create a new account using the same email address in the future.",
   "delete-alert": "Are you sure you want to delete the account?",
   "conform-btn": "Conform",
+  "revenue": "Revenue",
+  "this-month": "This Month",
+  "last-month": "Last Month",
+  "email-required": "Email is required",
+  "password-required": "Password is required",
+  "login-failed": "Login failed",
   "delete-data": "Your account will be permanently deleted and this action cannot be reversed. All your data will be lost and you will not be able to recover it later."
 }

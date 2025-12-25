@@ -1,9 +1,15 @@
-export default defineNuxtRouteMiddleware(() => {
-  if (!import.meta.client) return;
+// middleware/teacher.ts
 
-  const token = localStorage.getItem('teacher_token');
+export default defineNuxtRouteMiddleware((to) => {
+  const token = useCookie('teacher_token');
 
-  if (!token) {
+  // ✅ allow access to login page
+  if (to.path === '/teacher/login') {
+    return;
+  }
+
+  // ❌ not logged in → redirect
+  if (!token.value) {
     return navigateTo('/teacher/login');
   }
 });

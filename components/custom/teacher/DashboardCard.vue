@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useAuthStore } from '~/stores/auth';
+const auth = useAuthStore();
+
 defineProps<{
   title?: string;
   number?: string;
@@ -14,8 +17,8 @@ defineProps<{
         <img :src="link" alt="Money bag icon" class="h-8 w-8 text-purple-600" />
       </div>
       <div class="flex flex-col">
-        <h3 class="text-sm font-medium text-gray-500">{{ title }}</h3>
-        <p class="text-2xl font-bold text-gray-800">{{ number }}</p>
+        <h3 class="text-sm font-medium text-gray-500" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ title }}</h3>
+        <p class="text-2xl font-bold text-gray-800" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ number }}</p>
         <div class="mt-1 flex items-center gap-1">
           <span class="flex h-5 w-5 items-center justify-center rounded-full bg-green-100 text-xs font-semibold text-green-500">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

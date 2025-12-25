@@ -1,11 +1,12 @@
 import { defineStore } from 'pinia';
+import type { Teacher } from '@/types/teacher';
 
-export interface Teacher {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-}
+// export interface Teacher {
+//   _id: string;
+//   firstName: string;
+//   lastName: string;
+//   email: string;
+// }
 
 export const useTeacherStore = defineStore('teacher', {
   state: () => ({

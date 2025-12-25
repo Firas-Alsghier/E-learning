@@ -1,6 +1,8 @@
 <script setup>
 import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js';
 import { Bar } from 'vue-chartjs';
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n(); // 💡 Destructured locale to check current language
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
@@ -69,14 +71,13 @@ const options = {
   <div class="bg-white rounded-xl lg:col-span-2 shadow p-6">
     <!-- Header -->
     <div class="flex justify-between items-center mb-4">
-      <h3 class="font-semibold text-gray-800 flex items-center gap-2">
-        Revenue
-        <span class="text-green-500 text-sm font-medium">▲ +0.3%</span>
-      </h3>
       <select class="border rounded px-2 py-1 text-sm text-gray-700">
-        <option>This Month</option>
-        <option>Last Month</option>
+        <option>{{ t('this-month') }}</option>
+        <option>{{ t('last-month') }}</option>
       </select>
+      <h3 class="font-semibold text-gray-800 flex items-center gap-2">
+        {{ t('revenue') }}
+      </h3>
     </div>
 
     <!-- Chart -->

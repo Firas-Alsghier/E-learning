@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '~/stores/auth';
@@ -52,7 +51,7 @@ const handleLogin = async () => {
     // Optional: reuse store if you want later
     // auth.setUser(res.teacher);
 
-    router.push('/teacher');
+    router.push('/overview');
   } catch (err: any) {
     error.value = err?.data?.message || t('login-failed');
   } finally {
@@ -116,8 +115,8 @@ const handleLogin = async () => {
           </div>
 
           <div class="mt-4 text-center text-sm">
-            {{ t('teacher-no-account') }}
-            <span class="text-muted-foreground"> ({{ t('wait-admin-approval') }}) </span>
+            {{ t('dont-have-account') }} <a href="/">{{ t('sign-up') }}</a>
+            <!-- <span class="text-muted-foreground"> ({{ t('wait-admin-approval') }}) </span> -->
           </div>
         </CardContent>
       </Card>

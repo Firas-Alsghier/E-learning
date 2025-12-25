@@ -6,6 +6,7 @@ import authRoutes from './routes/auth.js';
 import blogRoutes from './routes/blogs.js';
 import teacherAuthRoutes from './routes/teacherAuth.js';
 import teacherArticlesRoutes from './routes/teacherArticles.js';
+import teacherCoursesRoutes from './routes/teacherCourses.js';
 
 // import verifyEmailRoute from './routes/verifyEmail.js';
 
@@ -14,11 +15,14 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/teacher', teacherAuthRoutes);
 app.use('/uploads', express.static('uploads'));
 app.use('/api/teacher/articles', teacherArticlesRoutes);
+app.use('/api/teacher', teacherCoursesRoutes);
+app.use('/api/teacher/courses', teacherCoursesRoutes);
 
 // app.use('/api', verifyEmailRoute);
 

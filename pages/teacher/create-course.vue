@@ -2,8 +2,10 @@
 // export const description = 'A sidebar that collapses to icons.';
 // export const iframeHeight = '800px';
 // export const containerClass = 'w-full h-full';
+const route = useRoute();
+
 definePageMeta({
-  middleware: ['auth'], // This is enough!
+  // middleware: ['auth'], // This is enough!
   ssr: false,
   layout: false,
 });
@@ -79,7 +81,7 @@ const courseData = [
 ];
 </script>
 <template>
-  <SidebarProvider>
+  <SidebarProvider class="mixt-style">
     <AppSidebarTeacher />
     <SidebarInset>
       <header class="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
@@ -89,11 +91,7 @@ const courseData = [
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem class="hidden md:block">
-                <BreadcrumbLink href="#"> Building Your Application </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator class="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+                <BreadcrumbLink href="#"> {{ route.path.slice(8) }} </BreadcrumbLink>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>

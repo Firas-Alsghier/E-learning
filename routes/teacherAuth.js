@@ -6,39 +6,34 @@ import jwt from 'jsonwebtoken';
 const router = express.Router();
 
 router.post('/login', async (req, res) => {
-  console.log('HEADERS:', req.headers);
-  console.log('BODY:', req.body);
   try {
-    // ✅ SAFE destructuring
-    const { email, password } = req.body || {};
+    const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password are required' });
-    }
-
+    // 1. Find teacher
     const teacher = await Teacher.findOne({ email });
     if (!teacher) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
+    // 2. Compare password
     const isMatch = await bcrypt.compare(password, teacher.password);
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
+    // 3. Create token
     const token = jwt.sign({ id: teacher._id, role: 'teacher' }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
     res.json({
       token,
       teacher: {
         id: teacher._id,
-        firstName: teacher.firstName,
-        lastName: teacher.lastName,
         email: teacher.email,
+        role: 'teacher',
       },
     });
-  } catch (error) {
-    console.error('Teacher login error:', error);
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });
