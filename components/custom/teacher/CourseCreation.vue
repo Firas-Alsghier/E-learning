@@ -1,3 +1,4 @@
+<!-- components\custom\teacher\CourseCreation.vue -->
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import axios from 'axios';
