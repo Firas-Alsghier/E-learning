@@ -5,8 +5,12 @@ export const teacherAuth = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ message: 'No token provided' });
+    if (!authHeader) {
+      return res.status(401).json({ message: 'No authorization header' });
+    }
+
+    if (!authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'Invalid authorization format' });
     }
 
     const token = authHeader.split(' ')[1];
@@ -19,9 +23,10 @@ export const teacherAuth = async (req, res, next) => {
       return res.status(401).json({ message: 'Teacher not found' });
     }
 
-    req.teacher = teacher; // 🔥 attach teacher to request
+    req.teacher = teacher;
     next();
-  } catch (error) {
-    return res.status(401).json({ message: 'Invalid token' });
+  } catch (err) {
+    console.error('Teacher auth error:', err.message);
+    return res.status(401).json({ message: 'Unauthorized' });
   }
 };

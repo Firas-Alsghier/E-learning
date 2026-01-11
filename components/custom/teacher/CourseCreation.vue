@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { ChevronRight } from 'lucide-vue-next';
+import axios from 'axios';
+import { ChevronRight, Upload, Plus } from 'lucide-vue-next';
 
-// --- State Management for Course Creation Steps ---
-// Represents the current step the user is on (1 to 4)
+const courseId = ref<string | null>(null);
+const isSaving = ref(false);
+
+// --- Step Management ---
 const currentStep = ref(1);
 
-// Course data model for Step 1
+// --- Course Model ---
 interface CourseInfo {
   title: string;
   category: string;
@@ -20,35 +23,70 @@ const courseData = ref<CourseInfo>({
   category: 'Data Management',
   level: 'Basic',
   description: '',
-  faqs: [{ question: 'Do you offer 1 on 1 calls', answer: 'Yes, at a fixed cost per call' }],
+  faqs: [
+    {
+      question: 'Do you offer 1 on 1 calls',
+      answer: 'Yes, at a fixed cost per call',
+    },
+  ],
 });
 
-// Mock data for dropdowns
+// --- API: Create Course (STEP 1) ---
+const createCourse = async () => {
+  isSaving.value = true;
+
+  try {
+    const token = localStorage.getItem('teacher_token');
+
+    if (!token) {
+      alert('Not authenticated');
+      return;
+    }
+
+    const res = await axios.post(
+      'http://localhost:3001/api/teacher/courses',
+      {
+        title: courseData.value.title,
+        description: courseData.value.description,
+        category: courseData.value.category,
+        level: courseData.value.level,
+        faqs: courseData.value.faqs,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    courseId.value = res.data._id;
+    goToNextStep();
+  } catch (err: any) {
+    console.error('Create course error:', err);
+    alert(err?.response?.data?.message || 'Failed to create course');
+  } finally {
+    isSaving.value = false;
+  }
+};
+
+// --- Dropdown Data ---
 const categories = ['Data Management', 'Web Development', 'Design', 'Marketing', 'Finance'];
 const levels = ['Basic', 'Intermediate', 'Advanced', 'Expert'];
 
-// Helper to check if step is complete (for visual styling)
-const isStepCompleted = (step: number) => {
-  return step < currentStep.value;
-};
+// --- Helpers ---
+const isStepCompleted = (step: number) => step < currentStep.value;
 
-// Helper to handle navigation
 const goToNextStep = () => {
-  if (currentStep.value < 4) {
-    currentStep.value++;
-  }
+  if (currentStep.value < 4) currentStep.value++;
 };
 
 const goToStep = (step: number) => {
-  if (step <= currentStep.value) {
-    currentStep.value = step;
-  }
+  if (step <= currentStep.value) currentStep.value = step;
 };
 
-// Character count for description
 const descriptionCharCount = computed(() => courseData.value.description.length);
 
-// --- FAQ Management ---
+// --- FAQ ---
 const addFaq = () => {
   courseData.value.faqs.push({ question: '', answer: '' });
 };
@@ -57,23 +95,24 @@ const removeFaq = (index: number) => {
   courseData.value.faqs.splice(index, 1);
 };
 
-// Function to handle "Save & Continue" or "Save as draft"
-const handleSave = (action: 'continue' | 'draft') => {
-  if (action === 'continue') {
-    // Validation logic would go here
-    console.log('Saving Course Info and moving to step 2:', courseData.value);
-    goToNextStep();
-  } else {
-    console.log('Saving draft:', courseData.value);
+// --- Save Handler ---
+const handleSave = async (action: 'continue' | 'draft') => {
+  if (action === 'draft') {
+    alert('Draft saved (not implemented yet)');
+    return;
   }
-  // Placeholder for actual API call
-  alert(`Action: ${action === 'continue' ? 'Saved & Continued' : 'Saved as Draft'}`);
+
+  if (!courseData.value.title || !courseData.value.description) {
+    alert('Title and description are required');
+    return;
+  }
+
+  await createCourse();
 };
 
-// Placeholder functions for file/image upload
+// --- Upload Placeholder ---
 const handleFileUpload = (type: 'cover' | 'video') => {
   alert(`Simulating ${type} file upload...`);
-  // In a real app, this would open a file picker and handle async upload
 };
 </script>
 
@@ -117,6 +156,7 @@ const handleFileUpload = (type: 'cover' | 'video') => {
             <div>
               <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">Title</label>
               <input
+                :disabled="!!courseId"
                 id="title"
                 type="text"
                 v-model="courseData.title"
@@ -171,6 +211,7 @@ const handleFileUpload = (type: 'cover' | 'video') => {
 
                 <label :for="`faq-q-${index}`" class="block text-xs font-semibold text-gray-700 mb-1">Question</label>
                 <input
+                  :disabled="!!courseId"
                   :id="`faq-q-${index}`"
                   type="text"
                   v-model="faq.question"
@@ -180,6 +221,7 @@ const handleFileUpload = (type: 'cover' | 'video') => {
 
                 <label :for="`faq-a-${index}`" class="block text-xs font-semibold text-gray-700 mb-1">Answer</label>
                 <input
+                  :disabled="!!courseId"
                   :id="`faq-a-${index}`"
                   type="text"
                   v-model="faq.answer"
@@ -237,14 +279,3 @@ const handleFileUpload = (type: 'cover' | 'video') => {
     </main>
   </div>
 </template>
-
-<script lang="ts">
-// We need to import the required Lucide icons outside of the setup script tag
-import { Upload, Plus } from 'lucide-vue-next';
-export default {
-  components: {
-    Upload,
-    Plus,
-  },
-};
-</script>
