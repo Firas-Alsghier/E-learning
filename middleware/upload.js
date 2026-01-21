@@ -1,3 +1,4 @@
+// middleware/upload.js
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
@@ -14,7 +15,7 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
-    cb(null, Date.now() + ext);
+    cb(null, `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`);
   },
 });
 

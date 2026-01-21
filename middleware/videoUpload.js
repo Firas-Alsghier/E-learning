@@ -1,13 +1,13 @@
 import multer from 'multer';
-import path from 'path';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import cloudinary from '../config/cloudinary.js';
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/videos');
-  },
-  filename: (req, file, cb) => {
-    const uniqueName = Date.now() + path.extname(file.originalname);
-    cb(null, uniqueName);
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'courses/videos',
+    resource_type: 'video',
+    format: 'mp4',
   },
 });
 

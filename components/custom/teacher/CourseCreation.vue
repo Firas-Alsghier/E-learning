@@ -9,7 +9,9 @@ const isSaving = ref(false);
 
 // --- Step Management ---
 const currentStep = ref(1);
-
+const onPublished = () => {
+  window.alert('Done!');
+};
 // --- Course Model ---
 interface CourseInfo {
   title: string;
@@ -31,6 +33,40 @@ const courseData = ref<CourseInfo>({
     },
   ],
 });
+
+const coverFile = ref<File | null>(null);
+const coverInputRef = ref<HTMLInputElement | null>(null);
+
+const openCoverPicker = () => {
+  coverInputRef.value?.click();
+};
+
+const onCoverSelected = async (e: Event) => {
+  const file = (e.target as HTMLInputElement).files?.[0];
+  if (!file || !courseId.value) return;
+
+  coverFile.value = file;
+
+  const token = localStorage.getItem('teacher_token');
+  if (!token) return alert('Not authenticated');
+
+  const formData = new FormData();
+  formData.append('cover', file);
+
+  try {
+    await axios.patch(`http://localhost:3001/api/teacher/courses/${courseId.value}/cover`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    alert('Cover image uploaded ✅');
+  } catch (err) {
+    console.error(err);
+    alert('Cover upload failed');
+  }
+};
 
 // --- API: Create Course (STEP 1) ---
 const createCourse = async () => {
@@ -150,7 +186,7 @@ const handleFileUpload = (type: 'cover' | 'video') => {
       <div v-if="currentStep === 1">
         <h1 class="text-xl font-bold text-gray-800 mb-6">Course Information</h1>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-1 gap-8">
           <!-- Left Column: Text Inputs -->
           <div class="space-y-6">
             <!-- Title -->
@@ -234,48 +270,31 @@ const handleFileUpload = (type: 'cover' | 'video') => {
               <button @click="addFaq" class="text-sm text-violet-600 font-semibold hover:text-violet-700 transition flex items-center mt-2"><Plus class="h-4 w-4 mr-1" /> Add another FAQ</button>
             </div>
           </div>
-
-          <!-- Right Column: Media Uploads -->
-          <div class="space-y-8">
-            <!-- Cover Image Upload -->
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">Cover Image</label>
-              <div
-                @click="handleFileUpload('cover')"
-                class="w-full h-64 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-gray-500 cursor-pointer hover:border-violet-500 hover:text-violet-600 transition"
-              >
-                <Upload class="h-6 w-6 mb-2" />
-                <span class="text-sm">Upload</span>
-              </div>
-            </div>
-
-            <!-- Sales Video Upload -->
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">Sales video</label>
-              <div
-                @click="handleFileUpload('video')"
-                class="w-full h-64 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-gray-500 cursor-pointer hover:border-violet-500 hover:text-violet-600 transition"
-              >
-                <Upload class="h-6 w-6 mb-2" />
-                <span class="text-sm">Upload</span>
-              </div>
-            </div>
-          </div>
         </div>
 
         <!-- Footer Actions -->
         <div class="flex justify-end pt-8 border-t border-gray-100 mt-8 space-x-4">
           <button @click="handleSave('draft')" class="px-6 py-3 text-sm font-semibold text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition">Save as draft</button>
-          <button @click="handleSave('continue')" class="px-6 py-3 text-sm font-semibold text-white bg-violet-600 rounded-lg hover:bg-violet-700 transition shadow-md shadow-violet-300">
+          <button @click="handleSave('continue')" class="px-6 cursor-pointer py-3 text-sm font-semibold text-white bg-violet-600 rounded-lg hover:bg-violet-700 transition shadow-md shadow-violet-300">
             Save & Continue
           </button>
         </div>
       </div>
 
-      <!-- Placeholder for future steps -->
-      <div v-else class="text-center p-20 text-gray-500">
-        <h2 class="text-2xl font-semibold mb-4">Step {{ currentStep }} Coming Soon!</h2>
-        <p>Content for this step will be implemented in a dedicated component (e.g., Step{{ currentStep }}.vue).</p>
+      <!-- future steps -->
+      <!-- STEP 2 -->
+      <div v-else-if="currentStep === 2">
+        <CustomTeacherCourseMaterialsStep :courseId="courseId" @continue="goToNextStep" />
+      </div>
+
+      <!-- STEP 3 -->
+      <div v-else-if="currentStep === 3" class="text-center p-20">
+        <CustomTeacherCoursePricingStep @continue="goToNextStep" />
+      </div>
+
+      <!-- STEP 4 -->
+      <div v-else-if="currentStep === 4">
+        <CustomTeacherCoursePublishStep :courseId="courseId" @published="onPublished" />
       </div>
     </main>
   </div>

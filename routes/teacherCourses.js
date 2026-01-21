@@ -6,6 +6,7 @@ import Lesson from '../models/Lesson.js';
 import { teacherAuth } from '../middleware/teacherAuth.js';
 import { uploadCover } from '../middleware/upload.js';
 import { videoUpload } from '../middleware/videoUpload.js';
+import slugify from 'slugify';
 
 const router = express.Router();
 
@@ -16,17 +17,33 @@ const router = express.Router();
  */
 router.post('/', teacherAuth, uploadCover.single('cover'), async (req, res) => {
   try {
+    console.log('BODY:', req.body);
+    console.log('FILE:', req.file);
     const { title, description } = req.body;
-
+    const coverImage = req.file ? `${req.protocol}://${req.get('host')}/${req.file.path.replace(/\\/g, '/')}` : null;
     if (!title || !description) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
+    // ✅ CREATE SLUG FROM TITLE
+    const slug = slugify(title, {
+      lower: true,
+      strict: true,
+      trim: true,
+      remove: /[*+~.()'"!:@]/g, // 👈 important
+    });
+
+    // ✅ MAKE SURE SLUG IS UNIQUE
+    const existingCourse = await Course.findOne({ slug });
+    if (existingCourse) {
+      return res.status(400).json({ message: 'Course title already exists' });
+    }
     const course = await Course.create({
       title,
       description,
+      slug, // ✅ SAVE SLUG
       teacher: req.teacher._id,
-      coverImage: req.file ? req.file.path.replace(/\\/g, '/') : null,
+      coverImage,
       sections: [],
       isPublished: false,
     });
@@ -85,7 +102,7 @@ router.patch('/:courseId/publish', teacherAuth, async (req, res) => {
 
 /**
  * ===============================
- * ADD SECTION (REFERENCE-BASED)
+ * ADD SECTION
  * ===============================
  */
 router.post('/:courseId/sections', teacherAuth, async (req, res) => {
@@ -124,7 +141,7 @@ router.post('/:courseId/sections', teacherAuth, async (req, res) => {
 
 /**
  * ===============================
- * ADD LESSON (REFERENCE-BASED)
+ * ADD LESSON
  * ===============================
  */
 router.post('/:sectionId/lessons', teacherAuth, async (req, res) => {
@@ -164,76 +181,27 @@ router.post('/:sectionId/lessons', teacherAuth, async (req, res) => {
   }
 });
 
-router.post('/lessons/:lessonId/video', teacherAuth, videoUpload.single('video'), async (req, res) => {
+/**
+ * ===============================
+ * UPLOAD COURSE COVER IMAGE
+ * ===============================
+ */
+router.patch('/:courseId/cover', teacherAuth, uploadCover.single('cover'), async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: 'No video uploaded' });
-    }
-
-    const { lessonId } = req.params;
-
-    // 1. Find lesson
-    const lesson = await Lesson.findById(lessonId);
-    if (!lesson) {
-      return res.status(404).json({ message: 'Lesson not found' });
-    }
-
-    // 2. Find section
-    const section = await Section.findById(lesson.section);
-    if (!section) {
-      return res.status(404).json({ message: 'Section not found' });
-    }
-
-    // 3. Find course & ownership check
-    const course = await Course.findById(section.course);
-    if (!course || course.teacher.toString() !== req.teacher.id) {
-      return res.status(403).json({ message: 'Not allowed' });
-    }
-
-    // 4. Save video path
-    lesson.videoUrl = req.file.path.replace(/\\/g, '/');
-    await lesson.save();
-
-    res.json({
-      message: 'Video uploaded successfully',
-      videoUrl: lesson.videoUrl,
-    });
-  } catch (error) {
-    console.error('Video upload error:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-router.get('/:courseId/curriculum', teacherAuth, async (req, res) => {
-  try {
-    const { courseId } = req.params;
-
-    // 1. Find course (ownership check)
     const course = await Course.findOne({
-      _id: courseId,
+      _id: req.params.courseId,
       teacher: req.teacher._id,
-    }).select('title description isPublished sections');
+    });
 
-    if (!course) {
-      return res.status(404).json({ message: 'Course not found' });
-    }
+    if (!course) return res.status(404).json({ message: 'Course not found' });
 
-    // 2. Populate sections → lessons
-    const populatedCourse = await Course.findById(courseId)
-      .populate({
-        path: 'sections',
-        options: { sort: { order: 1 } },
-        populate: {
-          path: 'lessons',
-          options: { sort: { order: 1 } },
-          select: 'title duration videoUrl isFreePreview order',
-        },
-      })
-      .select('title description isPublished sections');
+    // Save the full URL for easier frontend use
+    course.coverImage = `${req.protocol}://${req.get('host')}/${req.file.path.replace(/\\/g, '/')}`;
+    await course.save();
 
-    res.json(populatedCourse);
-  } catch (error) {
-    console.error('Get curriculum error:', error);
+    res.json({ coverImage: course.coverImage });
+  } catch (err) {
+    console.error('Upload cover error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 });

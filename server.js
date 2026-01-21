@@ -1,3 +1,4 @@
+// server.js
 import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
@@ -7,6 +8,7 @@ import blogRoutes from './routes/blogs.js';
 import teacherAuthRoutes from './routes/teacherAuth.js';
 import teacherArticlesRoutes from './routes/teacherArticles.js';
 import teacherCoursesRoutes from './routes/teacherCourses.js';
+import publicCoursesRoutes from './routes/publicCourses.js';
 
 // import verifyEmailRoute from './routes/verifyEmail.js';
 
@@ -21,8 +23,9 @@ app.use('/api/blogs', blogRoutes);
 app.use('/api/teacher', teacherAuthRoutes);
 app.use('/uploads', express.static('uploads'));
 app.use('/api/teacher/articles', teacherArticlesRoutes);
-app.use('/api/teacher', teacherCoursesRoutes);
+// app.use('/api/teacher', teacherCoursesRoutes);
 app.use('/api/teacher/courses', teacherCoursesRoutes);
+app.use('/api/courses', publicCoursesRoutes);
 
 // app.use('/api', verifyEmailRoute);
 

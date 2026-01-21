@@ -1,33 +1,13 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useRoute } from 'vue-router';
-import { Heart } from 'lucide-vue-next';
-
-/* ----------------------------------
-     TYPES (adjust if needed)
-  ---------------------------------- */
-interface Course {
-  title: string;
-  category: string;
-  instructorName: string;
-  duration: string;
-  studentsCount: number;
-  level: string;
-  lessonsCount: number;
-  quizzesCount: number;
-  price: number;
-  oldPrice?: number;
-  coverImage: string;
-}
-
-/* ----------------------------------
-     STATE
-  ---------------------------------- */
 const selectedTab = ref('overview');
+import { useRoute } from 'vue-router';
+import { computed } from 'vue';
+import { Heart } from 'lucide-vue-next'; // Added Heart icon
+
 const route = useRoute();
 
+// Safer: make slug computed
 const slug = computed(() => route.params.slug as string);
-
 const tabs = [
   { id: 'overview', label: 'نظرة عامة' },
   { id: 'curriculum', label: 'المنهج الدراسي' },
@@ -35,63 +15,36 @@ const tabs = [
   { id: 'faq', label: 'الأسئلة الشائعة' },
   { id: 'reviews', label: 'التقييمات' },
 ];
-
-/* ----------------------------------
-     DATA FETCH (SSR SAFE)
-  ---------------------------------- */
-const { data, error } = await useAsyncData<Course>(`course-${slug.value}`, () => $fetch(`http://localhost:3001/api/courses/${slug.value}`));
-
-// ✅ THIS LINE FIXES ALL `{}` ERRORS
-const course = computed(() => data.value);
 </script>
-
 <template>
   <CustomBreadCrumb :items="[{ label: 'Home', href: '/' }, { label: 'Courses', href: '/courses' }, { label: slug }]" />
-
-  <!-- ERROR -->
-  <div v-if="error" class="text-red-500 p-10">Failed to load course</div>
-
-  <!-- ================= HERO ================= -->
-  <div v-else-if="course" class="bg-black h-[290px] text-white pt-8">
+  <div class="bg-black h-[290px] text-white pt-8">
     <CustomContainer>
       <div class="flex flex-col lg:flex-row justify-between gap-6">
-        <!-- Left -->
+        <!-- Left: Course Info -->
         <div class="space-y-4">
           <div class="flex items-center space-x-4">
-            <span class="bg-[#555555] text-white text-sm px-3 py-2 rounded-[8px] inline-block">
-              {{ course.category }}
-            </span>
-
-            <p class="text-lg">
-              <span class="text-[#9D9D9D]">by</span>
-              {{ course.instructorName }}
-            </p>
-
+            <span class="bg-[#555555] text-white text-sm px-3 py-2 rounded-[8px] inline-block">Photography</span>
+            <p class="text-lg"><span class="text-[#9D9D9D]">by</span> Determined-Poitras</p>
             <Heart :size="20" fill="currentColor" class="cursor-pointer" />
           </div>
-
-          <h1 class="text-4xl font-bold">
-            {{ course.title }}
-          </h1>
+          <h1 class="text-4xl font-bold">The Ultimate Guide To The Best WordPress LMS Plugin</h1>
 
           <div class="flex flex-wrap gap-4 text-sm text-orange-400 mt-4">
-            <span>🕒 {{ course.duration }}</span>
-            <span>🎓 {{ course.studentsCount }} Students</span>
-            <span>📊 {{ course.level }}</span>
-            <span>📚 {{ course.lessonsCount }} Lessons</span>
-            <span>📝 {{ course.quizzesCount }} Quizzes</span>
+            <span>🕒 2Weeks</span>
+            <span>🎓 156 Students</span>
+            <span>📊 All levels</span>
+            <span>📚 20 Lessons</span>
+            <span>📝 3 Quizzes</span>
           </div>
         </div>
 
-        <!-- Sidebar -->
+        <!-- Sidebar Card -->
         <div class="bg-white text-black rounded-xl p-4 w-full lg:w-[320px] shrink-0">
-          <img :src="course.coverImage || '/assets/images/error.png'" alt="LMS" class="rounded-lg mb-4" />
-
+          <img src="/assets/images/error.png" alt="LMS" class="rounded-lg mb-4" />
           <div class="text-center space-y-2">
-            <p v-if="course.oldPrice" class="text-sm text-gray-600 line-through">${{ course.oldPrice }}</p>
-
-            <p class="text-2xl text-orange-500 font-bold">${{ course.price }}</p>
-
+            <p class="text-sm text-gray-600 line-through">$59.0</p>
+            <p class="text-2xl text-orange-500 font-bold">$49.0</p>
             <button class="bg-orange-500 hover:bg-orange-600 text-white rounded-full px-4 py-2 mt-2">البدء الآن</button>
           </div>
         </div>
@@ -99,8 +52,8 @@ const course = computed(() => data.value);
     </CustomContainer>
   </div>
 
-  <!-- ================= TABS ================= -->
-  <CustomContainer v-if="course">
+  <!-- Tabs Section -->
+  <CustomContainer>
     <div class="flex justify-start my-12">
       <div class="bg-gray-100 rounded-xl w-[850px] h-[340px]">
         <!-- Tabs -->
@@ -120,6 +73,7 @@ const course = computed(() => data.value);
         </div>
 
         <!-- Tab Content -->
+        <!-- Tab Content with fade transition -->
         <Transition name="fade" mode="out-in">
           <div :key="selectedTab" class="mt-4 text-right bg-[#F5F5F5] leading-loose text-gray-800 overflow-y-auto h-[250px] px-4 py-3 rounded-b-xl">
             <CustomCoursesOverviewTab v-if="selectedTab === 'overview'" />

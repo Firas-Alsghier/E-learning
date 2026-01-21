@@ -1,40 +1,91 @@
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import { Search } from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '~/stores/auth';
-// Fake courses array
+
+/* =======================
+     TYPES
+  ======================= */
+interface Course {
+  _id: string;
+  title: string;
+  slug: string;
+
+  // ✅ ADD THIS
+  image?: string;
+
+  teacher?: {
+    firstName?: string;
+    lastName?: string;
+  };
+
+  studentsCount?: number;
+  totalDuration?: string;
+  level?: string;
+  lessonsCount?: number;
+  price: number;
+  oldPrice?: number;
+  category?: string;
+}
+
+/* =======================
+     STATE
+  ======================= */
 const { t } = useI18n();
 const auth = useAuthStore();
-const courses = [
-  {
-    title: 'Create An LMS Website With LearnPress',
-    slug: 'create-an-lms-website',
-    image: 'https://www.filepicker.io/api/file/eYA6E8L3TiGl0GxpQoS6',
-    author: 'Determined-Poitras',
-    students: 156,
-    duration: '2 Weeks',
-    level: 'All levels',
-    lessons: 20,
-    price: 0,
-    oldPrice: 29,
-    category: 'Programming',
-  },
-  {
-    title: 'Mastering Vue 3 Composition API',
-    slug: 'mastering-vue3-composition-api',
-    image: 'https://api.masteringnuxt.com/storage/stBHoO5G1Hsm4YNmcGlDJRw7YZP3GpkxoFbvxEal.png',
-    author: 'CodeMaster',
-    students: 240,
-    duration: '4 Weeks',
-    level: 'Intermediate',
-    lessons: 32,
-    price: 19,
-    oldPrice: 49,
-    category: 'Web Development',
-  },
-];
 
+const courses = ref<any[]>([]);
+const loading = ref(true);
+const error = ref<string | null>(null);
 const showMobileFilter = ref(false);
+
+/* =======================
+     FETCH COURSES
+  ======================= */
+const fetchCourses = async () => {
+  try {
+    const res = await fetch('http://localhost:3001/api/courses');
+    if (!res.ok) throw new Error('Failed to fetch courses');
+
+    const data: Course[] = await res.json();
+
+    courses.value = data.map((course) => ({
+      title: course.title,
+      slug: course.slug,
+
+      // ✅ FIX IS HERE
+      image: course.image || 'http://localhost:3000/images/course-placeholder.jpg',
+
+      author: course.teacher ? `${course.teacher.firstName || ''} ${course.teacher.lastName || ''}`.trim() : 'Unknown Instructor',
+
+      students: course.studentsCount ?? 0,
+      duration: course.totalDuration ?? '—',
+      level: course.level ?? 'All levels',
+      lessons: course.lessonsCount ?? 0,
+      price: course.price,
+      oldPrice: course.oldPrice ?? 0,
+      category: course.category ?? 'General',
+      isWishlisted: false,
+    }));
+  } catch (err: any) {
+    error.value = err.message;
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(fetchCourses);
+
+/* =======================
+     WISHLIST (FRONTEND ONLY)
+  ======================= */
+const toggleWishlist = (slug: string) => {
+  const course = courses.value.find((c) => c.slug === slug);
+  if (course) {
+    course.isWishlisted = !course.isWishlisted;
+  }
+};
 </script>
 
 <template>
@@ -53,41 +104,44 @@ const showMobileFilter = ref(false);
           <CustomCoursesFilterSidebar :show="showMobileFilter" @close="showMobileFilter = false" />
         </div>
 
-        <!-- Course List + Search -->
+        <!-- MAIN -->
         <div class="flex-1 w-full space-y-5">
-          <!-- Top bar -->
+          <!-- TOP BAR -->
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div class="relative w-[270px] max-sm:w-full max-sm:self-center items-center">
-              <Input id="search" type="text" placeholder="Search..." class="text-right border-0 border-b border-black focus:border-black focus-visible:ring-0 rounded-none pl-10" />
-              <span class="absolute left-0 inset-y-0 flex items-center justify-center">
+            <div class="relative w-[270px] max-sm:w-full">
+              <Input type="text" placeholder="Search..." class="border-0 border-b border-black focus-visible:ring-0 rounded-none pl-10" />
+              <span class="absolute left-0 inset-y-0 flex items-center">
                 <Search class="size-5 text-muted-foreground" />
               </span>
             </div>
 
-            <!-- Mobile Filter Button -->
-            <div class="flex justify-between items-center">
-              <div class="lg:hidden p-4">
-                <button @click="showMobileFilter = true" class="flex items-center gap-2 border px-3 py-2 rounded-md">
-                  <span class="text-sm font-semibold">Filter</span>
-                </button>
-              </div>
-              <h2 class="text-2xl font-semibold" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('all-courses') }}</h2>
+            <div class="flex items-center gap-4">
+              <button class="lg:hidden border px-3 py-2 rounded-md" @click="showMobileFilter = true">Filter</button>
+
+              <h2 class="text-2xl font-semibold" :class="auth.isEnglish ? 'text-left' : 'text-right'">
+                {{ t('all-courses') }}
+              </h2>
             </div>
           </div>
 
-          <!-- Course Cards -->
-          <div class="space-y-6">
-            <CustomCoursesCourseCard v-for="course in courses" :key="course.slug" :course="course" />
+          <!-- STATES -->
+          <div v-if="loading" class="text-center py-10 text-gray-500">Loading courses...</div>
+
+          <div v-else-if="error" class="text-center py-10 text-red-500">
+            {{ error }}
           </div>
 
-          <!-- Pagination -->
-          <div class="flex justify-center pt-4">
+          <!-- COURSES -->
+          <div v-else class="space-y-6">
+            <CustomCoursesCourseCard v-for="course in courses" :key="course.slug" :course="course" @toggle-wishlist="toggleWishlist" />
+          </div>
+
+          <!-- PAGINATION (STATIC FOR NOW) -->
+          <div class="flex justify-center pt-6">
             <ul class="flex gap-2 text-sm">
-              <li class="border rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-100 cursor-pointer">‹</li>
+              <li class="border rounded-full w-8 h-8 flex items-center justify-center">‹</li>
               <li class="border rounded-full w-8 h-8 flex items-center justify-center bg-black text-white">1</li>
-              <li class="border rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-100 cursor-pointer">2</li>
-              <li class="border rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-100 cursor-pointer">3</li>
-              <li class="border rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-100 cursor-pointer">›</li>
+              <li class="border rounded-full w-8 h-8 flex items-center justify-center">›</li>
             </ul>
           </div>
         </div>
