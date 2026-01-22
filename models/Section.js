@@ -1,4 +1,4 @@
-// Section.js
+// models/Section.js
 import mongoose from 'mongoose';
 
 const sectionSchema = new mongoose.Schema(
@@ -11,6 +11,7 @@ const sectionSchema = new mongoose.Schema(
     order: {
       type: Number,
       default: 0,
+      min: 0,
     },
 
     course: {
@@ -28,5 +29,8 @@ const sectionSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// optimized fetching
+sectionSchema.index({ course: 1, order: 1 });
 
 export default mongoose.model('Section', sectionSchema);

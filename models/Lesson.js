@@ -1,3 +1,4 @@
+// models/Lesson.js
 import mongoose from 'mongoose';
 
 const lessonSchema = new mongoose.Schema(
@@ -25,6 +26,7 @@ const lessonSchema = new mongoose.Schema(
     order: {
       type: Number,
       default: 0,
+      min: 0,
     },
 
     section: {
@@ -32,8 +34,17 @@ const lessonSchema = new mongoose.Schema(
       ref: 'Section',
       required: true,
     },
+
+    course: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Course',
+      required: true,
+    },
   },
   { timestamps: true }
 );
+
+// optimized fetching
+lessonSchema.index({ section: 1, order: 1 });
 
 export default mongoose.model('Lesson', lessonSchema);
