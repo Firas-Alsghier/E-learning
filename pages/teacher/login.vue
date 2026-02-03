@@ -1,3 +1,4 @@
+<!-- pages/teacher/login.vue -->
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
@@ -53,7 +54,13 @@ const handleLogin = async () => {
 
     router.push('/overview');
   } catch (err: any) {
-    error.value = err?.data?.message || t('login-failed');
+    // 👇 teacher exists but not approved
+    if (err?.status === 403) {
+      error.value = t('teacher-not-approved');
+      // example text: "Your account is under review. Please wait for admin approval."
+    } else {
+      error.value = err?.data?.message || t('login-failed');
+    }
   } finally {
     loading.value = false;
   }

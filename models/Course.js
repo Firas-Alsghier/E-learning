@@ -1,4 +1,4 @@
-// models/Course.js
+// Course.js
 import mongoose from 'mongoose';
 
 const courseSchema = new mongoose.Schema(
@@ -10,30 +10,11 @@ const courseSchema = new mongoose.Schema(
 
     description: {
       type: String,
-      required: true,
     },
 
     coverImage: {
       type: String,
     },
-
-    category: {
-      type: String,
-      required: true,
-    },
-
-    level: {
-      type: String,
-      enum: ['Basic', 'Intermediate', 'Advanced', 'Expert'],
-      required: true,
-    },
-
-    faqs: [
-      {
-        question: String,
-        answer: String,
-      },
-    ],
 
     price: {
       type: Number,

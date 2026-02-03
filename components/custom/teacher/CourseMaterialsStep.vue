@@ -1,51 +1,66 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { Plus, Upload, Trash } from 'lucide-vue-next';
 
 /* =========================
-       EMITS & PROPS
-  ========================= */
+        EMITS & PROPS
+========================= */
 
-defineEmits(['continue']);
+const emit = defineEmits<{
+  (e: 'continue'): void;
+}>();
 
 const props = defineProps<{
   courseId: string | null;
 }>();
 
 /* =========================
-       TYPES
-  ========================= */
+          TYPES
+========================= */
 
 interface Lesson {
-  _id?: string;
+  _id: string;
   title: string;
 }
 
 interface Section {
-  _id?: string;
+  _id: string;
   title: string;
   lessons: Lesson[];
 }
 
 /* =========================
-       STATE
-  ========================= */
+          STATE
+========================= */
 
-const sections = ref<Section[]>([
-  {
-    title: 'Section 1',
-    lessons: [{ title: 'Lesson 1' }],
-  },
-]);
-
+const sections = ref<Section[]>([]);
 const coverInputRef = ref<HTMLInputElement | null>(null);
 const videoInputRef = ref<HTMLInputElement | null>(null);
 const selectedLessonId = ref<string | null>(null);
 
+const token = localStorage.getItem('teacher_token');
+
 /* =========================
-       COVER UPLOAD
-  ========================= */
+      FETCH FULL COURSE
+========================= */
+
+onMounted(async () => {
+  if (!props.courseId || !token) return;
+
+  try {
+    const res = await axios.get(`http://localhost:3001/api/teacher/courses/${props.courseId}/full`, { headers: { Authorization: `Bearer ${token}` } });
+
+    sections.value = res.data.sections || [];
+  } catch (err) {
+    console.error(err);
+    alert('Failed to load course materials');
+  }
+});
+
+/* =========================
+        COVER UPLOAD
+========================= */
 
 const triggerCoverUpload = () => {
   coverInputRef.value?.click();
@@ -53,22 +68,15 @@ const triggerCoverUpload = () => {
 
 const handleCoverSelected = async (event: Event) => {
   const file = (event.target as HTMLInputElement).files?.[0];
-  if (!file || !props.courseId) return;
-
-  const token = localStorage.getItem('teacher_token');
-  if (!token) return alert('Not authenticated');
+  if (!file || !props.courseId || !token) return;
 
   const formData = new FormData();
   formData.append('cover', file);
 
   try {
-    await axios.patch(`http://localhost:3001/api/teacher/courses/${props.courseId}/cover`, formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    await axios.patch(`http://localhost:3001/api/teacher/courses/${props.courseId}/cover`, formData, { headers: { Authorization: `Bearer ${token}` } });
 
-    alert('Cover image uploaded ✅');
+    alert('Cover uploaded ✅');
   } catch (err) {
     console.error(err);
     alert('Cover upload failed');
@@ -78,24 +86,53 @@ const handleCoverSelected = async (event: Event) => {
 };
 
 /* =========================
-       SECTION & LESSON ACTIONS
-  ========================= */
+     SECTION & LESSONS
+========================= */
 
-const addSection = () => {
-  sections.value.push({
-    title: `Section ${sections.value.length + 1}`,
-    lessons: [],
-  });
+const addSection = async () => {
+  if (!props.courseId || !token) return;
+
+  try {
+    const res = await axios.post(
+      `http://localhost:3001/api/teacher/courses/${props.courseId}/sections`,
+      { title: `Section ${sections.value.length + 1}` },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    sections.value.push({
+      _id: res.data._id,
+      title: res.data.title,
+      lessons: [],
+    });
+  } catch (err) {
+    console.error(err);
+    alert('Failed to add section');
+  }
 };
 
 const removeSection = (index: number) => {
   sections.value.splice(index, 1);
 };
 
-const addLesson = (sectionIndex: number) => {
-  sections.value[sectionIndex].lessons.push({
-    title: `Lesson ${sections.value[sectionIndex].lessons.length + 1}`,
-  });
+const addLesson = async (sectionIndex: number) => {
+  const section = sections.value[sectionIndex];
+  if (!section._id || !token) return;
+
+  try {
+    const res = await axios.post(
+      `http://localhost:3001/api/teacher/courses/${section._id}/lessons`,
+      { title: `Lesson ${section.lessons.length + 1}` },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    section.lessons.push({
+      _id: res.data._id,
+      title: res.data.title,
+    });
+  } catch (err) {
+    console.error(err);
+    alert('Failed to add lesson');
+  }
 };
 
 const removeLesson = (sectionIndex: number, lessonIndex: number) => {
@@ -103,112 +140,90 @@ const removeLesson = (sectionIndex: number, lessonIndex: number) => {
 };
 
 /* =========================
-       VIDEO UPLOAD (PLACEHOLDER)
-  ========================= */
+        VIDEO UPLOAD
+========================= */
 
-const triggerVideoUpload = (lessonId?: string) => {
-  if (!lessonId) {
-    alert('Lesson must be saved first');
-    return;
-  }
-
+const triggerVideoUpload = (lessonId: string) => {
   selectedLessonId.value = lessonId;
   videoInputRef.value?.click();
 };
 
 const handleVideoSelected = async (event: Event) => {
   const file = (event.target as HTMLInputElement).files?.[0];
-  if (!file || !selectedLessonId.value) return;
+  if (!file || !selectedLessonId.value || !token) return;
 
-  alert('Video upload will be implemented later');
-  (event.target as HTMLInputElement).value = '';
+  const formData = new FormData();
+  formData.append('video', file);
+  console.log('Uploading video for lesson:', selectedLessonId.value);
+
+  try {
+    await axios.patch(`http://localhost:3001/api/teacher/courses/lessons/${selectedLessonId.value}/video`, formData, { headers: { Authorization: `Bearer ${token}` } });
+
+    alert('Video uploaded ✅');
+  } catch (err) {
+    console.error(err);
+    alert('Video upload failed');
+  } finally {
+    (event.target as HTMLInputElement).value = '';
+    selectedLessonId.value = null;
+  }
+};
+
+/* =========================
+      SAVE & CONTINUE
+========================= */
+
+const saveAndContinue = () => {
+  emit('continue');
 };
 </script>
 
 <template>
   <div>
-    <h1 class="text-xl font-bold text-gray-800 mb-6">Course Materials</h1>
+    <h1 class="text-xl font-bold mb-6">Course Materials</h1>
 
-    <!-- ================= MEDIA ================= -->
-    <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 space-y-6 mb-10">
-      <h2 class="text-lg font-semibold text-gray-800">Media</h2>
+    <!-- Media -->
+    <div class="border rounded-xl p-6 mb-10">
+      <h2 class="font-semibold mb-4">Media</h2>
 
-      <!-- Cover Image -->
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-2"> Cover Image </label>
-
-        <div
-          @click="triggerCoverUpload"
-          class="w-full h-64 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-gray-500 cursor-pointer hover:border-violet-500 hover:text-violet-600 transition"
-        >
-          <Upload class="h-6 w-6 mb-2" />
-          <span class="text-sm">Upload cover image</span>
-          <p class="text-xs text-gray-400 mt-2">Recommended: 1280×720 (JPG, PNG)</p>
-        </div>
-
-        <input ref="coverInputRef" type="file" accept="image/*" class="hidden" @change="handleCoverSelected" />
+      <div @click="triggerCoverUpload" class="h-48 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer">
+        <Upload class="w-5 h-5 mr-2" />
+        Upload cover image
       </div>
 
-      <!-- Sales Video -->
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-2"> Sales Video </label>
-
-        <div
-          class="w-full h-64 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-gray-500 cursor-pointer hover:border-violet-500 hover:text-violet-600 transition"
-        >
-          <Upload class="h-6 w-6 mb-2" />
-          <span class="text-sm">Upload sales video</span>
-        </div>
-      </div>
+      <input ref="coverInputRef" type="file" accept="image/*" class="hidden" @change="handleCoverSelected" />
     </div>
 
-    <!-- ================= CURRICULUM ================= -->
-    <div class="space-y-6">
-      <div v-for="(section, sIndex) in sections" :key="sIndex" class="border border-gray-200 rounded-xl p-5">
-        <!-- Section Header -->
-        <div class="flex items-center justify-between mb-4">
-          <input v-model="section.title" class="text-lg font-semibold w-full border-none focus:ring-0" placeholder="Section title" />
+    <!-- Curriculum -->
+    <div v-for="(section, sIndex) in sections" :key="section._id" class="border rounded-xl p-5 mb-6">
+      <div class="flex justify-between mb-4">
+        <input v-model="section.title" class="font-semibold w-full border-none" />
+        <button @click="removeSection(sIndex)">
+          <Trash class="w-4 h-4 text-red-500" />
+        </button>
+      </div>
 
-          <button @click="removeSection(sIndex)" class="text-red-500 hover:text-red-700 ml-4">
-            <Trash class="w-4 h-4" />
+      <div v-for="(lesson, lIndex) in section.lessons" :key="lesson._id" class="flex justify-between mb-2">
+        <input v-model="lesson.title" class="w-full border-none" />
+        <div class="flex gap-3">
+          <button @click="triggerVideoUpload(lesson._id)">
+            <Upload class="w-4 h-4" />
           </button>
-        </div>
-
-        <!-- Lessons -->
-        <div class="space-y-3 pl-4">
-          <div v-for="(lesson, lIndex) in section.lessons" :key="lIndex" class="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-            <input v-model="lesson.title" class="w-full bg-transparent border-none focus:ring-0" placeholder="Lesson title" />
-
-            <div class="flex items-center gap-3">
-              <button @click="triggerVideoUpload(lesson._id)" class="text-gray-500 hover:text-violet-600">
-                <Upload class="w-4 h-4" />
-              </button>
-
-              <button @click="removeLesson(sIndex, lIndex)" class="text-red-500 hover:text-red-700">
-                <Trash class="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-
-          <button @click="addLesson(sIndex)" class="flex items-center text-sm text-violet-600 font-semibold hover:text-violet-700">
-            <Plus class="w-4 h-4 mr-1" />
-            Add Lesson
+          <button @click="removeLesson(sIndex, lIndex)">
+            <Trash class="w-4 h-4 text-red-500" />
           </button>
         </div>
       </div>
+
+      <button @click="addLesson(sIndex)" class="text-sm text-violet-600 mt-2">+ Add Lesson</button>
     </div>
 
-    <button @click="addSection" class="mt-6 flex items-center text-sm font-semibold text-violet-600 hover:text-violet-700">
-      <Plus class="w-4 h-4 mr-1" />
-      Add Section
-    </button>
+    <button @click="addSection" class="text-violet-600 text-sm">+ Add Section</button>
 
-    <!-- Hidden video input -->
     <input ref="videoInputRef" type="file" accept="video/*" class="hidden" @change="handleVideoSelected" />
 
-    <!-- Footer -->
-    <div class="flex justify-end pt-8 border-t border-gray-100 mt-8">
-      <button @click="$emit('continue')" class="px-6 py-3 text-sm font-semibold text-white bg-violet-600 rounded-lg hover:bg-violet-700 transition shadow-md shadow-violet-300">Save & Continue</button>
+    <div class="flex justify-end mt-10">
+      <button @click="saveAndContinue" class="px-6 py-3 bg-violet-600 text-white rounded-lg">Save & Continue</button>
     </div>
   </div>
 </template>

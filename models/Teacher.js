@@ -1,3 +1,4 @@
+// models/Teacher.js
 import mongoose from 'mongoose';
 
 const teacherSchema = new mongoose.Schema(

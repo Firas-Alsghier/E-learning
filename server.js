@@ -1,18 +1,21 @@
 // server.js
+import dotenv from 'dotenv';
+dotenv.config(); // 👈 MUST be before any other imports
+
 import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
+
 import authRoutes from './routes/auth.js';
 import blogRoutes from './routes/blogs.js';
 import teacherAuthRoutes from './routes/teacherAuth.js';
 import teacherArticlesRoutes from './routes/teacherArticles.js';
 import teacherCoursesRoutes from './routes/teacherCourses.js';
 import publicCoursesRoutes from './routes/publicCourses.js';
+import enrollmentRoutes from './routes/enrollments.js';
 
 // import verifyEmailRoute from './routes/verifyEmail.js';
 
-dotenv.config();
 const app = express();
 
 app.use(cors());
@@ -26,6 +29,7 @@ app.use('/api/teacher/articles', teacherArticlesRoutes);
 // app.use('/api/teacher', teacherCoursesRoutes);
 app.use('/api/teacher/courses', teacherCoursesRoutes);
 app.use('/api/courses', publicCoursesRoutes);
+app.use('/api', enrollmentRoutes);
 
 // app.use('/api', verifyEmailRoute);
 

@@ -12,7 +12,16 @@ const router = express.Router();
 
 router.post('/signup', async (req, res) => {
   try {
-    const { firstName, lastName, email, password, country, birthDate, gender } = req.body;
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+      country,
+      birthDate,
+      gender,
+      role, // 👈 student | teacher
+    } = req.body;
 
     // Validate birth date
     if (!birthDate || !birthDate.day || !birthDate.month || !birthDate.year) {
@@ -31,9 +40,34 @@ router.post('/signup', async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    // 👇 TEACHER SIGNUP (NO EMAIL VERIFICATION)
+    if (role === 'teacher') {
+      const teacher = new User({
+        firstName,
+        lastName,
+        email,
+        password: hashedPassword,
+        country,
+        birthDate,
+        gender,
+        createdAt: new Date().toISOString(),
+
+        role: 'teacher',
+        isVerified: false,
+        isApproved: false, // 👈 CRITICAL
+      });
+
+      await teacher.save();
+
+      return res.status(201).json({
+        message: 'تم إنشاء الحساب. يرجى انتظار موافقة الإدارة قبل تسجيل الدخول.',
+      });
+    }
+
+    // 👇 STUDENT SIGNUP (KEEP EMAIL VERIFICATION)
     const verificationToken = crypto.randomBytes(20).toString('hex');
 
-    // Create user
     const user = new User({
       firstName,
       lastName,
@@ -41,9 +75,10 @@ router.post('/signup', async (req, res) => {
       password: hashedPassword,
       country,
       birthDate,
-      gender, // 👈 save gender
+      gender,
       createdAt: new Date().toISOString(),
-      role: req.body.role || 'student',
+
+      role: 'student',
       isVerified: false,
       verificationToken,
       verificationTokenExpires: Date.now() + 24 * 60 * 60 * 1000,

@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 
 const authMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
+
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ message: 'لم يتم العثور على التوكن' });
   }
@@ -11,9 +12,9 @@ const authMiddleware = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // 🧠 Make sure the structure always has user id and role
+    // ✅ MATCH MONGOOSE STYLE
     req.user = {
-      id: decoded.id || decoded._id, // in case token has _id not id
+      _id: decoded.id || decoded._id,
       role: decoded.role,
       email: decoded.email,
     };

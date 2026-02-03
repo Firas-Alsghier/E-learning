@@ -17,8 +17,8 @@ const router = express.Router();
  */
 router.post('/', teacherAuth, uploadCover.single('cover'), async (req, res) => {
   try {
-    console.log('BODY:', req.body);
-    console.log('FILE:', req.file);
+    // console.log('BODY:', req.body);
+    // console.log('FILE:', req.file);
     const { title, description } = req.body;
     const coverImage = req.file ? `${req.protocol}://${req.get('host')}/${req.file.path.replace(/\\/g, '/')}` : null;
     if (!title || !description) {
@@ -107,24 +107,23 @@ router.patch('/:courseId/publish', teacherAuth, async (req, res) => {
  */
 router.post('/:courseId/sections', teacherAuth, async (req, res) => {
   try {
-    const { courseId } = req.params;
     const { title, order } = req.body;
 
-    if (!title) {
+    if (!title?.trim()) {
       return res.status(400).json({ message: 'Section title is required' });
     }
 
     const course = await Course.findOne({
-      _id: courseId,
+      _id: req.params.courseId,
       teacher: req.teacher._id,
     });
 
     if (!course) {
-      return res.status(404).json({ message: 'Course not found' });
+      return res.status(404).json({ message: 'Course not found or not yours' });
     }
 
     const section = await Section.create({
-      title,
+      title: title.trim(),
       order: order ?? course.sections.length,
       course: course._id,
     });
@@ -135,7 +134,7 @@ router.post('/:courseId/sections', teacherAuth, async (req, res) => {
     res.status(201).json(section);
   } catch (error) {
     console.error('Add section error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Failed to add section' });
   }
 });
 
@@ -146,29 +145,33 @@ router.post('/:courseId/sections', teacherAuth, async (req, res) => {
  */
 router.post('/:sectionId/lessons', teacherAuth, async (req, res) => {
   try {
-    const { sectionId } = req.params;
     const { title, duration = 0, isFreePreview = false, order } = req.body;
 
-    if (!title) {
+    if (!title?.trim()) {
       return res.status(400).json({ message: 'Lesson title is required' });
     }
 
-    const section = await Section.findById(sectionId);
+    const section = await Section.findById(req.params.sectionId);
     if (!section) {
       return res.status(404).json({ message: 'Section not found' });
     }
 
-    const course = await Course.findById(section.course);
-    if (!course || course.teacher.toString() !== req.teacher.id) {
+    const course = await Course.findOne({
+      _id: section.course,
+      teacher: req.teacher._id,
+    });
+
+    if (!course) {
       return res.status(403).json({ message: 'Not allowed' });
     }
 
     const lesson = await Lesson.create({
-      title,
+      title: title.trim(),
       duration,
       isFreePreview,
       order: order ?? section.lessons.length,
       section: section._id,
+      course: course._id, // ✅ ADD THIS LINE
     });
 
     section.lessons.push(lesson._id);
@@ -177,7 +180,47 @@ router.post('/:sectionId/lessons', teacherAuth, async (req, res) => {
     res.status(201).json(lesson);
   } catch (error) {
     console.error('Add lesson error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Failed to add lesson' });
+  }
+});
+
+/**
+ * ===============================
+ * UPLOAD LESSON VIDEO (FIXED)
+ * ===============================
+ */
+router.patch('/lessons/:lessonId/video', teacherAuth, videoUpload.single('video'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No video file uploaded' });
+    }
+
+    const lesson = await Lesson.findById(req.params.lessonId);
+    if (!lesson) {
+      return res.status(404).json({ message: 'Lesson not found' });
+    }
+
+    const section = await Section.findById(lesson.section);
+    if (!section) {
+      return res.status(404).json({ message: 'Section not found' });
+    }
+
+    const course = await Course.findById(section.course);
+    if (!course || course.teacher.toString() !== req.teacher._id.toString()) {
+      return res.status(403).json({ message: 'Not allowed' });
+    }
+
+    // ✅ CORRECT LINE
+    lesson.videoUrl = req.file.path;
+    await lesson.save();
+
+    res.json({
+      message: 'Lesson video uploaded successfully',
+      videoUrl: lesson.videoUrl,
+    });
+  } catch (err) {
+    console.error('Upload lesson video error:', err);
+    res.status(500).json({ message: 'Failed to upload lesson video' });
   }
 });
 
@@ -202,6 +245,32 @@ router.patch('/:courseId/cover', teacherAuth, uploadCover.single('cover'), async
     res.json({ coverImage: course.coverImage });
   } catch (err) {
     console.error('Upload cover error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// GET FULL COURSE (WITH SECTIONS + LESSONS)
+router.get('/:courseId/full', teacherAuth, async (req, res) => {
+  try {
+    const course = await Course.findOne({
+      _id: req.params.courseId,
+      teacher: req.teacher._id,
+    }).populate({
+      path: 'sections',
+      options: { sort: { order: 1 } },
+      populate: {
+        path: 'lessons',
+        options: { sort: { order: 1 } },
+      },
+    });
+
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    res.json(course);
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });
