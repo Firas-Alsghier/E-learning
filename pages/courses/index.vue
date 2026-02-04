@@ -3,31 +3,7 @@ import { ref, onMounted } from 'vue';
 import { Search } from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '~/stores/auth';
-
-/* =======================
-     TYPES
-  ======================= */
-interface Course {
-  _id: string;
-  title: string;
-  slug: string;
-
-  // ✅ ADD THIS
-  image?: string;
-
-  teacher?: {
-    firstName?: string;
-    lastName?: string;
-  };
-
-  studentsCount?: number;
-  totalDuration?: string;
-  level?: string;
-  lessonsCount?: number;
-  price: number;
-  oldPrice?: number;
-  category?: string;
-}
+import type { Index } from '@/types/Course';
 
 /* =======================
      STATE
@@ -48,7 +24,8 @@ const fetchCourses = async () => {
     const res = await fetch('http://localhost:3001/api/courses');
     if (!res.ok) throw new Error('Failed to fetch courses');
 
-    const data: Course[] = await res.json();
+    const data: Index[] = await res.json();
+    console.log(data[0].author);
 
     courses.value = data.map((course) => ({
       title: course.title,
@@ -57,7 +34,7 @@ const fetchCourses = async () => {
       // ✅ FIX IS HERE
       image: course.image || 'http://localhost:3000/images/course-placeholder.jpg',
 
-      author: course.teacher ? `${course.teacher.firstName || ''} ${course.teacher.lastName || ''}`.trim() : 'Unknown Instructor',
+      author: data[0].author,
 
       students: course.studentsCount ?? 0,
       duration: course.totalDuration ?? '—',
@@ -68,6 +45,7 @@ const fetchCourses = async () => {
       category: course.category ?? 'General',
       isWishlisted: false,
     }));
+    console.log(courses.value);
   } catch (err: any) {
     error.value = err.message;
   } finally {

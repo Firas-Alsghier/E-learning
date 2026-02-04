@@ -23,9 +23,9 @@ router.get('/', async (req, res) => {
       price: course.price,
       oldPrice: 0,
       category: 'General', // temporary
-      duration: '2 Weeks', // temporary
+      duration: '3 Weeks', // temporary
       students: 0,
-      level: 'All levels',
+      level: 'All mdsads',
       lessons: course.sections?.length || 0,
       isWishlisted: false,
       author: course.teacher ? `${course.teacher.firstName} ${course.teacher.lastName}` : 'Unknown Instructor',

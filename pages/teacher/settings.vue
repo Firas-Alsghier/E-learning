@@ -1,7 +1,4 @@
 <script setup lang="ts">
-// export const description = 'A sidebar that collapses to icons.';
-// export const iframeHeight = '800px';
-// export const containerClass = 'w-full h-full';
 const route = useRoute();
 
 definePageMeta({
@@ -98,13 +95,6 @@ const courseData = [
         </div>
       </header>
       <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <div class="grid auto-rows-min gap-4 md:grid-cols-4">
-          <CustomTeacherDashboardCard />
-          <CustomTeacherDashboardCard />
-          <CustomTeacherDashboardCard />
-          <CustomTeacherDashboardCard />
-          <!-- <div class="aspect-video rounded-xl bg-muted/50 ratings flex justify-center items-center text-5xl">20</div> -->
-        </div>
         <div class="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min grid grid-cols-1 gap-6">
           <CustomTeacherSettingsDashboard dir="rtl" />
         </div>

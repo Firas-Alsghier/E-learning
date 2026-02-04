@@ -2,27 +2,8 @@
 import { ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { Heart } from 'lucide-vue-next';
+import type { Course } from '@/types/Course';
 
-/* ----------------------------------
-     TYPES (adjust if needed)
-  ---------------------------------- */
-interface Course {
-  title: string;
-  category: string;
-  instructorName: string;
-  duration: string;
-  studentsCount: number;
-  level: string;
-  lessonsCount: number;
-  quizzesCount: number;
-  price: number;
-  oldPrice?: number;
-  coverImage: string;
-}
-
-/* ----------------------------------
-     STATE
-  ---------------------------------- */
 const selectedTab = ref('overview');
 const route = useRoute();
 
@@ -43,6 +24,7 @@ const { data, error } = await useAsyncData<Course>(`course-${slug.value}`, () =>
 
 // ✅ THIS LINE FIXES ALL `{}` ERRORS
 const course = computed(() => data.value);
+console.log(course);
 </script>
 
 <template>
@@ -59,12 +41,13 @@ const course = computed(() => data.value);
         <div class="space-y-4">
           <div class="flex items-center space-x-4">
             <span class="bg-[#555555] text-white text-sm px-3 py-2 rounded-[8px] inline-block">
-              {{ course.category }}
+              <!-- Tag -->
+              photoshop
             </span>
 
             <p class="text-lg">
               <span class="text-[#9D9D9D]">by</span>
-              {{ course.instructorName }}
+              {{ course.author }}
             </p>
 
             <Heart :size="20" fill="currentColor" class="cursor-pointer" />
@@ -78,7 +61,7 @@ const course = computed(() => data.value);
             <span>🕒 {{ course.duration }}</span>
             <span>🎓 {{ course.studentsCount }} Students</span>
             <span>📊 {{ course.level }}</span>
-            <span>📚 {{ course.lessonsCount }} Lessons</span>
+            <span>📚 {{ course.lessons }} Lesson</span>
             <span>📝 {{ course.quizzesCount }} Quizzes</span>
           </div>
         </div>
@@ -92,7 +75,7 @@ const course = computed(() => data.value);
 
             <p class="text-2xl text-orange-500 font-bold">${{ course.price }}</p>
 
-            <button class="bg-orange-500 hover:bg-orange-600 text-white rounded-full px-4 py-2 mt-2">البدء الآن</button>
+            <button class="bg-orange-500 cursor-pointer hover:bg-orange-600 text-white rounded-full px-4 py-2 mt-2">البدء الآن</button>
           </div>
         </div>
       </div>
@@ -122,7 +105,7 @@ const course = computed(() => data.value);
         <!-- Tab Content -->
         <Transition name="fade" mode="out-in">
           <div :key="selectedTab" class="mt-4 text-right bg-[#F5F5F5] leading-loose text-gray-800 overflow-y-auto h-[250px] px-4 py-3 rounded-b-xl">
-            <CustomCoursesOverviewTab v-if="selectedTab === 'overview'" />
+            <CustomCoursesOverviewTab :description="course.description" v-if="selectedTab === 'overview'" />
             <CustomCoursesCurriculumTab v-if="selectedTab === 'curriculum'" />
             <CustomCoursesInstructorTab v-if="selectedTab === 'instructor'" />
             <CustomCoursesFaqsTab v-if="selectedTab === 'faq'" />

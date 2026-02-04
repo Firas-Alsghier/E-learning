@@ -95,7 +95,7 @@ const handleWishlistToggle = () => {
             <span v-else class="text-red-500 text-lg font-bold"> ${{ course.price }} </span>
           </div>
 
-          <button class="text-lg font-medium hover:text-orange-600" @click="goToCourse">
+          <button class="text-lg cursor-pointer font-medium hover:text-orange-600" @click="goToCourse">
             {{ t('more') }}
           </button>
         </div>
