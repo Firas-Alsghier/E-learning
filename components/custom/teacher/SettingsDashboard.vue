@@ -8,56 +8,50 @@ const form = ref({
   lastName: '',
   headline: '',
   bio: '',
-  language: '',
-  website: '',
-  facebook: '',
-  instagram: '',
-  linkedin: '',
-  tiktok: '',
-  x: '',
-  youtube: '',
+  language: 'en',
+  avatar: '',
+  phone: '',
 });
 
-// ✅ Load user data on mount
+// ✅ Load teacher data
 onMounted(async () => {
-  let token = useCookie('token').value;
-  if (!token && import.meta.client) {
-    token = localStorage.getItem('token');
+  let token = null;
+
+  if (import.meta.client) {
+    token = localStorage.getItem('teacher_token');
   }
 
   if (!token) return;
 
   try {
-    const user = await $fetch('http://localhost:3001/api/auth/me', {
-      headers: { Authorization: `Bearer ${token}` },
+    const teacher = await $fetch('http://localhost:3001/api/teacher/me', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
 
-    auth.user = user; // Save in store
+    auth.teacher = teacher;
 
     form.value = {
-      firstName: user.firstName || '',
-      lastName: user.lastName || '',
-      headline: user.headline || '',
-      bio: user.bio || '',
-      language: user.language || '',
-      website: user.social?.website || '',
-      facebook: user.social?.facebook || '',
-      instagram: user.social?.instagram || '',
-      linkedin: user.social?.linkedin || '',
-      tiktok: user.social?.tiktok || '',
-      x: user.social?.x || '',
-      youtube: user.social?.youtube || '',
+      firstName: teacher.firstName || '',
+      lastName: teacher.lastName || '',
+      headline: teacher.headline || '',
+      bio: teacher.bio || '',
+      language: teacher.language || 'en',
+      avatar: teacher.avatar || '',
+      phone: teacher.phone || '',
     };
   } catch (err) {
-    console.error('Error fetching profile:', err);
+    console.error('Error fetching teacher profile:', err);
   }
 });
 
 // ✅ Save changes
 const saveChanges = async () => {
-  let token = useCookie('token').value;
-  if (!token && import.meta.client) {
-    token = localStorage.getItem('token');
+  let token = null;
+
+  if (import.meta.client) {
+    token = localStorage.getItem('teacher_token');
   }
 
   if (!token) {
@@ -66,7 +60,7 @@ const saveChanges = async () => {
   }
 
   try {
-    const response = await $fetch('http://localhost:3001/api/auth/edit-profile', {
+    const response = await $fetch('http://localhost:3001/api/teacher/edit-profile', {
       method: 'PUT',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -75,10 +69,10 @@ const saveChanges = async () => {
       body: form.value,
     });
 
-    auth.user = { ...auth.user, ...form.value };
+    auth.teacher = { ...auth.teacher, ...form.value };
     alert('Profile updated successfully');
+    window.location.reload();
     console.log('Response:', response);
-    location.reload();
   } catch (error) {
     alert('Failed to update profile');
     console.error('Error updating profile:', error);
@@ -119,7 +113,7 @@ const saveChanges = async () => {
 
     <div class="space-y-2">
       <label class="font-medium">رقم الهاتف</label>
-      <Input id="phone" class="w-[95%] bg-white" />
+      <Input id="phone" v-model="form.phone" class="w-[95%] bg-white" />
       <p class="text-sm text-muted-foreground">مثال: 218xxxxxx+</p>
     </div>
     <hr />

@@ -1,7 +1,9 @@
+// routes/teacherAuth.js
 import express from 'express';
 import Teacher from '../models/Teacher.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { teacherAuth } from '../middleware/teacherAuth.js';
 
 const router = express.Router();
 
@@ -81,6 +83,70 @@ router.post('/login', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get current teacher
+router.get('/me', teacherAuth, async (req, res) => {
+  try {
+    const teacher = await Teacher.findById(req.teacher.id);
+
+    if (!teacher) {
+      return res.status(404).json({ message: 'Teacher not found' });
+    }
+
+    res.json({
+      id: teacher._id,
+      firstName: teacher.firstName,
+      lastName: teacher.lastName,
+      email: teacher.email,
+      headline: teacher.headline,
+      bio: teacher.bio,
+      language: teacher.language,
+      avatar: teacher.avatar,
+      isApproved: teacher.isApproved,
+      isBlocked: teacher.isBlocked,
+      role: 'teacher',
+      createdAt: teacher.createdAt,
+    });
+  } catch (err) {
+    console.error('Teacher /me error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Edit Profile for teacher
+router.put('/edit-profile', teacherAuth, async (req, res) => {
+  const teacherId = req.teacher.id;
+
+  const { firstName, lastName, headline, phone, bio, language, avatar } = req.body;
+
+  try {
+    const updateData = {};
+
+    if (firstName !== undefined) updateData.firstName = firstName;
+    if (lastName !== undefined) updateData.lastName = lastName;
+    if (headline !== undefined) updateData.headline = headline;
+    if (bio !== undefined) updateData.bio = bio;
+    if (language !== undefined) updateData.language = language;
+    if (avatar !== undefined) updateData.avatar = avatar;
+    if (phone !== undefined) updateData.phone = phone;
+
+    const updatedTeacher = await Teacher.findByIdAndUpdate(teacherId, { $set: updateData }, { new: true });
+
+    if (!updatedTeacher) {
+      return res.status(404).json({ message: 'Teacher not found' });
+    }
+
+    res.status(200).json({
+      message: 'Profile updated successfully',
+      teacher: updatedTeacher,
+    });
+  } catch (error) {
+    console.error('Update teacher profile error:', error);
+    res.status(500).json({
+      message: 'An error occurred while updating profile',
+    });
   }
 });
 

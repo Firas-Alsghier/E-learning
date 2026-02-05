@@ -13,6 +13,7 @@ import teacherArticlesRoutes from './routes/teacherArticles.js';
 import teacherCoursesRoutes from './routes/teacherCourses.js';
 import publicCoursesRoutes from './routes/publicCourses.js';
 import enrollmentRoutes from './routes/enrollments.js';
+import adminTeachersRoutes from './routes/adminTeachers.js';
 
 // import verifyEmailRoute from './routes/verifyEmail.js';
 
@@ -30,6 +31,7 @@ app.use('/api/teacher/articles', teacherArticlesRoutes);
 app.use('/api/teacher/courses', teacherCoursesRoutes);
 app.use('/api/courses', publicCoursesRoutes);
 app.use('/api', enrollmentRoutes);
+app.use('/api/admin', adminTeachersRoutes);
 
 // app.use('/api', verifyEmailRoute);
 

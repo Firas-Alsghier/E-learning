@@ -1,5 +1,6 @@
 // models/Teacher.js
 import mongoose from 'mongoose';
+import { type } from 'os';
 
 const teacherSchema = new mongoose.Schema(
   {
@@ -30,6 +31,11 @@ const teacherSchema = new mongoose.Schema(
       type: String,
       required: true,
       minlength: 6,
+    },
+
+    phone: {
+      type: String,
+      required: true,
     },
 
     // -------------------
