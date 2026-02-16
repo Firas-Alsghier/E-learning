@@ -72,6 +72,9 @@ const toggleMenu = (event: Event) => {
           <NuxtLink to="/about" class="text-text-custom hover:text-hover-rose-gold" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('about-us') }}</NuxtLink>
           <NuxtLink to="/articles" class="text-text-custom hover:text-hover-rose-gold" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('articles') }}</NuxtLink>
           <NuxtLink to="/courses" class="text-text-custom hover:text-hover-rose-gold" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('courses') }}</NuxtLink>
+          <NuxtLink to="/.well-known/appspecific/com.chrome.devtools." v-if="false" class="text-text-custom hover:text-hover-rose-gold" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{
+            t('courses')
+          }}</NuxtLink>
           <a href="/" class="text-text-custom hover:text-hover-rose-gold cursor-pointer" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('home') }}</a>
 
           <!-- Search Input -->

@@ -14,6 +14,9 @@ import teacherCoursesRoutes from './routes/teacherCourses.js';
 import publicCoursesRoutes from './routes/publicCourses.js';
 import enrollmentRoutes from './routes/enrollments.js';
 import adminTeachersRoutes from './routes/adminTeachers.js';
+import adminAuthRoutes from './routes/adminAuth.js';
+import adminCoursesRoutes from './routes/adminCourses.js';
+import adminStudentsRoutes from './routes/adminStudents.js';
 
 // import verifyEmailRoute from './routes/verifyEmail.js';
 
@@ -31,6 +34,9 @@ app.use('/api/teacher/articles', teacherArticlesRoutes);
 app.use('/api/teacher/courses', teacherCoursesRoutes);
 app.use('/api/courses', publicCoursesRoutes);
 app.use('/api', enrollmentRoutes);
+app.use('/api/admin/auth', adminAuthRoutes);
+app.use('/api/admin/courses', adminCoursesRoutes);
+app.use('/api/admin/students', adminStudentsRoutes);
 app.use('/api/admin', adminTeachersRoutes);
 
 // app.use('/api', verifyEmailRoute);

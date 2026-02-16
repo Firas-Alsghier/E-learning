@@ -1,66 +1,28 @@
+<!-- pages/admin/teachers/approved.vue -->
 <script setup>
 import { ref, onMounted } from 'vue';
+const { $api } = useNuxtApp();
 
-definePageMeta({ layout: false });
+definePageMeta({
+  layout: false,
+});
 
 const expandedId = ref(null);
 const teachers = ref([]);
 const loading = ref(false);
 const error = ref('');
 
-const adminToken = () => localStorage.getItem('admin_token');
-
 const toggleDetails = (id) => {
   expandedId.value = expandedId.value === id ? null : id;
 };
 
-// ✅ MUST BE HERE (top-level)
-const approveTeacher = async (id) => {
-  if (!confirm('Approve this teacher?')) return;
-
-  try {
-    await $fetch(`http://localhost:3001/api/admin/teachers/${id}/approve`, {
-      method: 'PATCH',
-      headers: {
-        Authorization: `Bearer ${adminToken()}`,
-      },
-    });
-
-    teachers.value = teachers.value.filter((t) => t.id !== id);
-  } catch (err) {
-    console.error(err);
-    alert('Failed to approve teacher');
-  }
-};
-
-const rejectTeacher = async (id) => {
-  if (!confirm('Reject and delete this teacher?')) return;
-
-  try {
-    await $fetch(`http://localhost:3001/api/admin/teachers/${id}/reject`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${adminToken()}`,
-      },
-    });
-
-    teachers.value = teachers.value.filter((t) => t.id !== id);
-  } catch (err) {
-    console.error(err);
-    alert('Failed to reject teacher');
-  }
-};
-
-// onMounted ONLY for fetching
+// Fetch approved teachers
 onMounted(async () => {
   loading.value = true;
+  error.value = '';
 
   try {
-    const data = await $fetch('http://localhost:3001/api/admin/teachers/pending', {
-      headers: {
-        Authorization: `Bearer ${adminToken()}`,
-      },
-    });
+    const data = await $api('http://localhost:3001/api/admin/teachers/approved');
 
     teachers.value = data.map((t) => ({
       id: t._id,
@@ -74,28 +36,65 @@ onMounted(async () => {
       bio: t.bio,
       isApproved: t.isApproved,
       isBlocked: t.isBlocked,
-      createdAt: new Date(t.createdAt).toLocaleDateString(),
+      createdAt: new Date(t.updatedAt || t.createdAt).toLocaleDateString(),
     }));
   } catch (err) {
-    error.value = 'Failed to load pending teachers';
+    console.error(err);
+    error.value = 'Failed to load approved teachers';
   } finally {
     loading.value = false;
   }
 });
+
+// Block teacher
+const blockTeacher = async (id) => {
+  if (!confirm('Block this teacher?')) return;
+
+  try {
+    await $api(`http://localhost:3001/api/admin/teachers/${id}/block`, {
+      method: 'PATCH',
+    });
+
+    // remove from approved list instantly
+    teachers.value = teachers.value.filter((t) => t.id !== id);
+  } catch (err) {
+    console.error(err);
+    alert('Failed to block teacher');
+  }
+};
+
+// Revoke approval (optional: sets isApproved = false)
+const revokeTeacher = async (id) => {
+  if (!confirm('Revoke approval for this teacher?')) return;
+
+  try {
+    await $api(`http://localhost:3001/api/admin/teachers/${id}/revoke`, {
+      method: 'PATCH',
+    });
+
+    teachers.value = teachers.value.filter((t) => t.id !== id);
+  } catch (err) {
+    console.error(err);
+    alert('Failed to revoke approval');
+  }
+};
 </script>
 
 <template>
   <div class="space-y-6">
-    <h1 class="text-2xl font-semibold">Pending Teachers</h1>
+    <h1 class="text-2xl font-semibold">Approved Teachers</h1>
 
-    <div class="border rounded-lg bg-white overflow-hidden">
+    <div v-if="loading" class="text-sm text-muted-foreground">Loading...</div>
+    <div v-if="error" class="text-sm text-red-500">{{ error }}</div>
+
+    <div class="border rounded-lg bg-white overflow-hidden" v-if="!loading">
       <table class="w-full text-sm">
         <thead class="bg-muted">
           <tr>
             <th class="p-4">Name</th>
             <th class="p-4">Email</th>
             <th class="p-4">Country</th>
-            <th class="p-4">Signup Date</th>
+            <th class="p-4">Approved Date</th>
             <th class="p-4 text-center">Actions</th>
           </tr>
         </thead>
@@ -108,10 +107,11 @@ onMounted(async () => {
               <td class="p-4">{{ teacher.email }}</td>
               <td class="p-4">{{ teacher.country }}</td>
               <td class="p-4">{{ teacher.createdAt }}</td>
+
               <td class="p-4 flex gap-2 justify-center">
-                <Button size="sm" @click="toggleDetails(teacher.id)"> View </Button>
-                <Button size="sm" @click="approveTeacher(teacher.id)"> Approve </Button>
-                <Button size="sm" @click="rejectTeacher(teacher.id)" variant="destructive"> Reject </Button>
+                <Button size="sm" @click="toggleDetails(teacher.id)">View</Button>
+                <Button size="sm" variant="outline" @click="blockTeacher(teacher.id)">Block</Button>
+                <Button size="sm" variant="destructive" @click="revokeTeacher(teacher.id)"> Revoke </Button>
               </td>
             </tr>
 
@@ -122,26 +122,22 @@ onMounted(async () => {
                   <div>
                     <p><strong>Gender:</strong> {{ teacher.gender }}</p>
                     <p><strong>Language:</strong> {{ teacher.language }}</p>
-                    <p><strong>Role:</strong> Teacher</p>
+                    <p><strong>Status:</strong> ✅ Approved</p>
                   </div>
 
                   <div>
-                    <p><strong>Approved:</strong> ❌</p>
                     <p><strong>Blocked:</strong> ❌</p>
+                    <p><strong>Role:</strong> Teacher</p>
                   </div>
 
                   <div class="md:col-span-2">
                     <p class="font-medium">Headline</p>
-                    <p class="text-muted-foreground">
-                      {{ teacher.headline || '—' }}
-                    </p>
+                    <p class="text-muted-foreground">{{ teacher.headline || '—' }}</p>
                   </div>
 
                   <div class="md:col-span-2">
                     <p class="font-medium">Bio</p>
-                    <p class="text-muted-foreground">
-                      {{ teacher.bio || '—' }}
-                    </p>
+                    <p class="text-muted-foreground">{{ teacher.bio || '—' }}</p>
                   </div>
                 </div>
               </td>

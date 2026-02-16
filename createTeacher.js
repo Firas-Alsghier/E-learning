@@ -1,31 +1,39 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
-import Teacher from './models/Teacher.js';
+import Admin from './models/Admin.js';
 
 dotenv.config();
 
-async function createTeacher() {
+const createAdmin = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
 
-    const hashedPassword = await bcrypt.hash('0123456', 10);
+    const email = 'admin@example.com';
+    const password = 'Admin@123'; // change later
 
-    await Teacher.create({
-      firstName: 'Test',
-      lastName: 'Teacher',
-      email: 'teacher@firas.com',
+    const exists = await Admin.findOne({ email });
+    if (exists) {
+      console.log('❌ Admin already exists');
+      process.exit();
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await Admin.create({
+      email,
       password: hashedPassword,
-      isApproved: true,
-      // must be true to allow login
     });
 
-    console.log('✅ Teacher created successfully');
+    console.log('✅ Admin created successfully');
+    console.log('📧 Email:', email);
+    console.log('🔑 Password:', password);
+
     process.exit();
-  } catch (error) {
-    console.error('❌ Error creating teacher:', error);
+  } catch (err) {
+    console.error('Admin seed error:', err);
     process.exit(1);
   }
-}
+};
 
-createTeacher();
+createAdmin();

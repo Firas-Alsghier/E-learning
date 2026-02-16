@@ -35,7 +35,11 @@ const teacherSchema = new mongoose.Schema(
 
     phone: {
       type: String,
-      required: true,
+    },
+
+    tokenVersion: {
+      type: Number,
+      default: 0,
     },
 
     // -------------------
@@ -53,6 +57,11 @@ const teacherSchema = new mongoose.Schema(
     },
 
     isBlocked: {
+      type: Boolean,
+      default: false,
+    },
+
+    isRejected: {
       type: Boolean,
       default: false,
     },

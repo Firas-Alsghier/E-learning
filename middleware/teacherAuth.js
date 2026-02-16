@@ -1,3 +1,4 @@
+// middleware/teacherAuth.js
 import jwt from 'jsonwebtoken';
 import Teacher from '../models/Teacher.js';
 
@@ -21,6 +22,21 @@ export const teacherAuth = async (req, res, next) => {
 
     if (!teacher) {
       return res.status(401).json({ message: 'Teacher not found' });
+    }
+
+    // ✅ FORCE LOGOUT CHECK (important)
+    if (decoded.tokenVersion !== teacher.tokenVersion) {
+      return res.status(401).json({ message: 'Session expired' });
+    }
+
+    // ✅ BLOCKED CHECK
+    if (teacher.isBlocked) {
+      return res.status(403).json({ message: 'Account is blocked' });
+    }
+
+    // ✅ APPROVAL CHECK
+    if (!teacher.isApproved) {
+      return res.status(403).json({ message: 'Account not approved yet' });
     }
 
     req.teacher = teacher;

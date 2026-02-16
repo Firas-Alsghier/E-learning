@@ -38,6 +38,14 @@ const courseSchema = new mongoose.Schema(
       unique: true,
     },
 
+    reports: [
+      {
+        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        reason: String,
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
+
     sections: [
       {
         type: mongoose.Schema.Types.ObjectId,

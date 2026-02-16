@@ -1,5 +1,6 @@
+// middleware/adminAuth.js
 import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
+import Admin from '../models/Admin.js'; // ✅ use Admin model
 
 const adminAuth = async (req, res, next) => {
   try {
@@ -12,7 +13,7 @@ const adminAuth = async (req, res, next) => {
     const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const admin = await User.findById(decoded.id);
+    const admin = await Admin.findById(decoded.id);
 
     if (!admin || admin.role !== 'admin') {
       return res.status(403).json({ message: 'Admins only' });

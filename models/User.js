@@ -1,3 +1,4 @@
+// models/User.js
 import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
@@ -66,6 +67,13 @@ const userSchema = new mongoose.Schema({
       lecturerNotifs: { type: Boolean, default: false },
     },
   },
+
+  reports: [
+    {
+      reason: String,
+      createdAt: { type: Date, default: Date.now },
+    },
+  ],
 
   role: {
     type: String,

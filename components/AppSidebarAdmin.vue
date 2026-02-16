@@ -49,46 +49,36 @@ const data = {
       ],
     },
     {
-      title: 'API Reference',
-      url: '#',
+      title: 'Courses',
       items: [
         {
-          title: 'Components',
-          url: '#',
+          title: 'All Courses',
+          url: '/admin/courses/all-courses',
         },
         {
-          title: 'File Conventions',
-          url: '#',
+          title: 'Pending Courses',
+          url: '/admin/courses/pending-courses',
         },
         {
-          title: 'Functions',
-          url: '#',
+          title: 'Reported Courses',
+          url: '/admin/courses/reported-courses',
         },
         {
-          title: 'next.config.js Options',
-          url: '#',
-        },
-        {
-          title: 'CLI',
-          url: '#',
-        },
-        {
-          title: 'Edge Runtime',
-          url: '#',
+          title: 'Blocked Courses',
+          url: '/admin/courses/blocked-courses',
         },
       ],
     },
     {
-      title: 'Architecture',
-      url: '#',
+      title: 'Students',
       items: [
         {
-          title: 'Accessibility',
-          url: '#',
+          title: 'All Students',
+          url: '/admin/students/all-students',
         },
         {
-          title: 'Fast Refresh',
-          url: '#',
+          title: 'Blocked Students',
+          url: '/admin/students/blocked-students',
         },
         {
           title: 'Next.js Compiler',
