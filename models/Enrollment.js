@@ -14,6 +14,24 @@ const enrollmentSchema = new mongoose.Schema(
       required: true,
     },
 
+    // 💰 Price snapshot at time of enrollment
+    price: {
+      type: Number,
+      required: true,
+    },
+
+    paymentStatus: {
+      type: String,
+      enum: ['paid', 'pending', 'failed'],
+      default: 'paid',
+    },
+
+    paymentMethod: {
+      type: String,
+      enum: ['stripe', 'paypal', 'free', 'manual'],
+      default: 'free',
+    },
+
     completedLessons: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -23,7 +41,7 @@ const enrollmentSchema = new mongoose.Schema(
 
     progress: {
       type: Number,
-      default: 0, // percentage
+      default: 0,
       min: 0,
       max: 100,
     },
@@ -31,6 +49,7 @@ const enrollmentSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Prevent duplicate enrollments
 enrollmentSchema.index({ student: 1, course: 1 }, { unique: true });
 
 export default mongoose.model('Enrollment', enrollmentSchema);

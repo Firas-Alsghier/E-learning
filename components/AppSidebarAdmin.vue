@@ -81,26 +81,25 @@ const data = {
           url: '/admin/students/blocked-students',
         },
         {
-          title: 'Next.js Compiler',
-          url: '#',
+          title: 'Reported Students',
+          url: '/admin/students/reported-students',
         },
         {
-          title: 'Supported Browsers',
-          url: '#',
-        },
-        {
-          title: 'Turbopack',
-          url: '#',
+          title: 'Enrollment History',
+          url: '/admin/students/enrollment-history',
         },
       ],
     },
     {
-      title: 'Community',
-      url: '#',
+      title: 'Categories',
       items: [
         {
-          title: 'Contribution Guide',
-          url: '#',
+          title: 'All Categories',
+          url: '/admin/categories/all-categories',
+        },
+        {
+          title: 'Add Categories',
+          url: '/admin/categories/add-categories',
         },
       ],
     },
