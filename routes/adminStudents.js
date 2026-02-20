@@ -1,3 +1,4 @@
+// routes/adminStudents.js
 import express from 'express';
 import User from '../models/User.js';
 import Enrollment from '../models/Enrollment.js';
@@ -97,6 +98,28 @@ router.get('/blocked', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch blocked students',
+    });
+  }
+});
+
+// UNBLOCK STUDENT
+router.patch('/:id/unblock', async (req, res) => {
+  try {
+    const student = await User.findById(req.params.id);
+
+    if (!student || student.role !== 'student') {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    student.isBlocked = false;
+    await student.save();
+
+    res.status(200).json({
+      message: 'Student unblocked successfully',
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Failed to unblock student',
     });
   }
 });

@@ -82,7 +82,7 @@ const revokeTeacher = async (id) => {
 
 <template>
   <div class="space-y-6">
-    <h1 class="text-2xl font-semibold">Approved Teachers</h1>
+    <h1 class="text-2xl text-center mt-6 font-semibold">Approved Teachers</h1>
 
     <div v-if="loading" class="text-sm text-muted-foreground">Loading...</div>
     <div v-if="error" class="text-sm text-red-500">{{ error }}</div>
@@ -102,16 +102,16 @@ const revokeTeacher = async (id) => {
         <tbody>
           <template v-for="teacher in teachers" :key="teacher.id">
             <!-- Main Row -->
-            <tr class="border-t">
+            <tr class="border-t text-center">
               <td class="p-4 font-medium">{{ teacher.firstName }} {{ teacher.lastName }}</td>
               <td class="p-4">{{ teacher.email }}</td>
               <td class="p-4">{{ teacher.country }}</td>
               <td class="p-4">{{ teacher.createdAt }}</td>
 
               <td class="p-4 flex gap-2 justify-center">
-                <Button size="sm" @click="toggleDetails(teacher.id)">View</Button>
-                <Button size="sm" variant="outline" @click="blockTeacher(teacher.id)">Block</Button>
-                <Button size="sm" variant="destructive" @click="revokeTeacher(teacher.id)"> Revoke </Button>
+                <Button class="cursor-pointer" size="sm" @click="toggleDetails(teacher.id)">View</Button>
+                <Button class="cursor-pointer" size="sm" variant="outline" @click="blockTeacher(teacher.id)">Block</Button>
+                <Button class="cursor-pointer" size="sm" variant="destructive" @click="revokeTeacher(teacher.id)"> Revoke </Button>
               </td>
             </tr>
 

@@ -28,7 +28,7 @@ const courses = ref<Course[]>([]);
 const expandedId = ref<string | null>(null);
 const loading = ref(false);
 
-const token = process.client ? localStorage.getItem('adminToken') : null;
+const token = import.meta.client ? localStorage.getItem('adminToken') : null;
 
 const api = axios.create({
   baseURL: 'http://localhost:3001/api/admin',
@@ -83,7 +83,7 @@ const deleteCourse = async (id: string) => {
 
 <template>
   <div class="space-y-6">
-    <h1 class="text-2xl font-semibold">All Courses</h1>
+    <h1 class="text-2xl text-center mt-6 font-semibold">All Courses</h1>
 
     <div v-if="loading" class="text-muted-foreground">Loading...</div>
 
@@ -92,7 +92,7 @@ const deleteCourse = async (id: string) => {
         <thead class="bg-muted">
           <tr>
             <th class="p-4">Title</th>
-            <th class="p-4">Instructor</th>
+            <th class="p-4">Teacher</th>
             <th class="p-4">Category</th>
             <th class="p-4">Price</th>
             <th class="p-4">Status</th>
@@ -102,7 +102,7 @@ const deleteCourse = async (id: string) => {
 
         <tbody>
           <template v-for="course in courses" :key="course._id">
-            <tr class="border-t">
+            <tr class="border-t text-center">
               <td class="p-4 font-medium">{{ course.title }}</td>
               <td class="p-4">{{ course.teacher?.firstName }} {{ course.teacher?.lastName }}</td>
               <td class="p-4">{{ course.category }}</td>
@@ -121,9 +121,9 @@ const deleteCourse = async (id: string) => {
               </td>
 
               <td class="p-4 flex gap-2 justify-center">
-                <Button size="sm" variant="outline" @click="blockCourse(course._id)"> Block </Button>
+                <Button class="cursor-pointer" size="sm" variant="outline" @click="blockCourse(course._id)"> Block </Button>
 
-                <Button size="sm" variant="destructive" @click="deleteCourse(course._id)"> Delete </Button>
+                <Button class="cursor-pointer" size="sm" variant="destructive" @click="deleteCourse(course._id)"> Delete </Button>
               </td>
             </tr>
 

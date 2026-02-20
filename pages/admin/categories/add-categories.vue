@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import axios from 'axios';
-
+definePageMeta({
+  layout: false,
+});
 const name = ref('');
 const description = ref('');
 const loading = ref(false);
@@ -19,7 +21,7 @@ const submitCategory = async () => {
     errorMessage.value = '';
     successMessage.value = '';
 
-    await axios.post('/api/admin/categories', {
+    await axios.post('http://localhost:3001/api/admin/categories', {
       name: name.value,
       description: description.value,
     });
@@ -38,8 +40,8 @@ const submitCategory = async () => {
 </script>
 
 <template>
-  <div class="add-category">
-    <h2 class="title">Add New Category</h2>
+  <div class="add-category m-auto">
+    <h2 class="title text-center mt-6">Add New Category</h2>
 
     <form @submit.prevent="submitCategory" class="form">
       <!-- Category Name -->

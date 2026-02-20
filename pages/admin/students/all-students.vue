@@ -12,6 +12,10 @@ interface Student {
   lastName: string;
   email: string;
   createdAt: string;
+  gender: string;
+  country: string;
+  isVerified: string;
+  bio: string;
   isBlocked?: boolean;
 }
 
@@ -72,7 +76,7 @@ onMounted(() => {
 
 <template>
   <div class="space-y-6">
-    <h1 class="text-2xl font-semibold">All Students</h1>
+    <h1 class="text-2xl text-center mt-6 font-semibold">All Students</h1>
 
     <div v-if="loading" class="text-muted-foreground">Loading...</div>
 
@@ -90,7 +94,7 @@ onMounted(() => {
 
         <tbody>
           <template v-for="student in students" :key="student._id">
-            <tr class="border-t">
+            <tr class="border-t text-center">
               <td class="p-4 font-medium">{{ student.firstName }} {{ student.lastName }}</td>
 
               <td class="p-4">{{ student.email }}</td>
@@ -112,11 +116,11 @@ onMounted(() => {
               </td>
 
               <td class="p-4 flex gap-2 justify-center">
-                <Button size="sm" @click="toggleDetails(student._id)"> View </Button>
+                <Button class="cursor-pointer" size="sm" @click="toggleDetails(student._id)"> View </Button>
 
-                <Button size="sm" variant="outline" @click="blockStudent(student._id)"> Block </Button>
+                <Button class="cursor-pointer" size="sm" variant="outline" @click="blockStudent(student._id)"> Block </Button>
 
-                <Button size="sm" variant="destructive" @click="deleteStudent(student._id)"> Delete </Button>
+                <Button class="cursor-pointer" size="sm" variant="destructive" @click="deleteStudent(student._id)"> Delete </Button>
               </td>
             </tr>
 
@@ -125,6 +129,11 @@ onMounted(() => {
                 <div class="space-y-2 text-sm">
                   <p><strong>Student ID:</strong> {{ student._id }}</p>
                   <p><strong>Email:</strong> {{ student.email }}</p>
+                  <p><strong>Gender:</strong>{{ student.gender }}</p>
+                  <p><strong>Country:</strong>{{ student.country }}</p>
+                  <p><strong>Country:</strong>{{ student.country }}</p>
+                  <p><strong>isVerified:</strong>{{ student.isVerified }}</p>
+                  <p><strong>bio:</strong>{{ student.bio }}</p>
                   <p>
                     <strong>Account Created:</strong>
                     {{ new Date(student.createdAt).toLocaleString() }}

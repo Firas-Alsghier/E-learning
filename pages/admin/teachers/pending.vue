@@ -17,7 +17,6 @@ const toggleDetails = (id) => {
 // ✅ MUST BE HERE (top-level)
 const approveTeacher = async (id) => {
   if (!confirm('Approve this teacher?')) return;
-
   try {
     await $fetch(`http://localhost:3001/api/admin/teachers/${id}/approve`, {
       method: 'PATCH',
@@ -61,7 +60,6 @@ onMounted(async () => {
         Authorization: `Bearer ${adminToken()}`,
       },
     });
-
     teachers.value = data.map((t) => ({
       id: t._id,
       firstName: t.firstName,
@@ -76,6 +74,7 @@ onMounted(async () => {
       isBlocked: t.isBlocked,
       createdAt: new Date(t.createdAt).toLocaleDateString(),
     }));
+    console.log(teachers);
   } catch (err) {
     error.value = 'Failed to load pending teachers';
   } finally {
@@ -85,8 +84,9 @@ onMounted(async () => {
 </script>
 
 <template>
+  <!-- <AppSidebarAdmin /> -->
   <div class="space-y-6">
-    <h1 class="text-2xl font-semibold">Pending Teachers</h1>
+    <h1 class="text-2xl text-center mt-6 font-semibold">Pending Teachers</h1>
 
     <div class="border rounded-lg bg-white overflow-hidden">
       <table class="w-full text-sm">
@@ -103,15 +103,15 @@ onMounted(async () => {
         <tbody>
           <template v-for="teacher in teachers" :key="teacher.id">
             <!-- Main Row -->
-            <tr class="border-t">
+            <tr class="border-t text-center">
               <td class="p-4 font-medium">{{ teacher.firstName }} {{ teacher.lastName }}</td>
               <td class="p-4">{{ teacher.email }}</td>
               <td class="p-4">{{ teacher.country }}</td>
               <td class="p-4">{{ teacher.createdAt }}</td>
               <td class="p-4 flex gap-2 justify-center">
-                <Button size="sm" @click="toggleDetails(teacher.id)"> View </Button>
-                <Button size="sm" @click="approveTeacher(teacher.id)"> Approve </Button>
-                <Button size="sm" @click="rejectTeacher(teacher.id)" variant="destructive"> Reject </Button>
+                <Button class="cursor-pointer" size="sm" @click="toggleDetails(teacher.id)"> View </Button>
+                <Button class="cursor-pointer" size="sm" @click="approveTeacher(teacher.id)"> Approve </Button>
+                <Button class="cursor-pointer" size="sm" @click="rejectTeacher(teacher.id)" variant="destructive"> Reject </Button>
               </td>
             </tr>
 
@@ -126,8 +126,8 @@ onMounted(async () => {
                   </div>
 
                   <div>
-                    <p><strong>Approved:</strong> ❌</p>
-                    <p><strong>Blocked:</strong> ❌</p>
+                    <p><strong>Approved:</strong> {{ teacher.isApproved }}</p>
+                    <p><strong>Blocked:</strong> {{ teacher.isBlocked }}</p>
                   </div>
 
                   <div class="md:col-span-2">
@@ -147,6 +147,9 @@ onMounted(async () => {
               </td>
             </tr>
           </template>
+          <tr v-if="teachers.length === 0">
+            <td colspan="5" class="p-6 text-center text-muted-foreground">No pending teachers.</td>
+          </tr>
         </tbody>
       </table>
     </div>

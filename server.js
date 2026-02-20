@@ -19,6 +19,7 @@ import adminCoursesRoutes from './routes/adminCourses.js';
 import adminStudentsRoutes from './routes/adminStudents.js';
 import adminSettingsRoutes from './routes/adminSettingsRoutes.js';
 import adminManagementRoutes from './routes/adminManagementRoutes.js';
+import adminCategories from './routes/adminCategories.js';
 
 // import verifyEmailRoute from './routes/verifyEmail.js';
 
@@ -41,6 +42,7 @@ app.use('/api/admin/courses', adminCoursesRoutes);
 app.use('/api/admin/students', adminStudentsRoutes);
 app.use('/api/admin/settings', adminSettingsRoutes);
 app.use('/api/admin/management', adminManagementRoutes);
+app.use('/api/admin/categories', adminCategories);
 app.use('/api/admin', adminTeachersRoutes);
 
 // app.use('/api', verifyEmailRoute);

@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
 const route = useRoute();
 
 definePageMeta({
@@ -21,10 +21,6 @@ definePageMeta({
               <BreadcrumbItem class="hidden md:block">
                 <BreadcrumbLink href="#"> {{ route.path.slice(1) }} </BreadcrumbLink>
               </BreadcrumbItem>
-              <!-- <BreadcrumbSeparator class="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-              </BreadcrumbItem> -->
             </BreadcrumbList>
           </Breadcrumb>
         </div>

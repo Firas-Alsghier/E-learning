@@ -25,7 +25,7 @@ const editActive = ref(true);
 const fetchCategories = async () => {
   try {
     loading.value = true;
-    const { data } = await axios.get('/api/admin/categories', {
+    const { data } = await axios.get('http://localhost:3001/api/admin/categories', {
       params: { search: search.value },
     });
     categories.value = data.categories;
@@ -49,7 +49,7 @@ const cancelEdit = () => {
 
 const updateCategory = async (id: string) => {
   try {
-    await axios.put(`/api/admin/categories/${id}`, {
+    await axios.put(`http://localhost:3001/api/admin/categories/${id}`, {
       name: editName.value,
       description: editDescription.value,
       isActive: editActive.value,
@@ -67,7 +67,7 @@ const deleteCategory = async (id: string) => {
   if (!confirmDelete) return;
 
   try {
-    await axios.delete(`/api/admin/categories/${id}`);
+    await axios.delete(`http://localhost:3001/api/admin/categories/${id}`);
     categories.value = categories.value.filter((c) => c._id !== id);
   } catch (error) {
     console.error('Delete category error:', error);
@@ -81,7 +81,7 @@ onMounted(() => {
 
 <template>
   <div class="space-y-6">
-    <h1 class="text-2xl font-semibold">All Categories</h1>
+    <h1 class="text-2xl text-center mt-6 font-semibold">All Categories</h1>
 
     <!-- 🔎 Search -->
     <div>
@@ -95,16 +95,16 @@ onMounted(() => {
       <table class="w-full text-sm">
         <thead class="bg-gray-100">
           <tr>
-            <th class="p-3 text-left">Name</th>
-            <th class="p-3 text-left">Slug</th>
-            <th class="p-3 text-left">Status</th>
-            <th class="p-3 text-left">Created</th>
+            <th class="p-3 text-center">Name</th>
+            <th class="p-3 text-center">Slug</th>
+            <th class="p-3 text-center">Status</th>
+            <th class="p-3 text-center">Created</th>
             <th class="p-3 text-center">Actions</th>
           </tr>
         </thead>
 
         <tbody>
-          <tr v-for="category in categories" :key="category._id" class="border-t">
+          <tr v-for="category in categories" :key="category._id" class="border-t text-center">
             <!-- EDIT MODE -->
             <template v-if="editingId === category._id">
               <td class="p-3">
@@ -125,9 +125,9 @@ onMounted(() => {
               </td>
 
               <td class="p-3 flex gap-2 justify-center">
-                <button class="bg-green-600 text-white px-2 py-1 rounded" @click="updateCategory(category._id)">Save</button>
+                <Button class="bg-green-600 text-white px-2 py-1 rounded" @click="updateCategory(category._id)">Save</Button>
 
-                <button class="bg-gray-400 text-white px-2 py-1 rounded" @click="cancelEdit">Cancel</button>
+                <Button class="bg-gray-400 text-white px-2 py-1 rounded" @click="cancelEdit">Cancel</Button>
               </td>
             </template>
 
@@ -157,9 +157,9 @@ onMounted(() => {
               </td>
 
               <td class="p-3 flex gap-2 justify-center">
-                <button class="bg-blue-600 text-white px-2 py-1 rounded" @click="startEdit(category)">Edit</button>
+                <Button class="bg-blue-600 cursor-pointer text-white px-2 py-1 rounded" @click="startEdit(category)">Edit</Button>
 
-                <button class="bg-red-600 text-white px-2 py-1 rounded" @click="deleteCategory(category._id)">Delete</button>
+                <Button class="bg-red-600 cursor-pointer text-white px-2 py-1 rounded" @click="deleteCategory(category._id)">Delete</Button>
               </td>
             </template>
           </tr>

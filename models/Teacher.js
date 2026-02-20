@@ -33,6 +33,17 @@ const teacherSchema = new mongoose.Schema(
       minlength: 6,
     },
 
+    country: {
+      type: String,
+      required: true,
+    },
+
+    gender: {
+      type: String,
+      enum: ['male', 'female'],
+      required: true,
+    },
+
     phone: {
       type: String,
     },

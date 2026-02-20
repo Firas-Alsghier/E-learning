@@ -109,7 +109,7 @@ router.patch('/teachers/:id/block', async (req, res) => {
 // ==============================
 // GET BLOCKED TEACHERS
 // ==============================
-router.get('/teachers/blocked', adminAuth, async (req, res) => {
+router.get('/teachers/blocked', async (req, res) => {
   try {
     const teachers = await Teacher.find({
       isBlocked: true,
@@ -175,7 +175,7 @@ router.patch('/teachers/:id/revoke', async (req, res) => {
 });
 
 // GET REJECTED TEACHERS
-router.get('/teachers/rejected', adminAuth, async (req, res) => {
+router.get('/teachers/rejected', async (req, res) => {
   try {
     const rejectedTeachers = await Teacher.find({ isRejected: true }).select('-password').sort({ createdAt: -1 });
 
@@ -187,7 +187,7 @@ router.get('/teachers/rejected', adminAuth, async (req, res) => {
 });
 
 // REJECT TEACHER (Soft Delete)
-router.patch('/teachers/:id/reject', adminAuth, async (req, res) => {
+router.patch('/teachers/:id/reject', async (req, res) => {
   try {
     const teacher = await Teacher.findById(req.params.id);
 
@@ -209,7 +209,7 @@ router.patch('/teachers/:id/reject', adminAuth, async (req, res) => {
 });
 
 // RESTORE REJECTED TEACHER
-router.patch('/teachers/:id/restore', adminAuth, async (req, res) => {
+router.patch('/teachers/:id/restore', async (req, res) => {
   try {
     const teacher = await Teacher.findById(req.params.id);
 
@@ -230,7 +230,7 @@ router.patch('/teachers/:id/restore', adminAuth, async (req, res) => {
   }
 });
 
-router.delete('/teachers/:id/hard-delete', adminAuth, async (req, res) => {
+router.delete('/teachers/:id/hard-delete', async (req, res) => {
   try {
     await Teacher.findByIdAndDelete(req.params.id);
     res.json({ message: 'Teacher permanently deleted' });

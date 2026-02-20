@@ -61,7 +61,7 @@ onMounted(fetchEnrollments);
 
 <template>
   <div class="p-4">
-    <h2 class="text-2xl font-bold mb-4">Enrollment History</h2>
+    <h2 class="text-2xl text-center mt-6 font-bold mb-4">Enrollment History</h2>
 
     <!-- 🔎 Search -->
     <div class="mb-4">
@@ -73,7 +73,7 @@ onMounted(fetchEnrollments);
 
     <table v-else class="w-full border">
       <thead>
-        <tr class="bg-gray-100 text-left">
+        <tr class="bg-gray-100 text-center">
           <th class="p-2 border">Student</th>
           <th class="p-2 border">Course</th>
           <th class="p-2 border">Price</th>
@@ -85,7 +85,7 @@ onMounted(fetchEnrollments);
 
       <tbody>
         <tr v-for="enrollment in enrollments" :key="enrollment._id">
-          <td class="p-2 border">
+          <td class="p-2 border text-center">
             {{ enrollment.student?.firstName }}
             {{ enrollment.student?.lastName }}
             <div class="text-sm text-gray-500">
@@ -93,13 +93,13 @@ onMounted(fetchEnrollments);
             </div>
           </td>
 
-          <td class="p-2 border">
+          <td class="p-2 border text-center">
             {{ enrollment.course?.title }}
           </td>
 
           <td class="p-2 border">${{ enrollment.price }}</td>
 
-          <td class="p-2 border">
+          <td class="p-2 border text-center">
             <span
               :class="{
                 'text-green-600': enrollment.paymentStatus === 'paid',
@@ -111,9 +111,9 @@ onMounted(fetchEnrollments);
             </span>
           </td>
 
-          <td class="p-2 border">{{ enrollment.progress }}%</td>
+          <td class="p-2 border text-center">{{ enrollment.progress }}%</td>
 
-          <td class="p-2 border">
+          <td class="p-2 border tex-center">
             {{ formatDate(enrollment.createdAt) }}
           </td>
         </tr>

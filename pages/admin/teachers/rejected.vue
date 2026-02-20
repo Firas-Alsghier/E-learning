@@ -23,7 +23,7 @@ const teachers = ref<Teacher[]>([]);
 const expandedId = ref<string | null>(null);
 const loading = ref(false);
 
-const token = process.client ? localStorage.getItem('adminToken') : null;
+const token = import.meta.client ? localStorage.getItem('adminToken') : null;
 
 const api = axios.create({
   baseURL: 'http://localhost:3001/api/admin',
@@ -79,7 +79,7 @@ onMounted(() => {
 
 <template>
   <div class="space-y-6">
-    <h1 class="text-2xl font-semibold">Rejected Teachers</h1>
+    <h1 class="text-2xl text-center mt-6 font-semibold">Rejected Teachers</h1>
 
     <div v-if="loading" class="text-muted-foreground">Loading...</div>
 
@@ -97,7 +97,7 @@ onMounted(() => {
 
         <tbody>
           <template v-for="teacher in teachers" :key="teacher._id">
-            <tr class="border-t">
+            <tr class="border-t text-center">
               <td class="p-4 font-medium">{{ teacher.firstName }} {{ teacher.lastName }}</td>
               <td class="p-4">{{ teacher.email }}</td>
               <td class="p-4">{{ teacher.country }}</td>
@@ -106,11 +106,11 @@ onMounted(() => {
               </td>
 
               <td class="p-4 flex gap-2 justify-center">
-                <Button size="sm" @click="toggleDetails(teacher._id)"> View </Button>
+                <Button class="cursor-pointer" size="sm" @click="toggleDetails(teacher._id)"> View </Button>
 
-                <Button size="sm" variant="outline" @click="restoreTeacher(teacher._id)"> Restore </Button>
+                <Button class="cursor-pointer" size="sm" variant="outline" @click="restoreTeacher(teacher._id)"> Restore </Button>
 
-                <Button size="sm" variant="destructive" @click="deletePermanently(teacher._id)"> Delete Permanently </Button>
+                <Button class="cursor-pointer" size="sm" variant="destructive" @click="deletePermanently(teacher._id)"> Delete Permanently </Button>
               </td>
             </tr>
 
