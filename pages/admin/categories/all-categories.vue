@@ -1,113 +1,171 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 import axios from 'axios';
-
 definePageMeta({
   layout: false,
 });
-
 interface Category {
   _id: string;
   name: string;
+  description?: string;
   slug: string;
-  description: string;
-  isActive: boolean;
+  isActive?: boolean;
   createdAt: string;
 }
 
-const router = useRouter();
 const categories = ref<Category[]>([]);
-const loading = ref<boolean>(false);
+const search = ref('');
+const loading = ref(false);
+const editingId = ref<string | null>(null);
 
-const api = axios.create({
-  baseURL: 'http://localhost:3001/api/admin/categories',
-});
+const editName = ref('');
+const editDescription = ref('');
+const editActive = ref(true);
 
 const fetchCategories = async () => {
   try {
     loading.value = true;
-    const { data } = await api.get('/');
+    const { data } = await axios.get('/api/admin/categories', {
+      params: { search: search.value },
+    });
     categories.value = data.categories;
   } catch (error) {
-    console.error('Failed to fetch categories', error);
+    console.error('Fetch categories error:', error);
   } finally {
     loading.value = false;
   }
 };
 
-const deleteCategory = async (id: string) => {
-  if (!confirm('Are you sure you want to delete this category?')) return;
+const startEdit = (category: Category) => {
+  editingId.value = category._id;
+  editName.value = category.name;
+  editDescription.value = category.description || '';
+  editActive.value = category.isActive ?? true;
+};
 
+const cancelEdit = () => {
+  editingId.value = null;
+};
+
+const updateCategory = async (id: string) => {
   try {
-    await api.delete(`/${id}`);
+    await axios.put(`/api/admin/categories/${id}`, {
+      name: editName.value,
+      description: editDescription.value,
+      isActive: editActive.value,
+    });
+
+    editingId.value = null;
     fetchCategories();
   } catch (error) {
-    console.error('Delete failed', error);
+    console.error('Update category error:', error);
   }
 };
 
-const goToEdit = (id: string) => {
-  router.push(`/admin/categories/edit/${id}`);
+const deleteCategory = async (id: string) => {
+  const confirmDelete = confirm('Are you sure you want to delete this category?');
+  if (!confirmDelete) return;
+
+  try {
+    await axios.delete(`/api/admin/categories/${id}`);
+    categories.value = categories.value.filter((c) => c._id !== id);
+  } catch (error) {
+    console.error('Delete category error:', error);
+  }
 };
 
-onMounted(fetchCategories);
+onMounted(() => {
+  fetchCategories();
+});
 </script>
 
 <template>
-  <div class="p-6 space-y-6">
-    <div class="flex justify-between items-center">
-      <h1 class="text-2xl font-semibold">All Categories</h1>
+  <div class="space-y-6">
+    <h1 class="text-2xl font-semibold">All Categories</h1>
 
-      <button @click="$router.push('/admin/categories/add')" class="bg-black text-white px-4 py-2 rounded text-sm">+ Add Category</button>
+    <!-- 🔎 Search -->
+    <div>
+      <input v-model="search" @input="fetchCategories" type="text" placeholder="Search categories..." class="border p-2 rounded w-full" />
     </div>
 
+    <!-- 📦 Table -->
     <div v-if="loading" class="text-gray-500">Loading...</div>
 
-    <div v-else class="border rounded-lg bg-white overflow-hidden">
+    <div v-else class="border rounded-lg overflow-hidden">
       <table class="w-full text-sm">
-        <thead class="bg-gray-100 text-left">
+        <thead class="bg-gray-100">
           <tr>
-            <th class="p-4">Name</th>
-            <th class="p-4">Slug</th>
-            <th class="p-4">Status</th>
-            <th class="p-4">Created</th>
-            <th class="p-4 text-right">Actions</th>
+            <th class="p-3 text-left">Name</th>
+            <th class="p-3 text-left">Slug</th>
+            <th class="p-3 text-left">Status</th>
+            <th class="p-3 text-left">Created</th>
+            <th class="p-3 text-center">Actions</th>
           </tr>
         </thead>
 
         <tbody>
           <tr v-for="category in categories" :key="category._id" class="border-t">
-            <td class="p-4 font-medium">
-              {{ category.name }}
-              <div class="text-xs text-gray-500">
-                {{ category.description }}
-              </div>
-            </td>
+            <!-- EDIT MODE -->
+            <template v-if="editingId === category._id">
+              <td class="p-3">
+                <input v-model="editName" class="border p-1 rounded w-full" />
+              </td>
 
-            <td class="p-4">
-              {{ category.slug }}
-            </td>
+              <td class="p-3">{{ category.slug }}</td>
 
-            <td class="p-4">
-              <span :class="category.isActive ? 'text-green-600' : 'text-red-600'">
-                {{ category.isActive ? 'Active' : 'Inactive' }}
-              </span>
-            </td>
+              <td class="p-3">
+                <select v-model="editActive" class="border p-1 rounded">
+                  <option :value="true">Active</option>
+                  <option :value="false">Inactive</option>
+                </select>
+              </td>
 
-            <td class="p-4">
-              {{ new Date(category.createdAt).toLocaleDateString() }}
-            </td>
+              <td class="p-3">
+                {{ new Date(category.createdAt).toLocaleDateString() }}
+              </td>
 
-            <td class="p-4 text-right space-x-2">
-              <button @click="goToEdit(category._id)" class="text-blue-600 text-sm">Edit</button>
+              <td class="p-3 flex gap-2 justify-center">
+                <button class="bg-green-600 text-white px-2 py-1 rounded" @click="updateCategory(category._id)">Save</button>
 
-              <button @click="deleteCategory(category._id)" class="text-red-600 text-sm">Delete</button>
-            </td>
+                <button class="bg-gray-400 text-white px-2 py-1 rounded" @click="cancelEdit">Cancel</button>
+              </td>
+            </template>
+
+            <!-- NORMAL MODE -->
+            <template v-else>
+              <td class="p-3 font-medium">
+                {{ category.name }}
+              </td>
+
+              <td class="p-3">
+                {{ category.slug }}
+              </td>
+
+              <td class="p-3">
+                <span
+                  :class="{
+                    'text-green-600': category.isActive,
+                    'text-red-600': category.isActive === false,
+                  }"
+                >
+                  {{ category.isActive === false ? 'Inactive' : 'Active' }}
+                </span>
+              </td>
+
+              <td class="p-3">
+                {{ new Date(category.createdAt).toLocaleDateString() }}
+              </td>
+
+              <td class="p-3 flex gap-2 justify-center">
+                <button class="bg-blue-600 text-white px-2 py-1 rounded" @click="startEdit(category)">Edit</button>
+
+                <button class="bg-red-600 text-white px-2 py-1 rounded" @click="deleteCategory(category._id)">Delete</button>
+              </td>
+            </template>
           </tr>
 
           <tr v-if="categories.length === 0">
-            <td colspan="5" class="p-6 text-center text-gray-500">No categories found.</td>
+            <td colspan="5" class="p-4 text-center text-gray-500">No categories found.</td>
           </tr>
         </tbody>
       </table>

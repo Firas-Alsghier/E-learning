@@ -103,6 +103,27 @@ const data = {
         },
       ],
     },
+    {
+      title: 'Settings',
+      items: [
+        {
+          title: 'General Settings',
+          url: '/admin/settings/general-settings',
+        },
+        {
+          title: 'Commission Rate',
+          url: '/admin/settings/commission-rate',
+        },
+        {
+          title: 'Platform Rules',
+          url: '/admin/settings/platform-rules',
+        },
+        {
+          title: 'Admin Management',
+          url: '/admin/settings/admin-management',
+        },
+      ],
+    },
   ],
 };
 </script>
