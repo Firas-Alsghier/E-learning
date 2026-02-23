@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
-
+definePageMeta({
+  layout: false,
+});
 interface AdminUser {
   _id: string;
   name: string;
@@ -88,8 +90,8 @@ onMounted(fetchAdmins);
 </script>
 
 <template>
-  <div class="space-y-8 max-w-4xl">
-    <h1 class="text-2xl font-semibold">Admin & Supervisor Management</h1>
+  <div class="space-y-8 m-auto max-w-4xl">
+    <h1 class="text-2xl mt-6 text-center font-semibold">Admin & Supervisor Management</h1>
 
     <!-- Add Admin Form -->
     <div class="border p-6 rounded space-y-4">

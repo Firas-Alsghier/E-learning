@@ -71,7 +71,7 @@ onMounted(() => {
 
 <template>
   <div class="space-y-6">
-    <h1 class="text-2xl font-semibold">Pending Courses</h1>
+    <h1 class="text-2xl text-center mt-6 font-semibold">Pending Courses</h1>
 
     <div v-if="loading" class="text-muted-foreground">Loading...</div>
 
@@ -99,11 +99,11 @@ onMounted(() => {
               <td class="p-4">${{ course.price }}</td>
 
               <td class="p-4 flex gap-2 justify-center">
-                <Button size="sm" variant="default" @click="approveCourse(course._id)"> Approve </Button>
+                <Button class="cursor-pointer" size="sm" variant="default" @click="approveCourse(course._id)"> Approve </Button>
 
-                <Button size="sm" variant="destructive" @click="rejectCourse(course._id)"> Reject </Button>
+                <Button class="cursor-pointer" size="sm" variant="destructive" @click="rejectCourse(course._id)"> Reject </Button>
 
-                <Button size="sm" @click="toggleDetails(course._id)"> View </Button>
+                <Button class="cursor-pointer" size="sm" @click="toggleDetails(course._id)"> View </Button>
               </td>
             </tr>
 

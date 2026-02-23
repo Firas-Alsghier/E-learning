@@ -91,7 +91,7 @@ const clearReports = async (id: string) => {
 
 <template>
   <div class="space-y-6">
-    <h1 class="text-2xl font-semibold">Reported Courses</h1>
+    <h1 class="text-2xl text-center mt-6 font-semibold">Reported Courses</h1>
 
     <div v-if="loading" class="text-muted-foreground">Loading...</div>
 
@@ -121,13 +121,13 @@ const clearReports = async (id: string) => {
               <td class="p-4">{{ course.category }}</td>
 
               <td class="p-4 flex gap-2 justify-center">
-                <Button size="sm" variant="outline" @click="blockCourse(course._id)"> Block </Button>
+                <Button class="cursor-pointer" size="sm" variant="outline" @click="blockCourse(course._id)"> Block </Button>
 
-                <Button size="sm" variant="secondary" @click="clearReports(course._id)"> Clear Reports </Button>
+                <Button class="cursor-pointer" size="sm" variant="secondary" @click="clearReports(course._id)"> Clear Reports </Button>
 
-                <Button size="sm" variant="destructive" @click="deleteCourse(course._id)"> Delete </Button>
+                <Button class="cursor-pointer" size="sm" variant="destructive" @click="deleteCourse(course._id)"> Delete </Button>
 
-                <Button size="sm" @click="toggleDetails(course._id)"> View Reports </Button>
+                <Button class="cursor-pointer" size="sm" @click="toggleDetails(course._id)"> View Reports </Button>
               </td>
             </tr>
 

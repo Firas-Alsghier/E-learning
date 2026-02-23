@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
-
+definePageMeta({
+  layout: false,
+});
 interface CommissionSettings {
   globalRate: number;
   instructorOverrideAllowed: boolean;
@@ -52,26 +54,26 @@ onMounted(fetchCommission);
 </script>
 
 <template>
-  <div class="space-y-6 max-w-xl">
-    <h1 class="text-2xl font-semibold">Commission Settings</h1>
+  <div class="space-y-6 m-auto max-w-xl">
+    <h1 class="text-2xl mt-6 text-center font-semibold">Commission Settings</h1>
 
     <div v-if="loading" class="text-gray-500">Loading...</div>
 
     <div v-else class="space-y-4">
       <!-- Global Commission Rate -->
       <div>
-        <label class="block mb-1 font-medium"> Global Commission Rate (%) </label>
-        <input type="number" min="0" max="100" v-model.number="form.globalRate" class="border p-2 rounded w-full" />
+        <label class="block mb-1 text-left font-medium"> Global Commission Rate (%) </label>
+        <input type="number" min="0" max="100" v-model.number="form.globalRate" class="border p-2 text-left rounded w-full" />
       </div>
 
       <!-- Minimum Payout -->
       <div>
-        <label class="block mb-1 font-medium"> Minimum Payout Threshold </label>
-        <input type="number" min="0" v-model.number="form.minimumPayout" class="border p-2 rounded w-full" />
+        <label class="block mb-1 text-left font-medium"> Minimum Payout Threshold </label>
+        <input type="number" min="0" v-model.number="form.minimumPayout" class="border text-left p-2 rounded w-full" />
       </div>
 
       <!-- Instructor Override -->
-      <div class="flex items-center gap-2">
+      <div class="flex justify-end items-center gap-2">
         <input type="checkbox" v-model="form.instructorOverrideAllowed" />
         <label> Allow Instructor Commission Override </label>
       </div>
@@ -86,9 +88,11 @@ onMounted(fetchCommission);
       </p>
 
       <!-- Save Button -->
-      <button @click="updateCommission" class="bg-black text-white px-4 py-2 rounded" :disabled="loading">
-        {{ loading ? 'Saving...' : 'Save Changes' }}
-      </button>
+      <div class="flex justify-end">
+        <button @click="updateCommission" class="bg-black text-white px-4 py-2 rounded cursor-pointer" :disabled="loading">
+          {{ loading ? 'Saving...' : 'Save Changes' }}
+        </button>
+      </div>
     </div>
   </div>
 </template>

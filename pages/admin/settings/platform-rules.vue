@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
-
+definePageMeta({
+  layout: false,
+});
 interface PlatformRules {
   terms: string;
   privacy: string;
@@ -52,26 +54,26 @@ onMounted(fetchRules);
 </script>
 
 <template>
-  <div class="space-y-6 max-w-3xl">
-    <h1 class="text-2xl font-semibold">Platform Rules</h1>
+  <div class="space-y-6 m-auto max-w-3xl">
+    <h1 class="text-2xl text-center mt-6 font-semibold">Platform Rules</h1>
 
     <div v-if="loading" class="text-gray-500">Loading...</div>
 
     <div v-else class="space-y-6">
       <!-- Terms -->
       <div>
-        <label class="block mb-2 font-medium"> Terms & Conditions </label>
-        <textarea v-model="form.terms" rows="8" class="border p-2 rounded w-full" placeholder="Enter platform terms and conditions..."></textarea>
+        <label class="block text-left mb-2 font-medium"> Terms & Conditions </label>
+        <textarea v-model="form.terms" rows="8" class="border text-left p-2 rounded w-full" placeholder="Enter platform terms and conditions..."></textarea>
       </div>
 
       <!-- Privacy -->
       <div>
-        <label class="block mb-2 font-medium"> Privacy Policy </label>
-        <textarea v-model="form.privacy" rows="8" class="border p-2 rounded w-full" placeholder="Enter privacy policy..."></textarea>
+        <label class="block text-left mb-2 font-medium"> Privacy Policy </label>
+        <textarea v-model="form.privacy" rows="8" class="border text-left p-2 rounded w-full" placeholder="Enter privacy policy..."></textarea>
       </div>
 
       <!-- Require Acceptance -->
-      <div class="flex items-center gap-2">
+      <div class="flex items-center justify-end gap-2">
         <input type="checkbox" v-model="form.requireAcceptanceOnSignup" />
         <label> Require users to accept terms during signup </label>
       </div>
@@ -86,9 +88,11 @@ onMounted(fetchRules);
       </p>
 
       <!-- Save Button -->
-      <button @click="updateRules" class="bg-black text-white px-4 py-2 rounded" :disabled="loading">
-        {{ loading ? 'Saving...' : 'Save Changes' }}
-      </button>
+      <div class="flex justify-end">
+        <button @click="updateRules" class="bg-black text-white px-4 py-2 rounded" :disabled="loading">
+          {{ loading ? 'Saving...' : 'Save Changes' }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
