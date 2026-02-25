@@ -3,7 +3,6 @@ import { useRouter } from 'vue-router';
 
 definePageMeta({
   layout: false,
-  middleware: ['teacher-signup-success'],
 });
 
 const router = useRouter();

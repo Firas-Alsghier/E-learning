@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '~/stores/auth';
 definePageMeta({
   layout: false,
-  middleware: ['teacher'],
+  middleware: ['require-teacher-auth'],
 });
 const router = useRouter();
 const { t } = useI18n();
@@ -46,13 +46,19 @@ const handleLogin = async () => {
     });
 
     // ✅ Save teacher auth separately from users
-    localStorage.setItem('teacher_token', res.token);
-    localStorage.setItem('teacher', JSON.stringify(res.teacher));
+    const teacherToken = useCookie('teacher_token', {
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      sameSite: 'lax',
+    });
+    teacherToken.value = res.token;
+
+    const teacherData = useCookie('teacher_data');
+    teacherData.value = JSON.stringify(res.teacher);
 
     // Optional: reuse store if you want later
     // auth.setUser(res.teacher);
 
-    router.push('/overview');
+    router.push('/');
   } catch (err: any) {
     // 👇 teacher exists but not approved
     if (err?.status === 403) {

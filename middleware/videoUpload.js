@@ -1,4 +1,13 @@
 // middleware\videoUpload.js
+/*
+This file does the following:
+
+✔ Handles video upload
+✔ Validates video type
+✔ Uploads to Cloudinary
+✔ Returns Cloudinary URL
+✔ Used only inside upload routes
+*/
 import multer from 'multer';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import cloudinary from '../config/cloudinary.js';

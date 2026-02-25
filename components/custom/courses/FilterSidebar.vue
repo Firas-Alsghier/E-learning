@@ -58,7 +58,7 @@ const resetFilters = () => {
         <Accordion type="multiple" class="w-full space-y-3">
           <!-- Category -->
           <AccordionItem value="category">
-            <AccordionTrigger>Category</AccordionTrigger>
+            <AccordionTrigger class="cursor-pointer">Category</AccordionTrigger>
             <AccordionContent>
               <div class="space-y-2">
                 <label class="flex items-center space-x-2">
@@ -75,7 +75,7 @@ const resetFilters = () => {
 
           <!-- Level -->
           <AccordionItem value="level">
-            <AccordionTrigger>Level</AccordionTrigger>
+            <AccordionTrigger class="cursor-pointer">Level</AccordionTrigger>
             <AccordionContent>
               <div class="space-y-2">
                 <label class="flex items-center space-x-2">
@@ -92,7 +92,7 @@ const resetFilters = () => {
 
           <!-- ⭐ Ratings -->
           <AccordionItem value="ratings">
-            <AccordionTrigger>Rating</AccordionTrigger>
+            <AccordionTrigger class="cursor-pointer">Rating</AccordionTrigger>
             <AccordionContent>
               <div class="space-y-2">
                 <label class="flex items-center space-x-2">
@@ -121,7 +121,7 @@ const resetFilters = () => {
 
           <!-- ⏳ Hours -->
           <AccordionItem value="hours">
-            <AccordionTrigger>Hours</AccordionTrigger>
+            <AccordionTrigger class="cursor-pointer">Hours</AccordionTrigger>
             <AccordionContent>
               <div class="space-y-2">
                 <label class="flex items-center space-x-2">
@@ -149,7 +149,7 @@ const resetFilters = () => {
 
           <!-- 💲 Price Filter -->
           <AccordionItem value="price">
-            <AccordionTrigger>Price</AccordionTrigger>
+            <AccordionTrigger class="cursor-pointer">Price</AccordionTrigger>
             <AccordionContent>
               <div class="space-y-2">
                 <label class="flex items-center space-x-2">
@@ -169,8 +169,8 @@ const resetFilters = () => {
 
       <!-- Footer -->
       <div class="flex gap-2 pt-4 border-t mt-4">
-        <Button class="w-1/2 bg-indigo-600 hover:bg-indigo-700 text-white">Save Filters</Button>
-        <Button variant="outline" class="w-1/2" @click="resetFilters">Reset Filters</Button>
+        <Button class="w-1/2 bg-indigo-600 cursor-pointer hover:bg-indigo-700 text-white">Save Filters</Button>
+        <Button variant="outline" class="w-1/2 cursor-pointer" @click="resetFilters">Reset Filters</Button>
       </div>
     </div>
   </div>

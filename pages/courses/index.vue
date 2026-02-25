@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { Search } from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '~/stores/auth';
@@ -10,12 +10,13 @@ import type { Index } from '@/types/Course';
   ======================= */
 const { t } = useI18n();
 const auth = useAuthStore();
-
+const currentPage = ref(1);
+const coursesPerPage = 5;
 const courses = ref<any[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
 const showMobileFilter = ref(false);
-
+const searchQuery = ref('');
 /* =======================
      FETCH COURSES
   ======================= */
@@ -64,6 +65,25 @@ const toggleWishlist = (slug: string) => {
     course.isWishlisted = !course.isWishlisted;
   }
 };
+
+const filteredCourses = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase();
+
+  if (!query) return courses.value;
+
+  return courses.value.filter((course) => course.title.toLowerCase().includes(query));
+});
+
+const paginatedCourses = computed(() => {
+  const start = (currentPage.value - 1) * coursesPerPage;
+  const end = start + coursesPerPage;
+
+  return filteredCourses.value.slice(start, end);
+});
+
+const totalPages = computed(() => {
+  return Math.ceil(filteredCourses.value.length / coursesPerPage);
+});
 </script>
 
 <template>
@@ -87,7 +107,7 @@ const toggleWishlist = (slug: string) => {
           <!-- TOP BAR -->
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="relative w-[270px] max-sm:w-full">
-              <Input type="text" placeholder="Search..." class="border-0 border-b border-black focus-visible:ring-0 rounded-none pl-10" />
+              <Input type="text" placeholder="Search..." v-model="searchQuery" class="border-0 border-b border-black focus-visible:ring-0 rounded-none pl-10" />
               <span class="absolute left-0 inset-y-0 flex items-center">
                 <Search class="size-5 text-muted-foreground" />
               </span>
@@ -111,15 +131,40 @@ const toggleWishlist = (slug: string) => {
 
           <!-- COURSES -->
           <div v-else class="space-y-6">
-            <CustomCoursesCourseCard v-for="course in courses" :key="course.slug" :course="course" @toggle-wishlist="toggleWishlist" />
+            <CustomCoursesCourseCard v-for="course in paginatedCourses" :key="course.slug" :course="course" @toggle-wishlist="toggleWishlist" />
           </div>
 
           <!-- PAGINATION (STATIC FOR NOW) -->
-          <div class="flex justify-center pt-6">
+          <div class="flex justify-center pt-6" v-if="totalPages > 1">
             <ul class="flex gap-2 text-sm">
-              <li class="border rounded-full w-8 h-8 flex items-center justify-center">‹</li>
-              <li class="border rounded-full w-8 h-8 flex items-center justify-center bg-black text-white">1</li>
-              <li class="border rounded-full w-8 h-8 flex items-center justify-center">›</li>
+              <!-- Previous -->
+              <li
+                class="border rounded-full w-8 h-8 flex items-center justify-center cursor-pointer"
+                :class="{ 'opacity-50 cursor-not-allowed': currentPage === 1 }"
+                @click="currentPage > 1 && currentPage--"
+              >
+                ‹
+              </li>
+
+              <!-- Page Numbers -->
+              <li
+                v-for="page in totalPages"
+                :key="page"
+                class="border rounded-full w-8 h-8 flex items-center justify-center cursor-pointer"
+                :class="page === currentPage ? 'bg-black text-white' : ''"
+                @click="currentPage = page"
+              >
+                {{ page }}
+              </li>
+
+              <!-- Next -->
+              <li
+                class="border rounded-full w-8 h-8 flex items-center justify-center cursor-pointer"
+                :class="{ 'opacity-50 cursor-not-allowed': currentPage === totalPages }"
+                @click="currentPage < totalPages && currentPage++"
+              >
+                ›
+              </li>
             </ul>
           </div>
         </div>

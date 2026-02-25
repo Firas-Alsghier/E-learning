@@ -35,21 +35,21 @@ const data = {
       url: 'messages',
       icon: BookOpen,
     },
-    {
-      title: 'المقالات',
-      url: 'blogs',
-      icon: Settings2,
-    },
-    {
-      title: 'كتابة مقالة',
-      url: 'blogs/create',
-      icon: Settings2,
-    },
-    {
-      title: 'تعديل المقالات',
-      url: '#',
-      icon: Settings2,
-    },
+    // {
+    //   title: 'المقالات',
+    //   url: 'blogs',
+    //   icon: Settings2,
+    // },
+    // {
+    //   title: 'كتابة مقالة',
+    //   url: 'blogs/create',
+    //   icon: Settings2,
+    // },
+    // {
+    //   title: 'تعديل المقالات',
+    //   url: '#',
+    //   icon: Settings2,
+    // },
     // {
     //   title: 'الرسائل',
     //   url: 'messages',

@@ -9,8 +9,7 @@ const x = false;
 const auth = useAuthStore();
 
 definePageMeta({
-  // middleware: ['auth'], // This is enough!
-  ssr: false,
+  middleware: ['require-teacher-auth'],
   layout: false,
 });
 

@@ -1,11 +1,12 @@
 import express from 'express';
 import TeacherArticle from '../models/TeacherArticle.js';
-import verifyTeacher from '../middleware/verifyTeacher.js';
+import verifyToken from '../middleware/verifyToken.js';
+// import verifyToken from '../middleware/requireTeacher.js';
 
 const router = express.Router();
 
 /** Create article */
-router.post('/', verifyTeacher, async (req, res) => {
+router.post('/', verifyToken, async (req, res) => {
   const { title, content } = req.body;
 
   const article = await TeacherArticle.create({
@@ -18,13 +19,13 @@ router.post('/', verifyTeacher, async (req, res) => {
 });
 
 /** Get teacher articles */
-router.get('/', verifyTeacher, async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
   const articles = await TeacherArticle.find({ teacherId: req.teacherId });
   res.json(articles);
 });
 
 /** Delete article */
-router.delete('/:id', verifyTeacher, async (req, res) => {
+router.delete('/:id', verifyToken, async (req, res) => {
   await TeacherArticle.deleteOne({
     _id: req.params.id,
     teacherId: req.teacherId,

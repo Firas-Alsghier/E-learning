@@ -1,4 +1,15 @@
 // middleware/upload.js
+
+/*
+This file does the following: 
+
+📌 Uploads course cover images
+📌 Stores them locally in your server
+📌 Validates image type
+📌 Limits file size
+
+*/
+
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';

@@ -16,10 +16,11 @@ const form = ref({
 // ✅ Load teacher data
 onMounted(async () => {
   let token = null;
+  token = useCookie('teacher_token').value;
 
-  if (import.meta.client) {
-    token = localStorage.getItem('teacher_token');
-  }
+  // if (import.meta.client) {
+  //   token = useCookie('teacher_token').value;
+  // }
 
   if (!token) return;
 
@@ -29,7 +30,6 @@ onMounted(async () => {
         Authorization: `Bearer ${token}`,
       },
     });
-
     auth.teacher = teacher;
 
     form.value = {

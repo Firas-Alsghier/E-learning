@@ -5,9 +5,8 @@
 const route = useRoute();
 
 definePageMeta({
-  // middleware: ['auth'], // This is enough!
-  ssr: false,
   layout: false,
+  middleware: ['require-teacher-auth'],
 });
 
 // Dummy data for demonstration
