@@ -26,7 +26,7 @@ const fetchCourses = async () => {
     if (!res.ok) throw new Error('Failed to fetch courses');
 
     const data: Index[] = await res.json();
-    console.log(data[0].author);
+    // console.log(data[0].author);
 
     courses.value = data.map((course) => ({
       title: course.title,
@@ -46,7 +46,6 @@ const fetchCourses = async () => {
       category: course.category ?? 'General',
       isWishlisted: false,
     }));
-    console.log(courses.value);
   } catch (err: any) {
     error.value = err.message;
   } finally {
@@ -67,11 +66,34 @@ const toggleWishlist = (slug: string) => {
 };
 
 const filteredCourses = computed(() => {
+  let result = courses.value;
+
+  // 🔍 Search
   const query = searchQuery.value.trim().toLowerCase();
+  if (query) {
+    result = result.filter((course) => course.title.toLowerCase().includes(query));
+  }
 
-  if (!query) return courses.value;
+  // 📂 Category filter
+  if (activeFilters.value.categories.length) {
+    result = result.filter((course) => activeFilters.value.categories.includes(course.category));
+  }
 
-  return courses.value.filter((course) => course.title.toLowerCase().includes(query));
+  // 🎓 Level filter
+  if (activeFilters.value.levels.length) {
+    result = result.filter((course) => activeFilters.value.levels.includes(course.level));
+  }
+
+  // 💲 Price filter
+  if (activeFilters.value.price.length) {
+    result = result.filter((course) => {
+      if (activeFilters.value.price.includes('free') && course.price === 0) return true;
+      if (activeFilters.value.price.includes('paid') && course.price > 0) return true;
+      return false;
+    });
+  }
+
+  return result;
 });
 
 const paginatedCourses = computed(() => {
@@ -83,6 +105,30 @@ const paginatedCourses = computed(() => {
 
 const totalPages = computed(() => {
   return Math.ceil(filteredCourses.value.length / coursesPerPage);
+});
+
+const activeFilters = ref({
+  categories: [] as string[],
+  levels: [] as string[],
+  ratings: [] as number[],
+  hours: [] as string[],
+  price: [] as string[],
+});
+
+const handleApplyFilters = (filters: any) => {
+  activeFilters.value = {
+    categories: [...filters.categories.value],
+    levels: [...filters.levels.value],
+    ratings: [...filters.ratings.value],
+    hours: [...filters.hours.value],
+    price: [...filters.price.value],
+  };
+
+  currentPage.value = 1; // reset pagination
+};
+
+watch(searchQuery, () => {
+  currentPage.value = 1;
 });
 </script>
 
@@ -99,7 +145,7 @@ const totalPages = computed(() => {
       <div class="flex flex-col lg:flex-row-reverse gap-4 my-14">
         <!-- Filters -->
         <div class="w-full lg:max-w-[280px]">
-          <CustomCoursesFilterSidebar :show="showMobileFilter" @close="showMobileFilter = false" />
+          <CustomCoursesFilterSidebar :show="showMobileFilter" @close="showMobileFilter = false" @apply-filters="handleApplyFilters" />
         </div>
 
         <!-- MAIN -->

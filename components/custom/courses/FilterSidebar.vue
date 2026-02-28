@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// components/custom/courses/FilterSidebar.vue
 import { ref } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -26,6 +27,8 @@ const resetFilters = () => {
   selectedHours.value = [];
   selectedPrice.value = []; // 🔥 reset price filter
 };
+
+const emit = defineEmits(['apply-filters']);
 </script>
 
 <template>
@@ -169,7 +172,20 @@ const resetFilters = () => {
 
       <!-- Footer -->
       <div class="flex gap-2 pt-4 border-t mt-4">
-        <Button class="w-1/2 bg-indigo-600 cursor-pointer hover:bg-indigo-700 text-white">Save Filters</Button>
+        <Button
+          class="w-1/2 bg-indigo-600 cursor-pointer hover:bg-indigo-700 text-white"
+          @click="
+            emit('apply-filters', {
+              categories: selectedCategories,
+              levels: selectedLevels,
+              ratings: selectedRatings,
+              hours: selectedHours,
+              price: selectedPrice,
+            })
+          "
+        >
+          Save Filters
+        </Button>
         <Button variant="outline" class="w-1/2 cursor-pointer" @click="resetFilters">Reset Filters</Button>
       </div>
     </div>
