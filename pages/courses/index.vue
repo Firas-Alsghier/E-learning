@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { Search } from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '~/stores/auth';
 import type { Index } from '@/types/Course';
-
+/* =======================
+     Vue router
+  ======================= */
+const route = useRoute();
+const router = useRouter();
 /* =======================
      STATE
   ======================= */
@@ -53,7 +58,34 @@ const fetchCourses = async () => {
   }
 };
 
-onMounted(fetchCourses);
+const activeFilters = ref({
+  categories: [] as string[],
+  levels: [] as string[],
+  ratings: [] as number[],
+  hours: [] as string[],
+  price: [] as string[],
+});
+
+onMounted(() => {
+  fetchCourses();
+
+  // Restore filters from URL
+  if (route.query.category) {
+    activeFilters.value.categories = String(route.query.category).split(',');
+  }
+
+  if (route.query.level) {
+    activeFilters.value.levels = String(route.query.level).split(',');
+  }
+
+  if (route.query.price) {
+    activeFilters.value.price = String(route.query.price).split(',');
+  }
+
+  if (route.query.page) {
+    currentPage.value = Number(route.query.page);
+  }
+});
 
 /* =======================
      WISHLIST (FRONTEND ONLY)
@@ -107,25 +139,42 @@ const totalPages = computed(() => {
   return Math.ceil(filteredCourses.value.length / coursesPerPage);
 });
 
-const activeFilters = ref({
-  categories: [] as string[],
-  levels: [] as string[],
-  ratings: [] as number[],
-  hours: [] as string[],
-  price: [] as string[],
-});
-
 const handleApplyFilters = (filters: any) => {
-  activeFilters.value = {
-    categories: [...filters.categories.value],
-    levels: [...filters.levels.value],
-    ratings: [...filters.ratings.value],
-    hours: [...filters.hours.value],
-    price: [...filters.price.value],
-  };
+  activeFilters.value = filters;
 
-  currentPage.value = 1; // reset pagination
+  router.push({
+    query: {
+      ...route.query,
+      category: filters.categories.join(',') || undefined,
+      level: filters.levels.join(',') || undefined,
+      price: filters.price.join(',') || undefined,
+      page: 1,
+    },
+  });
+
+  if (currentPage.value !== 1) {
+    currentPage.value = 1;
+  }
 };
+
+watch(
+  () => route.query,
+  (query) => {
+    activeFilters.value.categories = query.category ? String(query.category).split(',') : [];
+    activeFilters.value.levels = query.level ? String(query.level).split(',') : [];
+    activeFilters.value.price = query.price ? String(query.price).split(',') : [];
+    currentPage.value = query.page ? Number(query.page) : 1;
+  }
+);
+
+watch(currentPage, (page) => {
+  router.push({
+    query: {
+      ...route.query,
+      page,
+    },
+  });
+});
 
 watch(searchQuery, () => {
   currentPage.value = 1;
@@ -145,7 +194,7 @@ watch(searchQuery, () => {
       <div class="flex flex-col lg:flex-row-reverse gap-4 my-14">
         <!-- Filters -->
         <div class="w-full lg:max-w-[280px]">
-          <CustomCoursesFilterSidebar :show="showMobileFilter" @close="showMobileFilter = false" @apply-filters="handleApplyFilters" />
+          <CustomCoursesFilterSidebar :filters="activeFilters" @apply-filters="handleApplyFilters" />
         </div>
 
         <!-- MAIN -->

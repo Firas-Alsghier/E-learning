@@ -1,6 +1,5 @@
 <script setup lang="ts">
-// components/custom/courses/FilterSidebar.vue
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -12,23 +11,74 @@ const isOpen = ref(false);
 const { t } = useI18n();
 const auth = useAuthStore();
 
-// --- filters state
-const selectedCategories = ref<string[]>([]);
-const selectedLevels = ref<string[]>([]);
-const selectedRatings = ref<number[]>([]);
-const selectedHours = ref<string[]>([]);
-const selectedPrice = ref<string[]>([]); // 🔥 NEW PRICE FILTER
-
-// --- reset filters function
-const resetFilters = () => {
-  selectedCategories.value = [];
-  selectedLevels.value = [];
-  selectedRatings.value = [];
-  selectedHours.value = [];
-  selectedPrice.value = []; // 🔥 reset price filter
-};
+/* =======================
+   PROPS FROM PARENT
+======================= */
+const props = defineProps<{
+  filters: {
+    categories: string[];
+    levels: string[];
+    ratings: number[];
+    hours: string[];
+    price: string[];
+  };
+}>();
 
 const emit = defineEmits(['apply-filters']);
+
+/* =======================
+   TWO-WAY COMPUTED STATE
+======================= */
+
+const selectedCategories = computed({
+  get: () => props.filters.categories,
+  set: (val: string[]) => {
+    emit('apply-filters', { ...props.filters, categories: val });
+  },
+});
+
+const selectedLevels = computed({
+  get: () => props.filters.levels,
+  set: (val: string[]) => {
+    emit('apply-filters', { ...props.filters, levels: val });
+  },
+});
+
+const selectedPrice = computed({
+  get: () => props.filters.price,
+  set: (val: string[]) => {
+    emit('apply-filters', { ...props.filters, price: val });
+  },
+});
+
+const selectedRatings = computed({
+  get: () => props.filters.ratings,
+  set: (val: number[]) => {
+    emit('apply-filters', { ...props.filters, ratings: val });
+  },
+});
+
+const selectedHours = computed({
+  get: () => props.filters.hours,
+  set: (val: string[]) => {
+    emit('apply-filters', { ...props.filters, hours: val });
+  },
+});
+
+/* =======================
+   RESET
+======================= */
+const resetFilters = () => {
+  emit('apply-filters', {
+    categories: [],
+    levels: [],
+    ratings: [],
+    hours: [],
+    price: [],
+  });
+
+  isOpen.value = false;
+};
 </script>
 
 <template>
