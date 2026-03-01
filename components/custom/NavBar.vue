@@ -118,12 +118,12 @@ const toggleMenu = (event: Event) => {
 
           <!-- Show login/signup when NOT logged in -->
           <template v-else>
-            <NuxtLink to="login" class="text-gray-700 hover:text-orange-500">
+            <a href="/login" class="text-gray-700 hover:text-orange-500">
               <Button variant="outline" class="cursor-pointer rounded-2xl">{{ t('log-in') }}</Button>
-            </NuxtLink>
-            <NuxtLink to="signup">
+            </a>
+            <a href="/signup">
               <Button class="btn-custom text-primary-custom border-custom rounded-2xl cursor-pointer">{{ t('sign-up') }}</Button>
-            </NuxtLink>
+            </a>
           </template>
         </div>
       </div>

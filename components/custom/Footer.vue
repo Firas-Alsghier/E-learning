@@ -29,10 +29,10 @@ const scrollToTop = () => {
               <NuxtLink to="#">{{ t('contact-us') }}</NuxtLink>
             </li>
             <li>
-              <NuxtLink to="#">{{ t('latest-articles') }}</NuxtLink>
+              <a href="/courses" target="_blank">{{ t('latest-courses') }}</a>
             </li>
             <li>
-              <NuxtLink to="#">{{ t('most-common-questions-answers') }}</NuxtLink>
+              <a href="/faqs" target="_blank">{{ t('most-common-questions-answers') }}</a>
             </li>
           </ul>
         </div>

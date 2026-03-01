@@ -38,8 +38,8 @@ const articles: Article[] = [
           <p class="text-lg sm:text-base text-secondary-custom" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('free-articles') }}</p>
         </div>
         <div>
-          <NuxtLink to="articles"
-            ><Button class="btn-custom text-primary-custom border-custom text-base cursor-pointer rounded-2xl">{{ t('all-articles') }}</Button></NuxtLink
+          <Button class="btn-custom text-primary-custom border-custom text-base cursor-pointer rounded-2xl"
+            ><a href="" target="_blank">{{ t('all-articles') }}</a></Button
           >
         </div>
       </div>

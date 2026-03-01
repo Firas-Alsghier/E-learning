@@ -97,8 +97,8 @@ const courses = [
           <p class="text-lg sm:text-base text-secondary-custom" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('choose-course') }}</p>
         </div>
         <div>
-          <NuxtLink to="courses"
-            ><Button class="btn-custom text-primary-custom border-custom border-custom text-base cursor-pointer rounded-2xl">{{ t('all-courses') }}</Button></NuxtLink
+          <Button class="btn-custom text-primary-custom border-custom border-custom text-base cursor-pointer rounded-2xl"
+            ><a href="/courses" target="_blank">{{ t('all-courses') }}</a></Button
           >
         </div>
       </div>

@@ -27,10 +27,11 @@ const categories: Category[] = [
           <p class="text-lg sm:text-base text-secondary-custom" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('choose-course') }}</p>
         </div>
         <div>
-          <Button class="btn-custom text-primary-custom border-custom text-base cursor-pointer rounded-2xl border-2">{{ t('all-categories') }}</Button>
+          <Button class="btn-custom text-primary-custom border-custom text-base cursor-pointer rounded-2xl border-2"
+            ><a href="/courses" target="_blank">{{ t('all-categories') }}</a></Button
+          >
         </div>
       </div>
-
       <div class="grid justify-center sm:justify-between gap-6 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         <div
           v-for="(category, index) in categories"

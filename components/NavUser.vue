@@ -1,23 +1,15 @@
 <script setup lang="ts">
 import { useUser } from '~/composables/useUser';
+import { useAuthStore } from '~/stores/auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar';
 import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from 'lucide-vue-next';
 
+const auth = useAuthStore();
 const router = useRouter();
 const { setUser, user } = useUser();
 const { isMobile } = useSidebar();
-
-const handleLogout = () => {
-  localStorage.removeItem('token');
-  setUser(null);
-  router.push('/');
-
-  setTimeout(() => {
-    location.reload();
-  }, 200);
-};
 </script>
 
 <template>
@@ -40,7 +32,7 @@ const handleLogout = () => {
           </DropdownMenuTrigger>
 
           <DropdownMenuContent class="w-[--reka-dropdown-menu-trigger-width] min-w-56 rounded-lg" :side="isMobile ? 'bottom' : 'right'" align="end" :side-offset="4">
-            <DropdownMenuItem @click="handleLogout" class="cursor-pointer">
+            <DropdownMenuItem @click="auth.logout" class="cursor-pointer">
               <LogOut />
               Log out
             </DropdownMenuItem>

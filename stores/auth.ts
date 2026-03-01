@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 import type { User } from '~/types/user';
 import { useDirection } from '~/composables/useDirection';
 import { useI18n } from 'vue-i18n';
-
+import { useCookie } from '#app';
 type LanguageCode = 'en' | 'ar';
 
 export const useAuthStore = defineStore('auth', {
@@ -32,11 +32,17 @@ export const useAuthStore = defineStore('auth', {
     },
 
     logout() {
+      const tokenCookie = useCookie('token');
+
+      // 🔥 Clear cookie
+      tokenCookie.value = null;
       this.user = null;
       if (import.meta.client) {
         localStorage.removeItem('user');
         localStorage.removeItem('token');
       }
+
+      navigateTo('/');
     },
 
     // ------------------------------------

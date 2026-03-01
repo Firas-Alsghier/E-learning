@@ -12,6 +12,6 @@ const auth = useAuthStore();
     <CustomIndexMotivationSection />
     <CustomIndexTestimonial />
     <CustomIndexBanner />
-    <CustomIndexLatestArticles />
+    <!-- <CustomIndexLatestArticles /> -->
   </div>
 </template>

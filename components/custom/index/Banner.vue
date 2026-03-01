@@ -9,7 +9,7 @@ const { t } = useI18n();
   <ClientOnly>
     <CustomContainer v-if="!isLoggedIn">
       <section
-        class="relative rounded-2xl py-10 px-6 sm:px-12 flex flex-col sm:flex-row justify-between items-center gap-6 text-right overflow-hidden"
+        class="relative -translate-y-6 rounded-2xl py-10 px-6 sm:px-12 flex flex-col sm:flex-row justify-between items-center gap-6 text-right overflow-hidden"
         style="background: linear-gradient(to right, #c7e6f9, #e8d1fe)"
       >
         <!-- Top right vector -->
@@ -23,12 +23,12 @@ const { t } = useI18n();
           <div class="flex gap-4">
             <!-- <LanguageSwitcher />
             <p>{{ $t('hello') }}</p> -->
-            <button class="bg-white cursor-pointer text-gray-600 text-sm sm:text-base font-medium px-6 py-2 rounded-full hover:bg-gray-100 transition">{{ t('join-as-teacher') }}</button>
-            <NuxtLink to="signup"
-              ><button class="border cursor-pointer border-white text-white text-sm sm:text-base font-medium px-6 py-2 rounded-full hover:bg-white hover:text-gray-700 transition">
-                {{ t('join-as-student') }}
-              </button></NuxtLink
-            >
+            <button class="bg-white cursor-pointer text-gray-600 text-sm sm:text-base font-medium px-6 py-2 rounded-full hover:bg-gray-100 transition">
+              <a href="/teacher/signup" target="_blank">{{ t('join-as-teacher') }}</a>
+            </button>
+            <button class="border cursor-pointer border-white text-white text-sm sm:text-base font-medium px-6 py-2 rounded-full hover:bg-white hover:text-gray-700 transition">
+              <a href="/signup" target="_blank">{{ t('join-as-student') }}</a>
+            </button>
           </div>
         </div>
 
