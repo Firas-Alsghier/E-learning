@@ -20,7 +20,7 @@ const tabs = [
 /* ----------------------------------
      DATA FETCH (SSR SAFE)
   ---------------------------------- */
-const { data, error } = await useAsyncData<Course>(`course-${slug.value}`, () => $fetch(`http://localhost:3001/api/courses/${slug.value}`));
+const { data, error } = await useAsyncData<Course>(`course-${slug.value}`, () => $fetch<any>(`http://localhost:3001/api/courses/${slug.value}` as string));
 
 // ✅ THIS LINE FIXES ALL `{}` ERRORS
 const course = computed(() => data.value);

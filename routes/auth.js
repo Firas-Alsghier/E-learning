@@ -222,7 +222,7 @@ router.post('/login', async (req, res) => {
 
 // Edit Profile
 router.put('/edit-profile', authMiddleware, async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.user._id;
 
   const { firstName, lastName, headline, bio, language, avatarUrl, website, facebook, instagram, linkedin, x, country, gender, birthDay, birthMonth, birthYear } = req.body;
 
@@ -280,7 +280,7 @@ router.put('/edit-profile', authMiddleware, async (req, res) => {
 // Edit account (email or password)
 // Edit account (email or password)
 router.put('/edit-account', authMiddleware, async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.user._id;
   const { newEmail, currentPassword, newPassword } = req.body;
 
   try {
@@ -342,7 +342,7 @@ router.put('/edit-privacy', authMiddleware, async (req, res) => {
     const { showProfile, showReviews, allowMessages } = req.body;
 
     const user = await User.findByIdAndUpdate(
-      req.user.id,
+      req.user._id,
       {
         $set: {
           'privacySettings.showProfile': showProfile,
@@ -369,7 +369,7 @@ router.put('/edit-privacy', authMiddleware, async (req, res) => {
 // ✅ Delete user account
 router.delete('/close-account', authMiddleware, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
     await User.findByIdAndDelete(userId);
 
     res.json({ success: true, message: 'Account deleted successfully' });
@@ -381,7 +381,7 @@ router.delete('/close-account', authMiddleware, async (req, res) => {
 
 router.put('/notifications', authMiddleware, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
     const { offers, learning } = req.body;
 
     const updatedUser = await User.findByIdAndUpdate(userId, { notificationPreferences: { offers, learning } }, { new: true });
@@ -405,8 +405,7 @@ router.get('/users', async (req, res) => {
 // Get current user
 router.get('/me', authMiddleware, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
-
+    const user = await User.findById(req.user._id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -437,8 +436,7 @@ router.get('/me', authMiddleware, async (req, res) => {
 router.put('/change-email', authMiddleware, async (req, res) => {
   try {
     const { newEmail, password } = req.body;
-    const user = await User.findById(req.user.id);
-
+    const user = await User.findById(req.user._id);
     // check password first
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {

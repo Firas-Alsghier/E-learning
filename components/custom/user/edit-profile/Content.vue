@@ -38,7 +38,6 @@ onMounted(async () => {
   let token = useCookie('token').value;
   if (!token && import.meta.client) token = localStorage.getItem('token');
   if (!token) return;
-
   try {
     const user = await $fetch<Profile>('http://localhost:3001/api/auth/me', {
       headers: { Authorization: `Bearer ${token}` },
@@ -68,8 +67,6 @@ onMounted(async () => {
     };
 
     // Ensure the Pinia flag reflects the fetched language for template rendering
-
-    console.log(user);
   } catch (err) {
     console.error('Error fetching profile:', err);
   }
@@ -99,7 +96,7 @@ const saveChanges = async () => {
     auth.user = { ...auth.user, ...form.value };
 
     alert('Profile updated successfully');
-    console.log('Response:', response);
+    location.reload();
   } catch (error) {
     alert('Failed to update profile');
     console.error('Error updating profile:', error);

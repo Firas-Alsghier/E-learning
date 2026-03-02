@@ -10,6 +10,12 @@ const auth = useAuthStore();
  */
 onMounted(() => {
   auth.initLanguage();
+  if (!localStorage.getItem('token') || !useCookie('token').value) {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    useCookie('token').value = null;
+    auth.user = null;
+  }
 });
 </script>
 

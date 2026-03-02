@@ -39,7 +39,7 @@ const faqs = [
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div v-for="(faq, index) in faqs" :key="index" class="bg-gray-100 rounded-md p-4 transition-all duration-300">
           <!-- Question -->
-          <button @click="toggleItem(index)" class="w-full flex justify-between items-center font-semibold text-black">
+          <button @click="toggleItem(index)" class="w-full flex cursor-pointer justify-between items-center font-semibold text-black">
             <span class="text-xl">
               <span v-if="openIndexes.includes(index)">
                 <ChevronUp />
