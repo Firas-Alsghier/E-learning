@@ -77,6 +77,14 @@ const teacherSchema = new mongoose.Schema(
       default: false,
     },
 
+    social: {
+      website: { type: String, default: '' },
+      facebook: { type: String, default: '' },
+      instagram: { type: String, default: '' },
+      linkedin: { type: String, default: '' },
+      x: { type: String, default: '' },
+    },
+
     // -------------------
     // PROFILE (future)
     // -------------------

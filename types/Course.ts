@@ -1,4 +1,5 @@
 export interface Course {
+  bio: string;
   title: string;
   category: string;
   description: string;

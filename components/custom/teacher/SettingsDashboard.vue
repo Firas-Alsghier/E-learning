@@ -11,6 +11,10 @@ const form = ref({
   language: 'en',
   avatar: '',
   phone: '',
+  website: '',
+  facebook: '',
+  instagram: '',
+  linkedin: '',
 });
 
 // ✅ Load teacher data
@@ -40,6 +44,10 @@ onMounted(async () => {
       language: teacher.language || 'en',
       avatar: teacher.avatar || '',
       phone: teacher.phone || '',
+      website: teacher.website || '',
+      facebook: teacher.facebook || '',
+      instagram: teacher.instagram || '',
+      linkedin: teacher.linkedin || '',
     };
   } catch (err) {
     console.error('Error fetching teacher profile:', err);
@@ -51,7 +59,7 @@ const saveChanges = async () => {
   let token = null;
 
   if (import.meta.client) {
-    token = localStorage.getItem('teacher_token');
+    token = useCookie('teacher_token').value;
   }
 
   if (!token) {
@@ -157,20 +165,20 @@ const saveChanges = async () => {
         <Input v-model="form.linkedin" placeholder="عنوان URL للملف الشخصي العام" class="w-[95%] bg-white" />
       </div>
 
-      <div class="space-y-2">
+      <!-- <div class="space-y-2">
         <label class="font-medium">tiktok.com</label>
         <Input v-model="form.tiktok" placeholder="@اسم المستخدم" class="w-[95%] bg-white" />
-      </div>
+      </div> -->
 
-      <div class="space-y-2">
+      <!-- <div class="space-y-2">
         <label class="font-medium">x.com</label>
         <Input v-model="form.x" placeholder="اسم المستخدم" class="w-[95%] bg-white" />
-      </div>
+      </div> -->
 
-      <div class="space-y-2">
+      <!-- <div class="space-y-2">
         <label class="font-medium">youtube.com</label>
         <Input v-model="form.youtube" placeholder="اسم المستخدم" class="w-[95%] bg-white" />
-      </div>
+      </div> -->
     </div>
     <hr />
 

@@ -8,7 +8,7 @@ const selectedTab = ref('overview');
 const route = useRoute();
 
 const slug = computed(() => route.params.slug as string);
-
+console.log(slug);
 const tabs = [
   { id: 'overview', label: 'نظرة عامة' },
   { id: 'curriculum', label: 'المنهج الدراسي' },
@@ -107,7 +107,18 @@ console.log(course);
           <div :key="selectedTab" class="mt-4 text-right bg-[#F5F5F5] leading-loose text-gray-800 overflow-y-auto h-[250px] px-4 py-3 rounded-b-xl">
             <CustomCoursesOverviewTab :description="course.description" v-if="selectedTab === 'overview'" />
             <CustomCoursesCurriculumTab v-if="selectedTab === 'curriculum'" />
-            <CustomCoursesInstructorTab v-if="selectedTab === 'instructor'" />
+            <CustomCoursesInstructorTab v-if="selectedTab === 'instructor'">
+              <template v-slot:name>
+                {{ course.author }}
+              </template>
+
+              <template v-slot:about>
+                {{ course.bio }}
+              </template>
+
+              <template v-slot:students> 510 </template>
+              <template v-slot:lessons> 10 </template>
+            </CustomCoursesInstructorTab>
             <CustomCoursesFaqsTab v-if="selectedTab === 'faq'" />
             <CustomCoursesReviewsTab v-if="selectedTab === 'reviews'" />
           </div>

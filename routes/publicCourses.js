@@ -51,7 +51,7 @@ router.get('/:slug', async (req, res) => {
       slug: req.params.slug,
       isPublished: true,
     })
-      .populate('teacher', 'firstName lastName')
+      .populate('teacher', 'firstName lastName bio')
       .populate({
         path: 'sections',
         options: { sort: { order: 1 } },
@@ -64,7 +64,7 @@ router.get('/:slug', async (req, res) => {
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
     }
-
+    console.log(course);
     res.json({
       id: course._id,
       title: course.title,
@@ -73,6 +73,7 @@ router.get('/:slug', async (req, res) => {
       image: course.coverImage,
       price: course.price,
       oldPrice: 0,
+      bio: course.teacher.bio,
       category: 'General',
       duration: '2 Weeks',
       students: 0,
