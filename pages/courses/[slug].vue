@@ -68,7 +68,7 @@ console.log(course);
 
         <!-- Sidebar -->
         <div class="bg-white text-black rounded-xl p-4 w-full lg:w-[320px] shrink-0">
-          <img :src="course.coverImage || '/assets/images/error.png'" alt="LMS" class="rounded-lg mb-4" />
+          <img :src="course.coverImage" alt="LMS" class="rounded-lg mb-4" />
 
           <div class="text-center space-y-2">
             <p v-if="course.oldPrice" class="text-sm text-gray-600 line-through">${{ course.oldPrice }}</p>
