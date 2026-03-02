@@ -39,7 +39,7 @@ const coverInputRef = ref<HTMLInputElement | null>(null);
 const videoInputRef = ref<HTMLInputElement | null>(null);
 const selectedLessonId = ref<string | null>(null);
 
-const token = localStorage.getItem('teacher_token');
+const token = useCookie('teacher_token').value;
 
 /* =========================
       FETCH FULL COURSE

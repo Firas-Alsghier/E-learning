@@ -47,7 +47,7 @@ const onCoverSelected = async (e: Event) => {
 
   coverFile.value = file;
 
-  const token = localStorage.getItem('teacher_token');
+  const token = useCookie('teacher_token').value;
   if (!token) return alert('Not authenticated');
 
   const formData = new FormData();
@@ -73,8 +73,8 @@ const createCourse = async () => {
   isSaving.value = true;
 
   try {
-    const token = localStorage.getItem('teacher_token');
-
+    const token = useCookie('teacher_token').value;
+    console.log('TOKEN:', token);
     if (!token) {
       alert('Not authenticated');
       return;

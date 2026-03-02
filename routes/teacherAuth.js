@@ -70,7 +70,16 @@ router.post('/login', async (req, res) => {
     }
 
     // 3. Create token
-    const token = jwt.sign({ id: teacher._id, role: 'teacher', email: teacher.email }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign(
+      {
+        id: teacher._id,
+        role: 'teacher',
+        email: teacher.email,
+        tokenVersion: teacher.tokenVersion, // ✅ ADD THIS
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
 
     res.json({
       token,

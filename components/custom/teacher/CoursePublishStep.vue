@@ -20,7 +20,7 @@ const publishCourse = async () => {
   isPublishing.value = true;
 
   try {
-    const token = localStorage.getItem('teacher_token');
+    const token = useCookie('teacher_token').value;
 
     if (!token) {
       alert('Not authenticated');
@@ -39,6 +39,7 @@ const publishCourse = async () => {
 
     alert('🎉 Course published successfully!');
     emit('published');
+    navigateTo('/courses');
   } catch (err: any) {
     console.error('Publish error:', err);
     alert(err?.response?.data?.message || 'Failed to publish course');
