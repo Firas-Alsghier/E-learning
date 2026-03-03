@@ -1,4 +1,6 @@
 export interface Course {
+  faqs: any;
+  social: any;
   bio: string;
   title: string;
   category: string;

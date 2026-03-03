@@ -113,6 +113,8 @@ router.get('/me', teacherAuth, async (req, res) => {
       bio: teacher.bio,
       language: teacher.language,
       avatar: teacher.avatar,
+      social: teacher.social,
+      phone: teacher.phone,
       isApproved: teacher.isApproved,
       isBlocked: teacher.isBlocked,
       role: 'teacher',
@@ -128,8 +130,8 @@ router.get('/me', teacherAuth, async (req, res) => {
 router.put('/edit-profile', teacherAuth, async (req, res) => {
   const teacherId = req.teacher.id;
 
-  const { firstName, lastName, headline, phone, bio, language, avatar } = req.body;
-
+  const { firstName, lastName, headline, phone, bio, language, avatar, website, facebook, instagram, linkedin } = req.body;
+  console.log(req.body);
   try {
     const updateData = {};
 
@@ -140,7 +142,11 @@ router.put('/edit-profile', teacherAuth, async (req, res) => {
     if (language !== undefined) updateData.language = language;
     if (avatar !== undefined) updateData.avatar = avatar;
     if (phone !== undefined) updateData.phone = phone;
-
+    if (website !== undefined) updateData['social.website'] = website;
+    if (facebook !== undefined) updateData['social.facebook'] = facebook;
+    if (instagram !== undefined) updateData['social.instagram'] = instagram;
+    if (linkedin !== undefined) updateData['social.linkedin'] = linkedin;
+    // console.log(updateData);
     const updatedTeacher = await Teacher.findByIdAndUpdate(teacherId, { $set: updateData }, { new: true });
 
     if (!updatedTeacher) {

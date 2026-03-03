@@ -8,7 +8,6 @@ const selectedTab = ref('overview');
 const route = useRoute();
 
 const slug = computed(() => route.params.slug as string);
-console.log(slug);
 const tabs = [
   { id: 'overview', label: 'نظرة عامة' },
   { id: 'curriculum', label: 'المنهج الدراسي' },
@@ -24,7 +23,7 @@ const { data, error } = await useAsyncData<Course>(`course-${slug.value}`, () =>
 
 // ✅ THIS LINE FIXES ALL `{}` ERRORS
 const course = computed(() => data.value);
-console.log(course);
+console.log(course.value?.faqs);
 </script>
 
 <template>
@@ -42,7 +41,7 @@ console.log(course);
           <div class="flex items-center space-x-4">
             <span class="bg-[#555555] text-white text-sm px-3 py-2 rounded-[8px] inline-block">
               <!-- Tag -->
-              photoshop
+              {{ course.category }}
             </span>
 
             <p class="text-lg">
@@ -107,7 +106,13 @@ console.log(course);
           <div :key="selectedTab" class="mt-4 text-right bg-[#F5F5F5] leading-loose text-gray-800 overflow-y-auto h-[250px] px-4 py-3 rounded-b-xl">
             <CustomCoursesOverviewTab :description="course.description" v-if="selectedTab === 'overview'" />
             <CustomCoursesCurriculumTab v-if="selectedTab === 'curriculum'" />
-            <CustomCoursesInstructorTab v-if="selectedTab === 'instructor'">
+            <CustomCoursesInstructorTab
+              :facebook="course.social.facebook"
+              :instagram="course.social.instagram"
+              :site="course.social.website"
+              :linkedin="course.social.linkedin"
+              v-if="selectedTab === 'instructor'"
+            >
               <template v-slot:name>
                 {{ course.author }}
               </template>
@@ -119,7 +124,7 @@ console.log(course);
               <template v-slot:students> 510 </template>
               <template v-slot:lessons> 10 </template>
             </CustomCoursesInstructorTab>
-            <CustomCoursesFaqsTab v-if="selectedTab === 'faq'" />
+            <CustomCoursesFaqsTab :faqs="course.faqs" v-if="selectedTab === 'faq'" />
             <CustomCoursesReviewsTab v-if="selectedTab === 'reviews'" />
           </div>
         </Transition>

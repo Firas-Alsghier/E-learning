@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
       image: course.coverImage, // 👈 FRONTEND EXPECTS image
       price: course.price,
       oldPrice: 0,
-      category: 'General', // temporary
+      category: course.category,
       duration: '3 Weeks', // temporary
       students: 0,
       level: 'All mdsads',
@@ -51,7 +51,7 @@ router.get('/:slug', async (req, res) => {
       slug: req.params.slug,
       isPublished: true,
     })
-      .populate('teacher', 'firstName lastName bio')
+      .populate('teacher', 'firstName lastName social bio')
       .populate({
         path: 'sections',
         options: { sort: { order: 1 } },
@@ -73,11 +73,13 @@ router.get('/:slug', async (req, res) => {
       image: course.coverImage,
       price: course.price,
       oldPrice: 0,
+      faqs: course.faqs,
       bio: course.teacher.bio,
-      category: 'General',
+      category: course.category,
       duration: '2 Weeks',
       students: 0,
       level: 'All levels',
+      social: course.teacher.social,
       lessons: course.sections?.length || 0,
       isWishlisted: false,
       author: course.teacher ? `${course.teacher.firstName} ${course.teacher.lastName}` : 'Unknown Instructor',

@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { ChevronUp, ChevronDown } from 'lucide-vue-next';
-
+defineProps<{
+  faqs: {
+    question: string;
+    answer: string;
+  }[];
+}>();
 const openIndexes = ref<number[]>([]);
-
 const toggleItem = (index: number) => {
   if (openIndexes.value.includes(index)) {
     openIndexes.value = openIndexes.value.filter((i) => i !== index);
@@ -10,13 +14,12 @@ const toggleItem = (index: number) => {
     openIndexes.value.push(index);
   }
 };
-
-const faqs = [
-  { question: 'ما المقصود بحقوق النشر المجانية؟', answer: 'تعني أنه يمكنك استخدام المحتوى بدون دفع رسوم متكررة.' },
-  { question: 'هل يمكنني استخدام الكورس بعد انتهاء الاشتراك؟', answer: 'نعم، إذا قمت بشرائه، يبقى لديك مدى الحياة.' },
-  { question: 'هل يوجد شهادات بعد إكمال الدورة؟', answer: 'نعم، تحصل على شهادة إتمام بعد اجتياز الدورة.' },
-  { question: 'هل أستطيع تحميل الدروس؟', answer: 'نعم، يمكنك تحميلها ومشاهدتها بدون إنترنت.' },
-];
+// const faqs = [
+//   { question: 'ما المقصود بحقوق النشر المجانية؟', answer: 'تعني أنه يمكنك استخدام المحتوى بدون دفع رسوم متكررة.' },
+//   { question: 'هل يمكنني استخدام الكورس بعد انتهاء الاشتراك؟', answer: 'نعم، إذا قمت بشرائه، يبقى لديك مدى الحياة.' },
+//   { question: 'هل يوجد شهادات بعد إكمال الدورة؟', answer: 'نعم، تحصل على شهادة إتمام بعد اجتياز الدورة.' },
+//   { question: 'هل أستطيع تحميل الدروس؟', answer: 'نعم، يمكنك تحميلها ومشاهدتها بدون إنترنت.' },
+// ];
 </script>
 
 <template>

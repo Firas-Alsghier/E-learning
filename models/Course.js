@@ -16,6 +16,24 @@ const courseSchema = new mongoose.Schema(
       type: String,
     },
 
+    faqs: [
+      {
+        question: { type: String },
+        answer: { type: String },
+      },
+    ],
+
+    faqs: [
+      {
+        question: { type: String },
+        answer: { type: String },
+      },
+    ],
+
+    category: {
+      type: String,
+    },
+
     price: {
       type: Number,
       default: 0,

@@ -17,10 +17,10 @@ const router = express.Router();
  */
 router.post('/', teacherAuth, uploadCover.single('cover'), async (req, res) => {
   try {
-    // console.log('BODY:', req.body);
-    // console.log('FILE:', req.file);
-    const { title, description } = req.body;
+    const { title, description, category, level, faqs } = req.body;
+
     const coverImage = req.file ? `${req.protocol}://${req.get('host')}/${req.file.path.replace(/\\/g, '/')}` : null;
+
     if (!title || !description) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
@@ -30,7 +30,7 @@ router.post('/', teacherAuth, uploadCover.single('cover'), async (req, res) => {
       lower: true,
       strict: true,
       trim: true,
-      remove: /[*+~.()'"!:@]/g, // 👈 important
+      remove: /[*+~.()'"!:@]/g,
     });
 
     // ✅ MAKE SURE SLUG IS UNIQUE
@@ -38,12 +38,16 @@ router.post('/', teacherAuth, uploadCover.single('cover'), async (req, res) => {
     if (existingCourse) {
       return res.status(400).json({ message: 'Course title already exists' });
     }
+
     const course = await Course.create({
       title,
       description,
-      slug, // ✅ SAVE SLUG
+      category, // ✅ added
+      level, // ✅ added
+      slug,
       teacher: req.teacher._id,
       coverImage,
+      faqs: faqs || [], // ✅ added
       sections: [],
       isPublished: false,
     });

@@ -28,8 +28,8 @@ const courseData = ref<CourseInfo>({
   description: '',
   faqs: [
     {
-      question: 'Do you offer 1 on 1 calls',
-      answer: 'Yes, at a fixed cost per call',
+      question: '',
+      answer: '',
     },
   ],
 });

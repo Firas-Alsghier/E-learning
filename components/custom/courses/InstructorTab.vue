@@ -2,7 +2,7 @@
 import { Facebook, Twitter, Instagram, Earth, Linkedin } from 'lucide-vue-next';
 
 defineProps<{
-  facebook?: string;
+  facebook?: any;
   twitter?: string;
   instagram?: string;
   site?: string;
@@ -32,11 +32,11 @@ defineProps<{
 
     <div class="flex gap-3 mt-4 justify-start">
       <p class="text-base">Follow:</p>
-      <a :href="facebook" v-if="facebook" lass="text-gray-500 hover:text-black"><Facebook /></a>
-      <a :href="twitter" v-if="twitter" class="text-gray-500 hover:text-black"><Twitter /></a>
-      <a :href="instagram" v-if="instagram" class="text-gray-500 hover:text-black"><Instagram /></a>
-      <a :href="site" v-if="site" class="text-gray-500 hover:text-black"><Earth /></a>
-      <a :href="linkedin" v-if="linkedin" class="text-gray-500 hover:text-black"><Linkedin /></a>
+      <a :href="facebook" target="_blank" v-if="facebook" lass="text-gray-500 hover:text-black"><Facebook /></a>
+      <!-- <a :href="twitter" v-if="twitter" class="text-gray-500 hover:text-black"><Twitter /></a> -->
+      <a :href="instagram" target="_blank" v-if="instagram" class="text-gray-500 hover:text-black"><Instagram /></a>
+      <a :href="site" target="_blank" v-if="site" class="text-gray-500 hover:text-black"><Earth /></a>
+      <a :href="linkedin" target="_blank" v-if="linkedin" class="text-gray-500 hover:text-black"><Linkedin /></a>
     </div>
   </div>
 </template>

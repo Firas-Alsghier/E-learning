@@ -35,7 +35,6 @@ onMounted(async () => {
       },
     });
     auth.teacher = teacher;
-
     form.value = {
       firstName: teacher.firstName || '',
       lastName: teacher.lastName || '',
@@ -44,11 +43,12 @@ onMounted(async () => {
       language: teacher.language || 'en',
       avatar: teacher.avatar || '',
       phone: teacher.phone || '',
-      website: teacher.website || '',
-      facebook: teacher.facebook || '',
-      instagram: teacher.instagram || '',
-      linkedin: teacher.linkedin || '',
+      website: teacher.social.website || '',
+      facebook: teacher.social.facebook || '',
+      instagram: teacher.social.instagram || '',
+      linkedin: teacher.social.linkedin || '',
     };
+    console.log('Phone number ', form.value.phone);
   } catch (err) {
     console.error('Error fetching teacher profile:', err);
   }
