@@ -24,7 +24,7 @@ interface CourseInfo {
 const courseData = ref<CourseInfo>({
   title: '',
   category: 'Data Management',
-  level: 'Basic',
+  level: 'All levels',
   description: '',
   faqs: [
     {
@@ -108,7 +108,7 @@ const createCourse = async () => {
 
 // --- Dropdown Data ---
 const categories = ['Data Management', 'Web Development', 'Design', 'Marketing', 'Finance'];
-const levels = ['Basic', 'Intermediate', 'Advanced', 'Expert'];
+const levels = ['All levels', 'Basic', 'Intermediate', 'Advanced'];
 
 // --- Helpers ---
 const isStepCompleted = (step: number) => step < currentStep.value;
@@ -289,7 +289,7 @@ const handleFileUpload = (type: 'cover' | 'video') => {
 
       <!-- STEP 3 -->
       <div v-else-if="currentStep === 3" class="text-center p-20">
-        <CustomTeacherCoursePricingStep @continue="goToNextStep" />
+        <CustomTeacherCoursePricingStep :courseId="courseId" @continue="goToNextStep" />
       </div>
 
       <!-- STEP 4 -->

@@ -59,6 +59,33 @@ router.post('/', teacherAuth, uploadCover.single('cover'), async (req, res) => {
   }
 });
 
+router.patch('/:courseId/price', teacherAuth, async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const { price } = req.body;
+
+    const course = await Course.findOneAndUpdate(
+      {
+        _id: courseId,
+        teacher: req.teacher._id,
+      },
+      {
+        price,
+      },
+      { new: true }
+    );
+
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    res.json(course);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Failed to update price' });
+  }
+});
+
 /**
  * ===============================
  * GET TEACHER COURSES

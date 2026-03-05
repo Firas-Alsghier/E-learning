@@ -6,6 +6,7 @@ import { useAuthStore } from '~/stores/auth';
 
 const { course } = defineProps<{
   course: {
+    createdAt: string;
     title: string;
     slug: string;
     image: string; // ✅ match backend API
@@ -68,7 +69,7 @@ const handleWishlistToggle = () => {
         <div class="flex gap-4 text-sm text-gray-500 flex-wrap">
           <div class="flex items-center gap-1">
             <Calendar :size="20" color="#ff782d" />
-            {{ course.duration }}
+            {{ course.createdAt.slice(0, 10) }}
           </div>
           <div class="flex items-center gap-1">
             <GraduationCap :size="20" color="#ff782d" />

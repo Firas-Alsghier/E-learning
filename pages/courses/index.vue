@@ -36,7 +36,7 @@ const fetchCourses = async () => {
     courses.value = data.map((course) => ({
       title: course.title,
       slug: course.slug,
-
+      createdAt: course.createdAt,
       // ✅ FIX IS HERE
       image: course.image || 'http://localhost:3000/images/course-placeholder.jpg',
 

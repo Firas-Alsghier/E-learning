@@ -1,32 +1,51 @@
+<!-- components/custom/teacher/CoursePricingStep.vue -->
 <script setup lang="ts">
 import { ref } from 'vue';
-
+import axios from 'axios';
 /* ✅ DEFINE EMIT PROPERLY */
 const emit = defineEmits<{
   (e: 'continue'): void;
 }>();
-
+const props = defineProps<{
+  courseId: string | null;
+}>();
 /* ---------- Local UI State ---------- */
 const isFree = ref(false);
 const price = ref<number | null>(null);
 const currency = ref('USD');
 
 /* ---------- Helpers ---------- */
-const handleContinue = () => {
+const handleContinue = async () => {
   if (!isFree.value && (!price.value || price.value <= 0)) {
     alert('Please enter a valid price or mark the course as free');
     return;
   }
 
-  // Fake save for now
-  console.log('Pricing data:', {
-    isFree: isFree.value,
-    price: isFree.value ? 0 : price.value,
-    currency: currency.value,
-  });
+  const token = useCookie('teacher_token').value;
 
-  // Move to next step
-  emit('continue');
+  if (!token || !props.courseId) {
+    alert('Missing course id or auth');
+    return;
+  }
+
+  try {
+    await axios.patch(
+      `http://localhost:3001/api/teacher/courses/${props.courseId}/price`,
+      {
+        price: isFree.value ? 0 : price.value,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    emit('continue');
+  } catch (err) {
+    console.error(err);
+    alert('Failed to save price');
+  }
 };
 </script>
 

@@ -132,8 +132,16 @@ const resetFilters = () => {
             <AccordionContent>
               <div class="space-y-2">
                 <label class="flex items-center space-x-2">
-                  <input type="checkbox" v-model="selectedLevels" value="Beginner" />
-                  <span>Beginner</span>
+                  <input type="checkbox" v-model="selectedLevels" value="All levels" />
+                  <span>All levels</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" v-model="selectedLevels" value="Basic" />
+                  <span>Basic</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" v-model="selectedLevels" value="Intermediate" />
+                  <span>Intermediate</span>
                 </label>
                 <label class="flex items-center space-x-2">
                   <input type="checkbox" v-model="selectedLevels" value="Advanced" />

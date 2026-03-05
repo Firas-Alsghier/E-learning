@@ -23,13 +23,6 @@ const courseSchema = new mongoose.Schema(
       },
     ],
 
-    faqs: [
-      {
-        question: { type: String },
-        answer: { type: String },
-      },
-    ],
-
     category: {
       type: String,
     },
@@ -43,6 +36,11 @@ const courseSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Teacher',
       required: true,
+    },
+
+    level: {
+      type: String,
+      enum: ['Basic', 'Intermediate', 'Advanced', 'Expert'],
     },
 
     isPublished: {

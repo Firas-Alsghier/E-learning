@@ -3,10 +3,11 @@ import { ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { Heart } from 'lucide-vue-next';
 import type { Course } from '@/types/Course';
+import { useI18n } from 'vue-i18n';
 
 const selectedTab = ref('overview');
 const route = useRoute();
-
+const { t } = useI18n();
 const slug = computed(() => route.params.slug as string);
 const tabs = [
   { id: 'overview', label: 'نظرة عامة' },
@@ -45,7 +46,7 @@ console.log(course.value?.faqs);
             </span>
 
             <p class="text-lg">
-              <span class="text-[#9D9D9D]">by</span>
+              <span class="text-[#9D9D9D]">{{ t('by') }}</span>
               {{ course.author }}
             </p>
 

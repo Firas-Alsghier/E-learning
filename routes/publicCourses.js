@@ -25,10 +25,11 @@ router.get('/', async (req, res) => {
       category: course.category,
       duration: '3 Weeks', // temporary
       students: 0,
-      level: 'All mdsads',
+      level: course.level,
       lessons: course.sections?.length || 0,
       isWishlisted: false,
       author: course.teacher ? `${course.teacher.firstName} ${course.teacher.lastName}` : 'Unknown Instructor',
+      createdAt: course.createdAt,
     }));
 
     res.json(formattedCourses);
@@ -78,7 +79,7 @@ router.get('/:slug', async (req, res) => {
       category: course.category,
       duration: '2 Weeks',
       students: 0,
-      level: 'All levels',
+      level: course.level,
       social: course.teacher.social,
       lessons: course.sections?.length || 0,
       isWishlisted: false,
