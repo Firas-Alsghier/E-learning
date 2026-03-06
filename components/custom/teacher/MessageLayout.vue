@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
 import { Search, Plus, MoreVertical, Send, Paperclip, CheckCheck, Image, Video, FileText, Link, ChevronDown, BellOff } from 'lucide-vue-next';
 
 // --- Shared Data Interfaces ---
@@ -30,123 +31,117 @@ interface FileItem {
   url: string;
 }
 
+const conversations = ref<Conversation[]>([]);
 // --- Data for ConversationList (Left Column) ---
 
-const conversations = ref<Conversation[]>([
-  {
-    id: 1,
-    name: 'Emma Johnson',
-    lastMessage: 'Hey! Just wanted to check if the assignment is uploaded?',
-    time: '10:15 AM',
-    unreadCount: 2,
-    isOnline: true,
-    image: 'https://placehold.co/40x40/EDF2F7/2D3748?text=EJ',
-  },
-  {
-    id: 2,
-    name: 'Michael Brown',
-    lastMessage: 'The webinar was insightful! Thanks for organizing.',
-    time: '09:45 AM',
-    unreadCount: null,
-    isOnline: true,
-    image: 'https://placehold.co/40x40/EDF2F7/2D3748?text=MB',
-  },
-  {
-    id: 3,
-    name: 'Sophia Miller',
-    lastMessage: 'Can you clarify the second module topic?',
-    time: '08:30 AM',
-    unreadCount: 1,
-    isOnline: false,
-    image: 'https://placehold.co/40x40/EDF2F7/2D3748?text=SM',
-  },
-  {
-    id: 4,
-    name: 'James Wilson',
-    lastMessage: "I've submitted my final project. Kindly review.",
-    time: 'Yesterday',
-    unreadCount: 3,
-    isOnline: false,
-    image: 'https://placehold.co/40x40/EDF2F7/2D3748?text=JW',
-  },
-  {
-    id: 5,
-    name: 'Olivia Davis',
-    lastMessage: "Do we have a recorded session for last week's class?",
-    time: 'Yesterday',
-    unreadCount: null,
-    isOnline: true,
-    image: 'https://placehold.co/40x40/EDF2F7/2D3748?text=OD',
-  },
-  {
-    id: 6,
-    name: 'Daniella Jung',
-    lastMessage: "Great! If it still doesn't work, let me know...",
-    time: 'Mar 6',
-    unreadCount: null,
-    isOnline: true,
-    image: 'https://placehold.co/40x40/EDF2F7/2D3748?text=DJ',
-  },
-  {
-    id: 7,
-    name: 'Mohammed Rodrigues',
-    lastMessage: "I'll continue with the course and check my progress again.",
-    time: 'Mar 5',
-    unreadCount: null,
-    isOnline: false,
-    image: 'https://placehold.co/40x40/EDF2F7/2D3748?text=MR',
-  },
-  {
-    id: 8,
-    name: 'Isabella Clark',
-    lastMessage: 'Loved the course! Are there any follow-ups?',
-    time: 'Mar 4',
-    unreadCount: null,
-    isOnline: true,
-    image: 'https://placehold.co/40x40/EDF2F7/2D3748?text=IC',
-  },
-  {
-    id: 9,
-    name: 'Liam Harris',
-    lastMessage: 'Hi Daniela, I have a quick question about...',
-    time: 'Mar 4',
-    unreadCount: null,
-    isOnline: false,
-    image: 'https://placehold.co/40x40/EDF2F7/2D3748?text=LH',
-  },
-]);
+const chatMessages = ref<Message[]>([]);
 
 const activeConversationId = ref(6); // Default to Daniela Jung's chat
 
 // --- Data for ChatWindow (Middle Column) ---
 
 // Chat messages for the active conversation (Daniela Jung)
-const chatMessages = ref<Message[]>([
-  { id: 101, text: "Hey, I'm facing login issues. Any help?", isUser: false, time: '1:00 PM', status: 'read' },
-  { id: 102, text: 'Hi Daniel! Could you specify the issue? Are you getting an error message?', isUser: true, time: '1:02 PM', status: 'read' },
-  { id: 103, text: "Yeah, it says 'Invalid Credentials' even though my password is correct.", isUser: false, time: '1:05 PM', status: 'read' },
-  { id: 104, text: 'Have you tried resetting your password?', isUser: true, time: '1:07 PM', status: 'read' },
-  { id: 105, text: "Not yet. I'll try that now.", isUser: false, time: '1:10 PM', status: 'read' },
-  { id: 106, text: "Great! If it still doesn't work, let me know and I'll escalate the issue to support.", isUser: true, time: '1:12 PM', status: 'read' },
-]);
+// const chatMessages = ref<Message[]>([
+//   { id: 101, text: "Hey, I'm facing login issues. Any help?", isUser: false, time: '1:00 PM', status: 'read' },
+//   { id: 102, text: 'Hi Daniel! Could you specify the issue? Are you getting an error message?', isUser: true, time: '1:02 PM', status: 'read' },
+//   { id: 103, text: "Yeah, it says 'Invalid Credentials' even though my password is correct.", isUser: false, time: '1:05 PM', status: 'read' },
+//   { id: 104, text: 'Have you tried resetting your password?', isUser: true, time: '1:07 PM', status: 'read' },
+//   { id: 105, text: "Not yet. I'll try that now.", isUser: false, time: '1:10 PM', status: 'read' },
+//   { id: 106, text: "Great! If it still doesn't work, let me know and I'll escalate the issue to support.", isUser: true, time: '1:12 PM', status: 'read' },
+// ]);
 
 const newMessageText = ref('');
 
-const sendMessage = () => {
-  if (newMessageText.value.trim() === '') return;
+const loadMessages = async (userId: number) => {
+  try {
+    const token = useCookie('teacher_token').value;
 
-  const newMsg: Message = {
-    id: Date.now(),
-    text: newMessageText.value,
-    isUser: true, // Assuming the current user is Daniela Jung, the teacher
-    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    status: 'sent',
-  };
-  chatMessages.value.push(newMsg);
-  newMessageText.value = '';
-  // In a real app, you would send this to the server here.
+    const res = await axios.get(`http://localhost:3001/api/messages/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    chatMessages.value = res.data.map((msg: any) => ({
+      id: msg._id,
+      text: msg.text,
+      isUser: msg.sender === msg.receiver ? true : msg.sender === msg.sender,
+      time: new Date(msg.createdAt).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      status: 'read',
+    }));
+  } catch (err) {
+    console.error('Load messages error', err);
+  }
 };
 
+const loadConversations = async () => {
+  try {
+    const token = useCookie('teacher_token').value;
+
+    const res = await $fetch('http://localhost:3001/api/messages/conversations', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    conversations.value = res as Conversation[];
+  } catch (err) {
+    console.error('Failed to load conversations', err);
+  }
+};
+// const sendMessage = () => {
+//   if (newMessageText.value.trim() === '') return;
+
+//   const newMsg: Message = {
+//     id: Date.now(),
+//     text: newMessageText.value,
+//     isUser: true, // Assuming the current user is Daniela Jung, the teacher
+//     time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+//     status: 'sent',
+//   };
+//   chatMessages.value.push(newMsg);
+//   newMessageText.value = '';
+// };
+
+const sendMessage = async () => {
+  if (newMessageText.value.trim() === '') return;
+
+  try {
+    const token = useCookie('teacher_token').value;
+
+    const res = await axios.post(
+      'http://localhost:3001/api/messages',
+      {
+        receiverId: activeConversationId.value,
+        text: newMessageText.value,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    // add message to UI
+    chatMessages.value.push({
+      id: res.data._id,
+      text: res.data.text,
+      isUser: true,
+      time: new Date(res.data.createdAt).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      status: 'sent',
+    });
+
+    newMessageText.value = '';
+  } catch (err) {
+    console.error('Send message error:', err);
+  }
+};
 // --- Data for AccountSidebar (Right Column) ---
 
 const mediaFiles = ref<FileItem[]>([
@@ -186,6 +181,10 @@ const isDropdownOpen = ref(false);
 const closeDropdown = () => {
   isDropdownOpen.value = false;
 };
+
+onMounted(() => {
+  loadConversations();
+});
 </script>
 
 <template>
@@ -210,7 +209,10 @@ const closeDropdown = () => {
           <div
             v-for="conv in conversations"
             :key="conv.id"
-            @click="activeConversationId = conv.id"
+            @click="
+              activeConversationId = conv.id;
+              loadMessages(conv.id);
+            "
             :class="[
               'flex items-center p-3 cursor-pointer border-l-4 transition duration-150',
               conv.id === activeConversationId ? 'bg-violet-50 border-violet-600' : 'hover:bg-gray-50 border-transparent',

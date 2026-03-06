@@ -14,17 +14,11 @@ const toggleItem = (index: number) => {
     openIndexes.value.push(index);
   }
 };
-// const faqs = [
-//   { question: 'ما المقصود بحقوق النشر المجانية؟', answer: 'تعني أنه يمكنك استخدام المحتوى بدون دفع رسوم متكررة.' },
-//   { question: 'هل يمكنني استخدام الكورس بعد انتهاء الاشتراك؟', answer: 'نعم، إذا قمت بشرائه، يبقى لديك مدى الحياة.' },
-//   { question: 'هل يوجد شهادات بعد إكمال الدورة؟', answer: 'نعم، تحصل على شهادة إتمام بعد اجتياز الدورة.' },
-//   { question: 'هل أستطيع تحميل الدروس؟', answer: 'نعم، يمكنك تحميلها ومشاهدتها بدون إنترنت.' },
-// ];
 </script>
 
 <template>
-  <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
-    <div v-for="(faq, index) in faqs" :key="index" class="bg-white rounded-md p-4 transition-all duration-300">
+  <div class="grid grid-cols-1 disable md:grid-cols-1 gap-6">
+    <div v-for="(faq, index) in faqs" :key="index" class="bg-white cursor-pointer rounded-md p-4 transition-all duration-300">
       <button @click="toggleItem(index)" class="w-full flex justify-between items-center font-semibold text-black">
         <span class="text-base">{{ faq.question }}</span>
         <span class="text-xl">
@@ -35,7 +29,7 @@ const toggleItem = (index: number) => {
 
       <!-- Animated answer -->
       <transition name="fade-slide">
-        <p v-show="openIndexes.includes(index)" class="text-sm text-gray-600 mt-2">
+        <p v-show="openIndexes.includes(index)" class="text-sm cursor-pointer text-gray-600 mt-2">
           {{ faq.answer }}
         </p>
       </transition>
@@ -46,6 +40,10 @@ const toggleItem = (index: number) => {
 </template>
 
 <style scoped>
+.disable {
+  -webkit-user-select: none; /* Safari */
+  user-select: none;
+}
 .fade-slide-enter-active,
 .fade-slide-leave-active {
   transition: all 0.3s ease;
