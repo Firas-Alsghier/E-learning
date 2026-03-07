@@ -1,5 +1,6 @@
+<!-- components\custom\teacher\MessageLayout.vue -->
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
 import { Search, Plus, MoreVertical, Send, Paperclip, CheckCheck, Image, Video, FileText, Link, ChevronDown, BellOff } from 'lucide-vue-next';
 
@@ -8,19 +9,20 @@ import { Search, Plus, MoreVertical, Send, Paperclip, CheckCheck, Image, Video, 
 interface Message {
   id: number;
   text: string;
-  isUser: boolean; // true for Account owner (Daniela Jung), false for Student
+  attachment?: string;
+  isUser: boolean;
   time: string;
   status: 'sent' | 'delivered' | 'read';
 }
 
 interface Conversation {
-  id: number;
+  id: string;
   name: string;
   lastMessage: string;
   time: string;
   unreadCount: number | null;
   isOnline: boolean;
-  image: string; // Placeholder for profile image URL
+  image: string;
 }
 
 interface FileItem {
@@ -36,25 +38,41 @@ const conversations = ref<Conversation[]>([]);
 
 const chatMessages = ref<Message[]>([]);
 
-const activeConversationId = ref(6); // Default to Daniela Jung's chat
+const activeConversationId = ref<string | null>(null);
 
-// --- Data for ChatWindow (Middle Column) ---
-
-// Chat messages for the active conversation (Daniela Jung)
-// const chatMessages = ref<Message[]>([
-//   { id: 101, text: "Hey, I'm facing login issues. Any help?", isUser: false, time: '1:00 PM', status: 'read' },
-//   { id: 102, text: 'Hi Daniel! Could you specify the issue? Are you getting an error message?', isUser: true, time: '1:02 PM', status: 'read' },
-//   { id: 103, text: "Yeah, it says 'Invalid Credentials' even though my password is correct.", isUser: false, time: '1:05 PM', status: 'read' },
-//   { id: 104, text: 'Have you tried resetting your password?', isUser: true, time: '1:07 PM', status: 'read' },
-//   { id: 105, text: "Not yet. I'll try that now.", isUser: false, time: '1:10 PM', status: 'read' },
-//   { id: 106, text: "Great! If it still doesn't work, let me know and I'll escalate the issue to support.", isUser: true, time: '1:12 PM', status: 'read' },
-// ]);
+const selectedFile = ref<File | null>(null);
 
 const newMessageText = ref('');
 
-const loadMessages = async (userId: number) => {
+const fileInput = ref<HTMLInputElement | null>(null);
+
+const messagesContainer = ref<HTMLElement | null>(null);
+const handleFileSelect = (event: Event) => {
+  const input = event.target as HTMLInputElement;
+
+  if (input.files && input.files.length > 0) {
+    selectedFile.value = input.files[0];
+  }
+};
+
+const handleFileChange = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+
+  if (target.files && target.files[0]) {
+    selectedFile.value = target.files[0];
+  }
+};
+
+const scrollToBottom = () => {
+  if (messagesContainer.value) {
+    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+  }
+};
+
+const loadMessages = async (userId: string) => {
   try {
     const token = useCookie('teacher_token').value;
+    const teacherId = useCookie('teacher_id').value;
 
     const res = await axios.get(`http://localhost:3001/api/messages/${userId}`, {
       headers: {
@@ -65,7 +83,10 @@ const loadMessages = async (userId: number) => {
     chatMessages.value = res.data.map((msg: any) => ({
       id: msg._id,
       text: msg.text,
-      isUser: msg.sender === msg.receiver ? true : msg.sender === msg.sender,
+      attachment: msg.attachment,
+      // ✅ correct sender logic
+      isUser: String(msg.sender) === String(teacherId),
+
       time: new Date(msg.createdAt).toLocaleTimeString([], {
         hour: '2-digit',
         minute: '2-digit',
@@ -92,40 +113,28 @@ const loadConversations = async () => {
     console.error('Failed to load conversations', err);
   }
 };
-// const sendMessage = () => {
-//   if (newMessageText.value.trim() === '') return;
-
-//   const newMsg: Message = {
-//     id: Date.now(),
-//     text: newMessageText.value,
-//     isUser: true, // Assuming the current user is Daniela Jung, the teacher
-//     time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-//     status: 'sent',
-//   };
-//   chatMessages.value.push(newMsg);
-//   newMessageText.value = '';
-// };
 
 const sendMessage = async () => {
-  if (newMessageText.value.trim() === '') return;
+  if (newMessageText.value.trim() === '' && !selectedFile.value) return;
 
   try {
     const token = useCookie('teacher_token').value;
 
-    const res = await axios.post(
-      'http://localhost:3001/api/messages',
-      {
-        receiverId: activeConversationId.value,
-        text: newMessageText.value,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const formData = new FormData();
+    formData.append('receiverId', String(activeConversationId.value));
+    formData.append('text', newMessageText.value);
 
-    // add message to UI
+    if (selectedFile.value) {
+      formData.append('attachment', selectedFile.value);
+    }
+
+    const res = await axios.post('http://localhost:3001/api/messages', formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
     chatMessages.value.push({
       id: res.data._id,
       text: res.data.text,
@@ -138,6 +147,7 @@ const sendMessage = async () => {
     });
 
     newMessageText.value = '';
+    selectedFile.value = null;
   } catch (err) {
     console.error('Send message error:', err);
   }
@@ -181,6 +191,10 @@ const isDropdownOpen = ref(false);
 const closeDropdown = () => {
   isDropdownOpen.value = false;
 };
+
+watch(chatMessages, () => {
+  setTimeout(scrollToBottom, 100);
+});
 
 onMounted(() => {
   loadConversations();
@@ -277,7 +291,7 @@ onMounted(() => {
         </div>
 
         <!-- Messages Area -->
-        <div class="flex-1 overflow-y-auto p-6 space-y-4">
+        <div ref="messagesContainer" class="flex-1 overflow-y-auto p-6 space-y-4">
           <!-- Date Separator -->
           <div class="text-center my-4">
             <span class="text-xs text-gray-400 bg-gray-100 px-3 py-1 rounded-full"> March 6, 2028 </span>
@@ -289,7 +303,15 @@ onMounted(() => {
             </div>
 
             <div :class="['max-w-xs md:max-w-sm lg:max-w-sm p-3 rounded-xl shadow-sm', msg.isUser ? 'bg-violet-600 text-white rounded-br-none' : 'bg-gray-100 text-gray-800 rounded-tl-none']">
-              <p class="text-sm">{{ msg.text }}</p>
+              <p v-if="msg.text" class="text-sm mb-2">
+                {{ msg.text }}
+              </p>
+
+              <!-- Image attachment -->
+              <img v-if="msg.attachment && msg.attachment.match(/\.(jpg|jpeg|png|gif|webp)$/i)" :src="msg.attachment" class="max-w-[200px] rounded-lg mb-2" />
+
+              <!-- File attachment -->
+              <a v-if="msg.attachment && !msg.attachment.match(/\.(jpg|jpeg|png|gif|webp)$/i)" :href="msg.attachment" target="_blank" class="text-sm underline text-blue-500"> Download attachment </a>
               <div class="flex justify-end items-center mt-1 space-x-1">
                 <span :class="['text-xs', msg.isUser ? 'text-violet-200' : 'text-gray-500']">{{ msg.time }}</span>
                 <component :is="getStatusIcon(msg.status)" :class="['h-3 w-3', msg.status === 'read' ? 'text-blue-400' : msg.isUser ? 'text-violet-200' : 'text-gray-400']" />
@@ -308,9 +330,13 @@ onMounted(() => {
               placeholder="Type a message..."
               class="w-full pl-4 pr-12 py-3 text-sm bg-gray-50 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-violet-500"
             />
-            <button class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-violet-600 transition">
-              <Paperclip class="h-5 w-5" />
-            </button>
+            <label class="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-400 hover:text-violet-600 transition">
+              <!-- <Paperclip class="h-5 w-5" /> -->
+              <button @click="fileInput?.click()" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-violet-600 transition">
+                <Paperclip class="h-5 w-5" />
+              </button>
+              <input type="file" class="hidden" ref="fileInput" @change="handleFileChange" />
+            </label>
           </div>
           <button
             @click="sendMessage"

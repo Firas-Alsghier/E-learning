@@ -1,7 +1,7 @@
 // routes/messages.js
 import express from 'express';
 import Message from '../models/Message.js';
-import User from '../models/User.js'; /* 'User' is declared but its value is never read. */
+// import User from '../models/User.js'; /* 'User' is declared but its value is never read. */
 import { teacherAuth } from '../middleware/teacherAuth.js';
 import multer from 'multer';
 const router = express.Router();
@@ -83,67 +83,6 @@ router.post('/', upload.single('attachment'), async (req, res) => {
     res.status(500).json({ message: 'Failed to send message' });
   }
 });
-
-/* -----------------------------
-   GET CONVERSATION
------------------------------ */
-
-// router.get('/:user1/:user2', async (req, res) => {
-//   try {
-//     const { user1, user2 } = req.params;
-
-//     const messages = await Message.find({
-//       $or: [
-//         { sender: user1, receiver: user2 },
-//         { sender: user2, receiver: user1 },
-//       ],
-//     }).sort({ createdAt: 1 });
-
-//     res.status(200).json(messages);
-//   } catch (error) {
-//     console.error('Get messages error:', error);
-//     res.status(500).json({ message: 'Failed to load messages' });
-//   }
-// });
-
-/* -----------------------------
-   GET CONVERSATIONS LIST
------------------------------ */
-
-// router.get('/conversations/:userId', async (req, res) => {
-//   try {
-//     const { userId } = req.params;
-
-//     const messages = await Message.find({
-//       $or: [{ sender: userId }, { receiver: userId }],
-//     })
-//       .sort({ createdAt: -1 })
-//       .populate('sender receiver', 'firstName lastName avatar');
-
-//     const conversationsMap = new Map();
-
-//     for (const msg of messages) {
-//       const otherUser = msg.sender._id.toString() === userId ? msg.receiver : msg.sender;
-
-//       const otherId = otherUser._id.toString();
-
-//       if (!conversationsMap.has(otherId)) {
-//         conversationsMap.set(otherId, {
-//           user: otherUser,
-//           lastMessage: msg.text,
-//           time: msg.createdAt,
-//         });
-//       }
-//     }
-
-//     const conversations = Array.from(conversationsMap.values());
-
-//     res.status(200).json(conversations);
-//   } catch (error) {
-//     console.error('Get conversations error:', error);
-//     res.status(500).json({ message: 'Failed to load conversations' });
-//   }
-// });
 
 router.get('/:userId', teacherAuth, async (req, res) => {
   try {
