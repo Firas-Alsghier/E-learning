@@ -1,7 +1,7 @@
 // routes/messages.js
 import express from 'express';
 import Message from '../models/Message.js';
-// import User from '../models/User.js'; /* 'User' is declared but its value is never read. */
+import User from '../models/User.js';
 import { teacherAuth } from '../middleware/teacherAuth.js';
 import multer from 'multer';
 const router = express.Router();
@@ -22,22 +22,33 @@ const upload = multer({ storage });
 // GET teacher conversations
 router.get('/conversations', teacherAuth, async (req, res) => {
   try {
-    const teacherId = req.teacher.id;
+    const teacherId = req.teacher._id;
 
     const messages = await Message.find({
-      teacher: teacherId,
-    })
-      .populate('student', 'firstName lastName avatar')
-      .sort({ createdAt: -1 });
+      $or: [
+        { sender: teacherId, senderType: 'Teacher' },
+        { receiver: teacherId, receiverType: 'Teacher' },
+      ],
+    }).sort({ createdAt: -1 });
 
     const conversationsMap = new Map();
 
-    messages.forEach((msg) => {
-      const student = msg.student;
-      const studentId = student._id.toString();
+    for (const msg of messages) {
+      // determine the student id
+      let studentId;
+
+      if (msg.senderType === 'User') {
+        studentId = msg.sender;
+      } else {
+        studentId = msg.receiver;
+      }
 
       if (!conversationsMap.has(studentId)) {
-        conversationsMap.set(studentId, {
+        const student = await User.findById(studentId).select('firstName lastName avatar');
+
+        if (!student) continue;
+
+        conversationsMap.set(studentId.toString(), {
           id: studentId,
           name: `${student.firstName} ${student.lastName}`,
           image: student.avatar || '',
@@ -47,7 +58,7 @@ router.get('/conversations', teacherAuth, async (req, res) => {
           isOnline: false,
         });
       }
-    });
+    }
 
     const conversations = Array.from(conversationsMap.values());
 
@@ -103,29 +114,4 @@ router.get('/:userId', teacherAuth, async (req, res) => {
   }
 });
 
-// GET messages with a specific student
-router.get('/:studentId', teacherAuth, async (req, res) => {
-  try {
-    const teacherId = req.teacher.id;
-    const { studentId } = req.params;
-
-    const messages = await Message.find({
-      teacher: teacherId,
-      student: studentId,
-    }).sort({ createdAt: 1 });
-
-    const formatted = messages.map((msg) => ({
-      id: msg._id,
-      text: msg.text,
-      isUser: msg.sender === 'teacher',
-      time: msg.createdAt,
-      status: 'read',
-    }));
-
-    res.json(formatted);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Failed to load messages' });
-  }
-});
 export default router;

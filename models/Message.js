@@ -1,4 +1,3 @@
-// models/Message.js
 import mongoose from 'mongoose';
 
 const messageSchema = new mongoose.Schema(
@@ -12,7 +11,7 @@ const messageSchema = new mongoose.Schema(
     senderType: {
       type: String,
       required: true,
-      enum: ['Teacher', 'User'], // Teacher or Student
+      enum: ['Teacher', 'User'], // MUST match model names
     },
 
     receiver: {

@@ -72,8 +72,21 @@ const scrollToBottom = () => {
 const loadMessages = async (userId: string) => {
   try {
     const token = useCookie('teacher_token').value;
-    const teacherId = useCookie('teacher_id').value;
+    type TeacherData = {
+      id: string;
+    };
 
+    const teacherData = useCookie<string | TeacherData | null>('teacher_data').value;
+
+    let teacherId: string | null = null;
+
+    if (teacherData) {
+      if (typeof teacherData === 'string') {
+        teacherId = (JSON.parse(teacherData) as TeacherData).id;
+      } else {
+        teacherId = teacherData.id;
+      }
+    }
     const res = await axios.get(`http://localhost:3001/api/messages/${userId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -84,9 +97,7 @@ const loadMessages = async (userId: string) => {
       id: msg._id,
       text: msg.text,
       attachment: msg.attachment,
-      // ✅ correct sender logic
       isUser: String(msg.sender) === String(teacherId),
-
       time: new Date(msg.createdAt).toLocaleTimeString([], {
         hour: '2-digit',
         minute: '2-digit',
