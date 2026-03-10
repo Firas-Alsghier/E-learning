@@ -19,6 +19,38 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+/* -----------------------------
+   SEND MESSAGE
+----------------------------- */
+
+router.post('/', teacherAuth, upload.single('attachment'), async (req, res) => {
+  try {
+    const { receiver, receiverId, text } = req.body;
+
+    const finalReceiver = receiver || receiverId;
+
+    if (!finalReceiver) {
+      return res.status(400).json({ error: 'Receiver is required' });
+    }
+
+    const message = new Message({
+      sender: req.teacher._id,
+      senderType: 'Teacher',
+      receiver: finalReceiver,
+      receiverType: 'User',
+      text,
+      attachment: req.file ? req.file.filename : null,
+    });
+
+    await message.save();
+
+    res.json(message);
+  } catch (err) {
+    console.error('Send message error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // GET teacher conversations
 router.get('/conversations', teacherAuth, async (req, res) => {
   try {
@@ -66,32 +98,6 @@ router.get('/conversations', teacherAuth, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Failed to load conversations' });
-  }
-});
-
-/* -----------------------------
-   SEND MESSAGE
------------------------------ */
-
-router.post('/', upload.single('attachment'), async (req, res) => {
-  try {
-    const { sender, senderType, receiver, receiverType, text } = req.body;
-
-    const attachment = req.file ? `${req.protocol}://${req.get('host')}/${req.file.path.replace(/\\/g, '/')}` : null;
-
-    const message = await Message.create({
-      sender,
-      senderType,
-      receiver,
-      receiverType,
-      text,
-      attachment,
-    });
-
-    res.status(201).json(message);
-  } catch (error) {
-    console.error('Send message error:', error);
-    res.status(500).json({ message: 'Failed to send message' });
   }
 });
 
