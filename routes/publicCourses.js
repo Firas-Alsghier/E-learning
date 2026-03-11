@@ -68,6 +68,7 @@ router.get('/:slug', async (req, res) => {
     console.log(course);
     res.json({
       id: course._id,
+      teacherId: course.teacher?._id,
       title: course.title,
       slug: course.slug,
       description: course.description,

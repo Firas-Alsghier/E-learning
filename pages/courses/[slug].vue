@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router';
 import { Heart } from 'lucide-vue-next';
 import type { Course } from '@/types/Course';
 import { useI18n } from 'vue-i18n';
-
+import CustomCoursesContactInstructorTab from '@/components/custom/courses/ContactInstructorTab.vue';
 const selectedTab = ref('overview');
 const route = useRoute();
 const { t } = useI18n();
@@ -14,7 +14,8 @@ const tabs = [
   { id: 'curriculum', label: 'المنهج الدراسي' },
   { id: 'instructor', label: 'المُدرّس' },
   { id: 'faq', label: 'الأسئلة الشائعة' },
-  { id: 'reviews', label: 'التقييمات' },
+  // { id: 'reviews', label: 'التقييمات' },
+  { id: 'contact', label: 'التواصل' },
 ];
 
 /* ----------------------------------
@@ -24,7 +25,7 @@ const { data, error } = await useAsyncData<Course>(`course-${slug.value}`, () =>
 
 // ✅ THIS LINE FIXES ALL `{}` ERRORS
 const course = computed(() => data.value);
-console.log(course.value?.faqs);
+console.log(course);
 </script>
 
 <template>
@@ -125,8 +126,9 @@ console.log(course.value?.faqs);
               <template v-slot:students> 510 </template>
               <template v-slot:lessons> 10 </template>
             </CustomCoursesInstructorTab>
+            <CustomCoursesContactInstructorTab v-if="selectedTab === 'contact'" :teacherId="course.teacherId" :courseId="course.id" />
             <CustomCoursesFaqsTab :faqs="course.faqs" v-if="selectedTab === 'faq'" />
-            <CustomCoursesReviewsTab v-if="selectedTab === 'reviews'" />
+            <!-- <CustomCoursesReviewsTab v-if="selectedTab === 'reviews'" /> -->
           </div>
         </Transition>
       </div>

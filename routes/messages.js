@@ -51,6 +51,33 @@ router.post('/', teacherAuth, upload.single('attachment'), async (req, res) => {
   }
 });
 
+router.post('/contact-teacher', userAuth, upload.single('attachment'), async (req, res) => {
+  try {
+    const { teacherId, text, courseId } = req.body;
+
+    if (!teacherId) {
+      return res.status(400).json({ error: 'Teacher ID is required' });
+    }
+
+    const message = new Message({
+      sender: req.user._id,
+      senderType: 'User',
+      receiver: teacherId,
+      receiverType: 'Teacher',
+      text,
+      course: courseId,
+      attachment: req.file ? req.file.filename : null,
+    });
+
+    await message.save();
+
+    res.json(message);
+  } catch (err) {
+    console.error('Contact teacher error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // GET teacher conversations
 router.get('/conversations', teacherAuth, async (req, res) => {
   try {

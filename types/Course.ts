@@ -1,4 +1,5 @@
 export interface Course {
+  [x: string]: any;
   faqs: any;
   social: any;
   bio: string;
