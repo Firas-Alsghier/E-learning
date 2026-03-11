@@ -2,6 +2,12 @@ import mongoose from 'mongoose';
 
 const messageSchema = new mongoose.Schema(
   {
+    conversationId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Conversation',
+      required: true,
+    },
+
     sender: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
@@ -11,7 +17,7 @@ const messageSchema = new mongoose.Schema(
     senderType: {
       type: String,
       required: true,
-      enum: ['Teacher', 'User'], // MUST match model names
+      enum: ['Teacher', 'User'],
     },
 
     receiver: {

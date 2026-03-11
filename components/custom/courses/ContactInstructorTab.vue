@@ -33,24 +33,35 @@ function removeFile() {
 }
 
 const sendMessage = async () => {
-  if (!message.value.trim()) return;
+  if (!message.value.trim() && !selectedFile.value) return;
 
   try {
     loading.value = true;
 
-    await $fetch('http://localhost:3001/api/messages', {
+    const token = localStorage.getItem('token');
+
+    const formData = new FormData();
+    formData.append('teacherId', props.teacherId);
+    formData.append('courseId', props.courseId);
+    formData.append('text', message.value);
+
+    if (selectedFile.value) {
+      formData.append('attachment', selectedFile.value);
+    }
+
+    await $fetch('http://localhost:3001/api/messages/contact-teacher', {
       method: 'POST',
-      body: {
-        teacherId: props.teacherId,
-        courseId: props.courseId,
-        message: message.value,
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
+      body: formData,
     });
 
     message.value = '';
+    selectedFile.value = null;
     success.value = true;
   } catch (err) {
-    console.error(err);
+    console.error('Send message error:', err);
   } finally {
     loading.value = false;
   }
@@ -89,7 +100,7 @@ const sendMessage = async () => {
     </div>
 
     <!-- Send Button -->
-    <button @click="sendMessage" :disabled="loading" class="bg-orange-500 text-white px-4 py-2 rounded-lg">إرسال الرسالة</button>
+    <button @click="sendMessage" :disabled="loading" class="bg-orange-500 text-white px-4 py-2 rounded-lg disabled:opacity-50">إرسال الرسالة</button>
 
     <p v-if="success" class="text-green-600">تم إرسال الرسالة بنجاح</p>
   </div>

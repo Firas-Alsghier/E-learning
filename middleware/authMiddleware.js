@@ -1,24 +1,25 @@
-// middleware/authMiddleware.js
 import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
 
-const authMiddleware = (req, res, next) => {
+const userAuth = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  if (!authHeader?.startsWith('Bearer ')) {
     return res.status(401).json({ message: 'لم يتم العثور على التوكن' });
   }
 
-  const token = authHeader.split(' ')[1];
-
   try {
+    const token = authHeader.split(' ')[1];
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // ✅ MATCH MONGOOSE STYLE
-    req.user = {
-      _id: decoded.id || decoded._id,
-      role: decoded.role,
-      email: decoded.email,
-    };
+    const user = await User.findById(decoded.id);
+
+    if (!user) {
+      return res.status(401).json({ message: 'المستخدم غير موجود' });
+    }
+
+    req.user = user;
 
     next();
   } catch (error) {
@@ -26,4 +27,4 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-export default authMiddleware;
+export default userAuth;

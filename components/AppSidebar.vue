@@ -45,6 +45,11 @@ const data = computed(() => ({
       url: 'close-account',
       icon: Settings2,
     },
+    {
+      title: 'Messages',
+      url: 'message',
+      icon: Settings2,
+    },
   ],
 }));
 </script>

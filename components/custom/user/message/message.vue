@@ -1,12 +1,9 @@
-<!-- components\custom\teacher\MessageLayout.vue -->
 <script setup lang="ts">
 import { ref, onMounted, watch, computed, nextTick } from 'vue';
 import axios from 'axios';
 import { Search, Plus, MoreVertical, Send, Paperclip, CheckCheck, Image, Video, FileText, Link, ChevronDown, BellOff } from 'lucide-vue-next';
-// import { URL } from 'url';
 
 // --- Shared Data Interfaces ---
-
 interface Message {
   id: string;
   text: string;
@@ -35,47 +32,32 @@ interface FileItem {
 }
 
 const conversations = ref<Conversation[]>([]);
-// --- Data for ConversationList (Left Column) ---
-
 const chatMessages = ref<Message[]>([]);
-
 const activeConversationId = ref<string | null>(null);
-
 const selectedFile = ref<File | null>(null);
-
 const newMessageText = ref('');
-
 const fileInput = ref<HTMLInputElement | null>(null);
-
 const conversationSearch = ref('');
-
 const messageSearch = ref('');
-
 const matchedMessageIds = ref<string[]>([]);
-
 const isOpend = ref(false);
-
 const highlightedMessageId = ref<string | null>(null);
-
 const currentMatchIndex = ref(0);
-
 const messagesContainer = ref<HTMLElement | null>(null);
+
+// --- Helpers for File Upload ---
 const handleFileSelect = (event: Event) => {
   const input = event.target as HTMLInputElement;
-
   if (input.files && input.files.length > 0) {
     selectedFile.value = input.files[0];
   }
 };
-
 const handleFileChange = (event: Event) => {
   const target = event.target as HTMLInputElement;
-
   if (target.files && target.files[0]) {
     selectedFile.value = target.files[0];
   }
 };
-
 const previewUrl = computed(() => {
   if (!selectedFile.value) return null;
   return URL.createObjectURL(selectedFile.value as Blob);
@@ -83,7 +65,6 @@ const previewUrl = computed(() => {
 
 const scrollToBottom = () => {
   if (!messagesContainer.value) return;
-
   messagesContainer.value.scrollTo({
     top: messagesContainer.value.scrollHeight,
     behavior: 'smooth',
@@ -96,57 +77,45 @@ const activeConversation = computed(() => {
 
 const goToNextMatch = async () => {
   if (matchedMessageIds.value.length === 0) return;
-
   currentMatchIndex.value++;
-
-  if (currentMatchIndex.value >= matchedMessageIds.value.length) {
-    currentMatchIndex.value = 0;
-  }
+  if (currentMatchIndex.value >= matchedMessageIds.value.length) currentMatchIndex.value = 0;
 
   const id = matchedMessageIds.value[currentMatchIndex.value];
-
   highlightedMessageId.value = id;
 
   await nextTick();
-
   const el = document.getElementById(`msg-${id}`);
-  if (el) {
-    el.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center',
-    });
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+};
+
+// --- Get current user ID from localStorage ---
+const getUserId = () => {
+  const userData = localStorage.getItem('user');
+  if (!userData) return null;
+  try {
+    const parsed = JSON.parse(userData);
+    return parsed.id;
+  } catch {
+    return null;
   }
 };
 
 const loadMessages = async (userId: string) => {
   try {
-    const token = useCookie('teacher_token').value;
-    type TeacherData = {
-      id: string;
-    };
+    const token = localStorage.getItem('token'); // your auth token
+    if (!token) return;
 
-    const teacherData = useCookie<string | TeacherData | null>('teacher_data').value;
-
-    let teacherId: string | null = null;
-
-    if (teacherData) {
-      if (typeof teacherData === 'string') {
-        teacherId = (JSON.parse(teacherData) as TeacherData).id;
-      } else {
-        teacherId = teacherData.id;
-      }
-    }
     const res = await axios.get(`http://localhost:3001/api/messages/${userId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     });
+
+    const currentUserId = getUserId();
 
     chatMessages.value = res.data.map((msg: any) => ({
       id: msg._id,
       text: msg.text,
       attachment: msg.attachment,
-      isUser: msg.sender === teacherId || msg.sender?._id === teacherId,
+      isUser: msg.sender === currentUserId || msg.sender?._id === currentUserId,
       time: new Date(msg.createdAt).toLocaleTimeString([], {
         hour: '2-digit',
         minute: '2-digit',
@@ -160,12 +129,11 @@ const loadMessages = async (userId: string) => {
 
 const loadConversations = async () => {
   try {
-    const token = useCookie('teacher_token').value;
+    const token = localStorage.getItem('token');
+    if (!token) return;
 
     const res = await $fetch('http://localhost:3001/api/messages/conversations', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     });
 
     conversations.value = res as Conversation[];
@@ -179,85 +147,66 @@ const sendMessage = async () => {
   if (newMessageText.value.trim() === '' && !selectedFile.value) return;
 
   try {
-    const token = useCookie('teacher_token').value;
+    const token = localStorage.getItem('token');
+    if (!token) return;
 
     const formData = new FormData();
     formData.append('receiverId', activeConversationId.value);
     formData.append('text', newMessageText.value);
-
-    if (selectedFile.value) {
-      formData.append('attachment', selectedFile.value);
-    }
+    if (selectedFile.value) formData.append('attachment', selectedFile.value);
 
     const res = await axios.post('http://localhost:3001/api/messages', formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
-      },
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' },
     });
 
-    // Add message instantly to UI
     chatMessages.value.push({
       id: res.data._id,
       text: res.data.text,
       attachment: res.data.attachment,
       isUser: true,
-      time: new Date(res.data.createdAt).toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
+      time: new Date(res.data.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       status: 'sent',
     });
 
-    // Reset inputs
     newMessageText.value = '';
     selectedFile.value = null;
-    if (fileInput.value) {
-      fileInput.value.value = '';
-    }
-
-    // Scroll to newest message
+    if (fileInput.value) fileInput.value.value = '';
     setTimeout(scrollToBottom, 100);
   } catch (err) {
     console.error('Send message error:', err);
   }
 };
 
-// Helper to determine the status icon
+// --- Status Icon Helper ---
 const getStatusIcon = (status: 'sent' | 'delivered' | 'read') => {
   switch (status) {
     case 'read':
       return CheckCheck;
     case 'delivered':
-      return CheckCheck; // Double check, but gray
+      return CheckCheck;
     default:
-      return CheckCheck; // Single check
+      return CheckCheck;
   }
 };
 
 const openConversation = async (conversationId: string) => {
   isOpend.value = true;
   activeConversationId.value = conversationId;
-
   messageSearch.value = '';
   matchedMessageIds.value = [];
   highlightedMessageId.value = null;
   currentMatchIndex.value = 0;
-
   await loadMessages(conversationId);
-
   setTimeout(scrollToBottom, 100);
 };
 
 const filteredConversations = computed(() => {
   if (!conversationSearch.value) return conversations.value;
-
   return conversations.value.filter((conv) => conv.name.toLowerCase().includes(conversationSearch.value.toLowerCase()));
 });
 
-// --- Dropdown State Management ---
+// --- Dropdown ---
 const isDropdownOpen = ref(false);
-
 const closeDropdown = () => {
   isDropdownOpen.value = false;
 };
@@ -277,26 +226,19 @@ watch(messageSearch, async (value) => {
 
   if (matches.length > 0) {
     highlightedMessageId.value = matches[0];
-
     await nextTick();
-
     const el = document.getElementById(`msg-${matches[0]}`);
-    if (el) {
-      el.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      });
-    }
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 });
 
 watch(chatMessages, () => {
   nextTick(() => scrollToBottom());
 });
-
 watch(previewUrl, (url, oldUrl) => {
   if (oldUrl) URL.revokeObjectURL(oldUrl);
 });
+
 onMounted(() => {
   loadConversations();
 });
