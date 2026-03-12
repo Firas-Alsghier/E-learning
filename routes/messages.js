@@ -5,6 +5,7 @@ import Conversation from '../models/Conversation.js';
 import { teacherAuth } from '../middleware/teacherAuth.js';
 import userAuth from '../middleware/authMiddleware.js';
 import multer from 'multer';
+import mongoose from 'mongoose';
 
 const router = express.Router();
 
@@ -178,4 +179,54 @@ router.get('/:userId', teacherAuth, async (req, res) => {
   }
 });
 
+/* -----------------------------
+   GET USER CONVERSATIONS (Student Inbox)
+----------------------------- */
+router.get('/user/conversations', userAuth, async (req, res) => {
+  try {
+    const studentId = req.user._id;
+
+    const conversations = await Conversation.find({ studentId }).populate('teacherId', 'firstName lastName avatar').sort({ lastMessageAt: -1 });
+
+    const mapped = conversations.map((conv) => ({
+      id: conv._id,
+      teacherId: conv.teacherId._id,
+      name: `${conv.teacherId.firstName} ${conv.teacherId.lastName}`,
+      image: conv.teacherId.avatar || '',
+      lastMessage: conv.lastMessage,
+      time: conv.lastMessageAt,
+    }));
+
+    res.json(mapped);
+  } catch (err) {
+    console.error('User conversations error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+/* -----------------------------
+   GET MESSAGES (Student View)
+----------------------------- */
+router.get('/user/:teacherId', userAuth, async (req, res) => {
+  try {
+    const studentId = req.user._id;
+    const teacherId = req.params.teacherId;
+
+    const conversation = await Conversation.findOne({
+      studentId,
+      teacherId,
+    });
+
+    if (!conversation) return res.json([]);
+
+    const messages = await Message.find({
+      conversationId: conversation._id,
+    }).sort({ createdAt: 1 });
+    console.log(messages);
+    res.json(messages);
+  } catch (err) {
+    console.error('User fetch messages error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 export default router;

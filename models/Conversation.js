@@ -16,7 +16,7 @@ const conversationSchema = new mongoose.Schema(
 
     teacherId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'Teacher',
       required: true,
     },
 
@@ -31,12 +31,15 @@ const conversationSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-/* 🔹 Performance Index */
-conversationSchema.index({
-  teacherId: 1,
-  studentId: 1,
-  courseId: 1,
-});
+/* 🔹 Performance + Unique Conversation */
+conversationSchema.index(
+  {
+    teacherId: 1,
+    studentId: 1,
+    courseId: 1,
+  },
+  { unique: true }
+);
 
 const Conversation = mongoose.model('Conversation', conversationSchema);
 

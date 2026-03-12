@@ -21,6 +21,7 @@ interface Conversation {
   unreadCount: number | null;
   isOnline: boolean;
   image: string;
+  teacherId: string;
 }
 
 interface FileItem {
@@ -100,12 +101,12 @@ const getUserId = () => {
   }
 };
 
-const loadMessages = async (userId: string) => {
+const loadMessages = async (teacherId: string) => {
   try {
-    const token = localStorage.getItem('token'); // your auth token
+    const token = localStorage.getItem('token');
     if (!token) return;
 
-    const res = await axios.get(`http://localhost:3001/api/messages/${userId}`, {
+    const res = await axios.get(`http://localhost:3001/api/messages/user/${teacherId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -132,7 +133,7 @@ const loadConversations = async () => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    const res = await $fetch('http://localhost:3001/api/messages/conversations', {
+    const res = await $fetch('http://localhost:3001/api/messages/user/conversations', {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -189,14 +190,20 @@ const getStatusIcon = (status: 'sent' | 'delivered' | 'read') => {
   }
 };
 
-const openConversation = async (conversationId: string) => {
+const openConversation = async (conversationId: string, teacherId?: string) => {
   isOpend.value = true;
   activeConversationId.value = conversationId;
   messageSearch.value = '';
   matchedMessageIds.value = [];
   highlightedMessageId.value = null;
   currentMatchIndex.value = 0;
-  await loadMessages(conversationId);
+
+  if (teacherId) {
+    await loadMessages(teacherId);
+  } else {
+    await loadMessages(conversationId); // fallback for teacher
+  }
+
   setTimeout(scrollToBottom, 100);
 };
 
@@ -268,7 +275,7 @@ onMounted(() => {
           <div
             v-for="conv in filteredConversations"
             :key="conv.id"
-            @click="openConversation(conv.id)"
+            @click="openConversation(conv.id, conv.teacherId)"
             :class="[
               'flex items-center p-3 cursor-pointer border-l-4 transition duration-150',
               conv.id === activeConversationId ? 'bg-violet-50 border-violet-600' : 'hover:bg-gray-50 border-transparent',
@@ -300,7 +307,7 @@ onMounted(() => {
       <!-- 2. Chat Window (Middle Column) -->
       <div class="flex flex-col bg-white">
         <!-- Chat Header (Daniela Jung) -->
-        <div class="flex flex-col h-full" v-if="isOpend">
+        <div class="flex flex-col h-full">
           <div class="p-4 flex items-center justify-between border-b border-gray-200 flex-shrink-0">
             <div v-if="activeConversation" class="flex items-center space-x-3">
               <img :src="activeConversation.image" :alt="activeConversation.name" class="w-10 h-10 rounded-full object-cover" />
@@ -417,9 +424,6 @@ onMounted(() => {
               <Send class="h-5 w-5" />
             </button>
           </div>
-        </div>
-        <div v-else class="flex justify-center items-center h-full">
-          <h1 class="text-4xl">Click on any converstion 💬</h1>
         </div>
       </div>
       <!-- end -->
