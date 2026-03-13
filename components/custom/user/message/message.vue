@@ -151,15 +151,18 @@ const sendMessage = async () => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
+    // --- Prepare form data for backend ---
     const formData = new FormData();
     formData.append('receiverId', activeConversationId.value);
     formData.append('text', newMessageText.value);
     if (selectedFile.value) formData.append('attachment', selectedFile.value);
 
+    // --- Send message to backend ---
     const res = await axios.post('http://localhost:3001/api/messages', formData, {
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' },
     });
 
+    // --- Push the message to chat UI immediately ---
     chatMessages.value.push({
       id: res.data._id,
       text: res.data.text,
@@ -169,15 +172,27 @@ const sendMessage = async () => {
       status: 'sent',
     });
 
+    // --- Update conversation preview in sidebar ---
+    const conv = conversations.value.find((c) => c.id === activeConversationId.value);
+    if (conv) {
+      conv.lastMessage = newMessageText.value || (selectedFile.value ? 'Attachment' : '');
+      conv.time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      // Move conversation to top like WhatsApp
+      conversations.value = [conv, ...conversations.value.filter((c) => c.id !== conv.id)];
+    }
+
+    // --- Clear input and file selection ---
     newMessageText.value = '';
     selectedFile.value = null;
     if (fileInput.value) fileInput.value.value = '';
+
+    // --- Scroll chat to bottom ---
     setTimeout(scrollToBottom, 100);
   } catch (err) {
     console.error('Send message error:', err);
   }
 };
-
 // --- Status Icon Helper ---
 const getStatusIcon = (status: 'sent' | 'delivered' | 'read') => {
   switch (status) {
@@ -193,10 +208,17 @@ const getStatusIcon = (status: 'sent' | 'delivered' | 'read') => {
 const openConversation = async (conversationId: string, teacherId?: string) => {
   isOpend.value = true;
   activeConversationId.value = conversationId;
+
   messageSearch.value = '';
   matchedMessageIds.value = [];
   highlightedMessageId.value = null;
   currentMatchIndex.value = 0;
+
+  // ✅ Clear unread counter instantly
+  const conv = conversations.value.find((c) => c.id === conversationId);
+  if (conv) {
+    conv.unreadCount = 0;
+  }
 
   if (teacherId) {
     await loadMessages(teacherId);
@@ -254,7 +276,7 @@ onMounted(() => {
 <template>
   <div class="w-screen flex bg-gray-50 font-sans antialiased overflow-hidden" @click="closeDropdown">
     <!-- Main 3-Column Grid Container (Restored) -->
-    <div class="flex-1 grid grid-cols-[290px_1fr_290px] h-full overflow-hidden border-r border-gray-200 shadow-lg">
+    <div class="flex-1 grid grid-cols-[290px_1fr_20px] h-full overflow-hidden border-r border-gray-200 shadow-lg">
       <!-- 1. Conversation List (Left Column) -->
       <div class="flex flex-col border-r border-gray-200">
         <!-- Search/Header -->

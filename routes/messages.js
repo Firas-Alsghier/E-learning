@@ -188,16 +188,28 @@ router.get('/user/conversations', userAuth, async (req, res) => {
 
     const conversations = await Conversation.find({ studentId }).populate('teacherId', 'firstName lastName avatar').sort({ lastMessageAt: -1 });
 
-    const mapped = conversations.map((conv) => ({
-      id: conv._id,
-      teacherId: conv.teacherId._id,
-      name: `${conv.teacherId.firstName} ${conv.teacherId.lastName}`,
-      image: conv.teacherId.avatar || '',
-      lastMessage: conv.lastMessage,
-      time: conv.lastMessageAt,
-    }));
+    const result = await Promise.all(
+      conversations.map(async (conv) => {
+        const unreadCount = await Message.countDocuments({
+          conversationId: conv._id,
+          receiver: studentId,
+          isRead: false,
+        });
 
-    res.json(mapped);
+        return {
+          id: conv._id,
+          teacherId: conv.teacherId._id,
+          name: `${conv.teacherId.firstName} ${conv.teacherId.lastName}`,
+          image: conv.teacherId.avatar || '',
+          lastMessage: conv.lastMessage,
+          time: conv.lastMessageAt,
+          unreadCount,
+          isOnline: false,
+        };
+      })
+    );
+
+    res.json(result);
   } catch (err) {
     console.error('User conversations error:', err);
     res.status(500).json({ message: 'Server error' });
@@ -219,10 +231,22 @@ router.get('/user/:teacherId', userAuth, async (req, res) => {
 
     if (!conversation) return res.json([]);
 
+    // 🔵 Mark messages as read
+    await Message.updateMany(
+      {
+        conversationId: conversation._id,
+        receiver: studentId,
+        isRead: false,
+      },
+      {
+        $set: { isRead: true },
+      }
+    );
+
     const messages = await Message.find({
       conversationId: conversation._id,
     }).sort({ createdAt: 1 });
-    console.log(messages);
+
     res.json(messages);
   } catch (err) {
     console.error('User fetch messages error:', err);
