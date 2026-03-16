@@ -21,6 +21,7 @@ import adminSettingsRoutes from './routes/adminSettingsRoutes.js';
 import adminManagementRoutes from './routes/adminManagementRoutes.js';
 import adminCategories from './routes/adminCategories.js';
 import messageRoutes from './routes/messages.js';
+import progressRoutes from './routes/progress.js';
 
 // import verifyEmailRoute from './routes/verifyEmail.js';
 
@@ -46,6 +47,7 @@ app.use('/api/admin/management', adminManagementRoutes);
 app.use('/api/admin/categories', adminCategories);
 app.use('/api/admin', adminTeachersRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/progress', progressRoutes);
 // app.use('/api', verifyEmailRoute);
 
 mongoose

@@ -1,42 +1,50 @@
 import express from 'express';
-import Enrollment from '../models/Enrollment.js';
-import Course from '../models/Course.js';
-import Lesson from '../models/Lesson.js';
+import UserProgress from '../models/UserProgress.js';
 import userAuth from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.post('/courses/:courseId/lessons/:lessonId/complete', userAuth, async (req, res) => {
+router.post('/complete-lesson', userAuth, async (req, res) => {
   try {
-    const { courseId, lessonId } = req.params;
+    const userId = req.user._id;
+    const { courseId, lessonId } = req.body;
 
-    const enrollment = await Enrollment.findOne({
-      student: req.user._id,
-      course: courseId,
+    let progress = await UserProgress.findOne({
+      userId,
+      courseId,
     });
 
-    if (!enrollment) {
-      return res.status(403).json({ message: 'Not enrolled' });
+    if (!progress) {
+      progress = new UserProgress({
+        userId,
+        courseId,
+        completedLessons: [],
+      });
     }
 
-    if (!enrollment.completedLessons.includes(lessonId)) {
-      enrollment.completedLessons.push(lessonId);
+    if (!progress.completedLessons.includes(lessonId)) {
+      progress.completedLessons.push(lessonId);
     }
 
-    // calculate progress
-    const totalLessons = await Lesson.countDocuments({ course: courseId });
-    enrollment.progress = Math.round((enrollment.completedLessons.length / totalLessons) * 100);
+    await progress.save();
 
-    await enrollment.save();
-
-    res.json({
-      message: 'Lesson completed',
-      progress: enrollment.progress,
-    });
+    res.json(progress);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Failed to update progress' });
+    res.status(500).json({ message: 'Error saving progress' });
   }
+});
+
+router.get('/:courseId', userAuth, async (req, res) => {
+  const userId = req.user._id;
+  const { courseId } = req.params;
+
+  const progress = await UserProgress.findOne({
+    userId,
+    courseId,
+  });
+
+  res.json(progress || { completedLessons: [] });
 });
 
 export default router;
