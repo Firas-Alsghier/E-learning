@@ -2,12 +2,13 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ChevronLeft, ChevronRight, ChevronDown, Play, PanelRight, X, Check, Lock } from 'lucide-vue-next';
-
+// import LessonPlayer from '~/components/custom/player/LessonPlayer.vue';
 definePageMeta({
   layout: false,
 });
 // ── Props ──────────────────────────────────────────────
 interface Lesson {
+  thumbnail: string | undefined;
   title: string;
   time: string;
   active: boolean;
@@ -161,9 +162,17 @@ watch(
       if (lIndex !== -1) {
         activeSectionIdx.value = sIndex;
         activeLessonIdx.value = lIndex;
+        // open the section automatically
+        section.open = true;
+
+        setTimeout(() => {
+          const el = document.getElementById(`lesson-${lessonId}`);
+          el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
       }
     });
-  }
+  },
+  { immediate: true }
 );
 
 onMounted(async () => {
@@ -225,15 +234,25 @@ onMounted(async () => {
       <!-- ── Video + info area ── -->
       <div class="flex flex-col flex-1 overflow-y-auto min-w-0">
         <!-- Video player -->
-        <div class="bg-black w-full relative" style="aspect-ratio: 16/9; max-height: 72vh">
-          <video v-if="activeLesson" :key="activeLesson._id" :src="activeLesson.videoUrl" class="w-full h-full object-contain" controls autoplay ref="videoEl" @ended="onVideoEnded" />
+        <div class="bg-black w-full relative" style="aspect-ratio: 16/9; max-height: 72vh" :key="activeLesson?._id">
+          <CustomPlayerLessonPlayer
+            v-if="activeLesson?.videoUrl"
+            :key="activeLesson._id"
+            :videoUrl="activeLesson.videoUrl"
+            :title="activeLesson.title"
+            :poster="activeLesson.thumbnail"
+            @ended="onVideoEnded"
+          />
 
-          <!-- Placeholder when no video src -->
+          <!-- Placeholder when no video -->
           <div v-if="!activeLesson?.videoUrl" class="absolute inset-0 flex flex-col items-center justify-center gap-4">
             <div class="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center">
               <Play class="w-7 h-7 text-white ml-0.5" />
             </div>
-            <p class="text-sm text-gray-400">{{ activeLesson?.title ?? 'Select a lesson to begin' }}</p>
+
+            <p class="text-sm text-gray-400">
+              {{ activeLesson?.title ?? 'Select a lesson to begin' }}
+            </p>
           </div>
         </div>
 
@@ -310,6 +329,7 @@ onMounted(async () => {
               <div class="overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]" :style="section.open ? { maxHeight: '1000px' } : { maxHeight: '0px' }">
                 <button
                   v-for="(lesson, li) in section.lessons"
+                  :id="`lesson-${lesson._id}`"
                   :key="li"
                   :disabled="lesson.locked"
                   @click="selectLesson(si, li)"

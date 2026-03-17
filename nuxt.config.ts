@@ -1,6 +1,7 @@
 // nuxt.config.ts
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import tailwindcss from '@tailwindcss/vite';
+import { vite as vidstack } from 'vidstack/plugins';
 
 export default defineNuxtConfig({
   runtimeConfig: {
@@ -46,6 +47,12 @@ export default defineNuxtConfig({
     componentDir: './components/ui',
   },
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [tailwindcss(), vidstack()],
+  },
+
+  vue: {
+    compilerOptions: {
+      isCustomElement: (tag) => tag.startsWith('media-'),
+    },
   },
 });
