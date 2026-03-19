@@ -11,7 +11,7 @@ const props = defineProps<{
 }>();
 
 const courseId = props.courseId;
-
+console.log('courseId:', props.courseId);
 const curriculum = ref(
   props.sections.map((s: any) => ({
     ...s,

@@ -39,6 +39,49 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.get('/id/:id', async (req, res) => {
+  try {
+    const course = await Course.findById(req.params.id)
+      .populate('teacher', 'firstName lastName social bio')
+      .populate({
+        path: 'sections',
+        options: { sort: { order: 1 } },
+        populate: {
+          path: 'lessons',
+          options: { sort: { order: 1 } },
+        },
+      });
+
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    res.json({
+      id: course._id,
+      teacherId: course.teacher?._id,
+      title: course.title,
+      slug: course.slug,
+      description: course.description,
+      image: course.coverImage,
+      price: course.price,
+      oldPrice: 0,
+      faqs: course.faqs,
+      bio: course.teacher.bio,
+      category: course.category,
+      duration: '2 Weeks',
+      students: 0,
+      level: course.level,
+      social: course.teacher.social,
+      lessons: course.sections?.length || 0,
+      author: course.teacher ? `${course.teacher.firstName} ${course.teacher.lastName}` : 'Unknown Instructor',
+      sections: course.sections,
+    });
+  } catch (err) {
+    console.error('Get course by ID error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 /**
  * ===============================
  * GET SINGLE COURSE BY SLUG (PUBLIC)

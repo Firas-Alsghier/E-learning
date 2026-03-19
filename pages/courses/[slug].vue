@@ -107,7 +107,7 @@ console.log(course);
         <Transition name="fade" mode="out-in">
           <div :key="selectedTab" class="mt-4 text-right bg-[#F5F5F5] leading-loose text-gray-800 overflow-y-auto h-[250px] px-4 py-3 rounded-b-xl">
             <CustomCoursesOverviewTab :description="course.description" v-if="selectedTab === 'overview'" />
-            <CustomCoursesCurriculumTab v-if="selectedTab === 'curriculum'" :sections="course.sections" :courseId="course._id" />
+            <CustomCoursesCurriculumTab v-if="selectedTab === 'curriculum' && course?.id" :sections="course.sections" :courseId="course.id" />
             <CustomCoursesInstructorTab
               :facebook="course.social.facebook"
               :instagram="course.social.instagram"

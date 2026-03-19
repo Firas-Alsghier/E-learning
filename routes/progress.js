@@ -47,4 +47,28 @@ router.get('/:courseId', userAuth, async (req, res) => {
   res.json(progress || { completedLessons: [] });
 });
 
+// ❌ REMOVE lesson progress
+router.post('/remove-lesson', async (req, res) => {
+  try {
+    const userId = req.user.id; // from auth middleware
+    const { courseId, lessonId } = req.body;
+
+    const progress = await UserProgress.findOne({ user: userId, course: courseId });
+
+    if (!progress) {
+      return res.status(404).json({ message: 'Progress not found' });
+    }
+
+    // 🔁 Remove lesson from completed array
+    progress.completedLessons = progress.completedLessons.filter((id) => id.toString() !== lessonId);
+
+    await progress.save();
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Remove lesson error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 export default router;

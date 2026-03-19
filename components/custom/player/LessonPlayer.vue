@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import 'vidstack/bundle';
+import 'vidstack/icons';
 
 const props = defineProps<{
   videoUrl: string;
@@ -14,9 +15,11 @@ const emit = defineEmits<{
 
 <template>
   <div class="w-full aspect-video bg-black rounded-xl overflow-hidden">
-    <media-player :title="title || 'Lesson Video'" :poster="poster" autoplay :src="videoUrl" class="w-full h-full" @ended="emit('ended')">
+    <media-player :title="title" :src="videoUrl" controls class="w-full h-full">
       <ClientOnly>
-        <media-provider></media-provider>
+        <!-- <media-icon type="play"></media-icon> -->
+        <media-provider />
+        <media-video-layout />
       </ClientOnly>
     </media-player>
   </div>

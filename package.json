@@ -32,6 +32,7 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "lucide-vue-next": "^0.487.0",
+    "media-icons": "^1.1.5",
     "moment": "^2.30.1",
     "mongoose": "^8.14.1",
     "multer": "^2.0.2",

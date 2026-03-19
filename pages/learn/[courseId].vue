@@ -94,12 +94,71 @@ function sectionCompletedCount(section: Section) {
   return section.lessons.filter((l) => l.completed).length;
 }
 
+async function toggleLessonComplete(lesson: Lesson, section: Section, index: number) {
+  if (lesson.locked) return;
+
+  const isNowCompleted = !lesson.completed;
+  lesson.completed = isNowCompleted;
+
+  if (isNowCompleted) {
+    // ✅ MARK
+    const next = section.lessons[index + 1];
+    if (next) next.locked = false;
+
+    await $fetch('http://localhost:3001/api/progress/complete-lesson', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+      body: {
+        courseId,
+        lessonId: lesson._id,
+      },
+    });
+  } else {
+    // ❌ UNMARK (NEW 🔥)
+    await $fetch('http://localhost:3001/api/progress/remove-lesson', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+      body: {
+        courseId,
+        lessonId: lesson._id,
+      },
+    });
+
+    // 🔒 Optional: relock next lesson
+    const next = section.lessons[index + 1];
+    if (next) next.locked = true;
+  }
+}
 function nextLesson() {
   const section = curriculum.value[activeSectionIdx.value];
+  const current = section.lessons[activeLessonIdx.value];
   const next = section.lessons[activeLessonIdx.value + 1];
 
   if (!next || next.locked) return;
 
+  // ✅ 1. Mark current lesson as completed (UI)
+  current.completed = true;
+
+  // ✅ 2. Unlock next lesson
+  next.locked = false;
+
+  // ✅ 3. Save progress to backend
+  $fetch('http://localhost:3001/api/progress/complete-lesson', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
+    body: {
+      courseId,
+      lessonId: current._id,
+    },
+  });
+
+  // ✅ 4. Move to next lesson
   activeLessonIdx.value++;
 
   router.replace({
@@ -176,7 +235,7 @@ watch(
 );
 
 onMounted(async () => {
-  const course: any = await $fetch(`http://localhost:3001/api/courses/${courseId}`);
+  const course: any = await $fetch(`http://localhost:3001/api/courses/id/${courseId}`);
   curriculum.value = course.sections;
 
   const progress = await $fetch<{ completedLessons: string[] }>(`http://localhost:3001/api/progress/${courseId}`, {
@@ -206,7 +265,7 @@ onMounted(async () => {
         <!-- Back to course -->
         <button @click="$router.back()" class="flex items-center gap-1.5 text-sm text-gray-300 hover:text-white transition-colors">
           <ChevronLeft class="w-4 h-4" />
-          <span class="hidden sm:inline">Back to course</span>
+          <a href="/courses" class="hidden sm:inline">Back to course</a>
         </button>
         <div class="w-px h-5 bg-white/10" />
         <span class="text-sm font-medium text-white truncate max-w-[340px]">{{ courseTitle }}</span>
@@ -222,7 +281,11 @@ onMounted(async () => {
         </div>
         <div class="w-px h-5 bg-white/10 hidden md:block" />
         <!-- Toggle sidebar -->
-        <button @click="sidebarOpen = !sidebarOpen" class="flex items-center gap-1.5 text-sm text-gray-300 hover:text-white transition-colors" :title="sidebarOpen ? 'Hide sidebar' : 'Show sidebar'">
+        <button
+          @click="sidebarOpen = !sidebarOpen"
+          class="flex cursor-pointer items-center gap-1.5 text-sm text-gray-300 hover:text-white transition-colors"
+          :title="sidebarOpen ? 'Hide sidebar' : 'Show sidebar'"
+        >
           <PanelRight class="w-4 h-4" />
           <span class="hidden sm:inline text-xs">Course content</span>
         </button>
@@ -234,7 +297,7 @@ onMounted(async () => {
       <!-- ── Video + info area ── -->
       <div class="flex flex-col flex-1 overflow-y-auto min-w-0">
         <!-- Video player -->
-        <div class="bg-black w-full relative" style="aspect-ratio: 16/9; max-height: 72vh" :key="activeLesson?._id">
+        <div class="bg-black w-full" :key="activeLesson?._id">
           <CustomPlayerLessonPlayer
             v-if="activeLesson?.videoUrl"
             :key="activeLesson._id"
@@ -266,14 +329,14 @@ onMounted(async () => {
             <button
               @click="prevLesson"
               :disabled="!canGoPrev"
-              class="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg border border-white/10 text-gray-300 hover:text-white hover:border-white/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              class="flex cursor-pointer items-center gap-1 text-xs px-3 py-1.5 rounded-lg border border-white/10 text-gray-300 hover:text-white hover:border-white/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
             >
               <ChevronLeft class="w-3.5 h-3.5" /> Prev
             </button>
             <button
               @click="nextLesson"
               :disabled="!canGoNext"
-              class="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-[#FF782D] text-white hover:bg-[#e5691f] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              class="flex items-center gap-1 cursor-pointer text-xs px-3 py-1.5 rounded-lg bg-[#FF782D] text-white hover:bg-[#e5691f] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
             >
               Next <ChevronRight class="w-3.5 h-3.5" />
             </button>
@@ -308,9 +371,9 @@ onMounted(async () => {
           <!-- Sidebar header -->
           <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 flex-shrink-0 bg-white">
             <span class="text-sm font-semibold text-gray-900">Course content</span>
-            <button @click="sidebarOpen = false" class="text-gray-400 hover:text-gray-600 transition-colors">
+            <!-- <button @click="sidebarOpen = false" class="text-gray-400 hover:text-gray-600 transition-colors">
               <X class="w-4 h-4" />
-            </button>
+            </button> -->
           </div>
 
           <!-- Sections -->
@@ -342,7 +405,7 @@ onMounted(async () => {
                   }"
                 >
                   <!-- Completion dot -->
-                  <div class="flex-shrink-0 mt-0.5">
+                  <div class="flex-shrink-0 mt-0.5" @click.stop="toggleLessonComplete(lesson, section, li)">
                     <div
                       class="w-4 h-4 rounded-full border flex items-center justify-center"
                       :class="{
