@@ -48,11 +48,10 @@ const router = useRouter();
 const sidebarOpen = ref(true);
 const infoTab = ref('Overview');
 const videoEl = ref<HTMLVideoElement | null>(null);
-
 const courseId = route.params.courseId as string;
 const lessonId = route.query.lesson as string;
 const curriculum = ref<Section[]>([]);
-
+const courseSlug = ref('');
 const activeSectionIdx = ref(props.initialSection);
 const activeLessonIdx = ref(props.initialLesson);
 
@@ -240,10 +239,18 @@ watch(
   { immediate: true }
 );
 
+function goBackToCourse() {
+  if (courseSlug.value) {
+    router.push(`/courses/${courseSlug.value}`);
+  } else {
+    router.push('/courses'); // fallback
+  }
+}
+
 onMounted(async () => {
   const course: any = await $fetch(`http://localhost:3001/api/courses/id/${courseId}`);
   curriculum.value = course.sections;
-
+  courseSlug.value = course.slug;
   const progress = await $fetch<{ completedLessons: string[] }>(`http://localhost:3001/api/progress/${courseId}`, {
     headers: {
       Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -269,9 +276,9 @@ onMounted(async () => {
     <header class="flex items-center justify-between px-4 h-12 bg-[#1c1d1f] border-b border-white/10 flex-shrink-0 z-10">
       <div class="flex items-center gap-4">
         <!-- Back to course -->
-        <button @click="$router.back()" class="flex items-center gap-1.5 text-sm text-gray-300 hover:text-white transition-colors">
+        <button class="flex items-center gap-1.5 text-sm text-gray-300 hover:text-white transition-colors">
           <ChevronLeft class="w-4 h-4" />
-          <a href="/courses" class="hidden sm:inline">Back to course</a>
+          <a :href="`/courses/${courseSlug}`" class="hidden sm:inline">Back to course</a>
         </button>
         <div class="w-px h-5 bg-white/10" />
         <span class="text-sm font-medium text-white truncate max-w-[340px]">{{ courseTitle }}</span>

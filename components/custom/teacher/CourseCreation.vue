@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import axios from 'axios';
-import { ChevronRight, Upload, Plus } from 'lucide-vue-next';
+import { ChevronRight, Upload, Plus, X, Check } from 'lucide-vue-next';
 
 const courseId = ref<string | null>(null);
 const isSaving = ref(false);
@@ -12,6 +12,7 @@ const currentStep = ref(1);
 const onPublished = () => {
   window.alert('Done!');
 };
+
 // --- Course Model ---
 interface CourseInfo {
   title: string;
@@ -26,20 +27,32 @@ const courseData = ref<CourseInfo>({
   category: 'Data Management',
   level: 'All levels',
   description: '',
-  faqs: [
-    {
-      question: '',
-      answer: '',
-    },
-  ],
+  faqs: [{ question: '', answer: '' }],
 });
+
+// --- Level Check ---
+interface LevelCheckQuestion {
+  question: string;
+  answers: string[];
+  correctAnswerIndex: number | null;
+}
+
+const levelCheckEnabled = ref(false);
+
+const levelCheckQuestions = ref<LevelCheckQuestion[]>([{ question: '', answers: ['', '', '', ''], correctAnswerIndex: null }]);
+
+const addQuestion = () => {
+  levelCheckQuestions.value.push({ question: '', answers: ['', '', '', ''], correctAnswerIndex: null });
+};
+
+const removeQuestion = (index: number) => {
+  levelCheckQuestions.value.splice(index, 1);
+};
 
 const coverFile = ref<File | null>(null);
 const coverInputRef = ref<HTMLInputElement | null>(null);
 
-const openCoverPicker = () => {
-  coverInputRef.value?.click();
-};
+const openCoverPicker = () => coverInputRef.value?.click();
 
 const onCoverSelected = async (e: Event) => {
   const file = (e.target as HTMLInputElement).files?.[0];
@@ -55,12 +68,8 @@ const onCoverSelected = async (e: Event) => {
 
   try {
     await axios.patch(`http://localhost:3001/api/teacher/courses/${courseId.value}/cover`, formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
-      },
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' },
     });
-
     alert('Cover image uploaded ✅');
   } catch (err) {
     console.error(err);
@@ -68,13 +77,11 @@ const onCoverSelected = async (e: Event) => {
   }
 };
 
-// --- API: Create Course (STEP 1) ---
+// --- API: Create Course ---
 const createCourse = async () => {
   isSaving.value = true;
-
   try {
     const token = useCookie('teacher_token').value;
-    console.log('TOKEN:', token);
     if (!token) {
       alert('Not authenticated');
       return;
@@ -88,12 +95,9 @@ const createCourse = async () => {
         category: courseData.value.category,
         level: courseData.value.level,
         faqs: courseData.value.faqs,
+        levelCheck: levelCheckEnabled.value ? { enabled: true, questions: levelCheckQuestions.value } : { enabled: false, questions: [] },
       },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+      { headers: { Authorization: `Bearer ${token}` } }
     );
 
     courseId.value = res.data._id;
@@ -112,25 +116,17 @@ const levels = ['All levels', 'Basic', 'Intermediate', 'Advanced'];
 
 // --- Helpers ---
 const isStepCompleted = (step: number) => step < currentStep.value;
-
 const goToNextStep = () => {
   if (currentStep.value < 4) currentStep.value++;
 };
-
 const goToStep = (step: number) => {
   if (step <= currentStep.value) currentStep.value = step;
 };
-
 const descriptionCharCount = computed(() => courseData.value.description.length);
 
 // --- FAQ ---
-const addFaq = () => {
-  courseData.value.faqs.push({ question: '', answer: '' });
-};
-
-const removeFaq = (index: number) => {
-  courseData.value.faqs.splice(index, 1);
-};
+const addFaq = () => courseData.value.faqs.push({ question: '', answer: '' });
+const removeFaq = (index: number) => courseData.value.faqs.splice(index, 1);
 
 // --- Save Handler ---
 const handleSave = async (action: 'continue' | 'draft') => {
@@ -138,163 +134,307 @@ const handleSave = async (action: 'continue' | 'draft') => {
     alert('Draft saved (not implemented yet)');
     return;
   }
-
   if (!courseData.value.title || !courseData.value.description) {
     alert('Title and description are required');
     return;
   }
-
   await createCourse();
 };
 
-// --- Upload Placeholder ---
 const handleFileUpload = (type: 'cover' | 'video') => {
   alert(`Simulating ${type} file upload...`);
 };
+
+const stepLabels = ['Course Info & FAQ', 'Upload Materials', 'Pricing', 'Publish'];
 </script>
 
 <template>
-  <div class="p-8 bg-gray-50 min-h-screen font-sans">
-    <!-- Header & Step Navigation -->
-    <header class="mb-8 flex justify-between items-center">
-      <!-- Step Indicators -->
-      <nav class="flex items-center space-x-2 text-sm font-medium">
-        <template v-for="step in 4" :key="step">
-          <button
-            @click="goToStep(step)"
-            :class="[
-              'px-4 py-2 rounded-full transition-all duration-300',
-              currentStep === step ? 'bg-violet-600 text-white shadow-md' : isStepCompleted(step) ? 'text-violet-600 hover:bg-violet-50' : 'text-gray-400 cursor-not-allowed',
-            ]"
-            :disabled="step > currentStep"
-          >
-            <span class="mr-1 font-bold">{{ step }}</span>
-            <span v-if="step === 1">Course Information & FAQ</span>
-            <span v-else-if="step === 2">Upload Course Materials</span>
-            <span v-else-if="step === 3">Pricing</span>
-            <span v-else-if="step === 4">Publish</span>
-          </button>
-          <ChevronRight v-if="step < 4" class="h-4 w-4 text-gray-400" />
-        </template>
-      </nav>
-      <button class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-100 transition">Preview</button>
+  <!--
+    🎨 BACKGROUND COLOR — change bg-slate-50 below to your preferred color.
+    Examples: bg-white | bg-gray-100 | bg-[#your-color]
+  -->
+  <div class="min-h-screen bg-slate-50 font-sans">
+    <!-- ── Top header / stepper ── -->
+    <header class="sticky top-0 z-20 bg-white border-b border-gray-200 shadow-sm">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        <!-- Step nav -->
+        <nav class="flex items-center gap-1 overflow-x-auto scrollbar-none" style="scrollbar-width: none">
+          <template v-for="step in 4" :key="step">
+            <button
+              @click="goToStep(step)"
+              :disabled="step > currentStep"
+              class="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200"
+              :class="{
+                'bg-orange-500 text-white shadow-[0_2px_12px_rgba(255,120,45,0.35)]': currentStep === step,
+                'text-orange-500 hover:bg-orange-50': isStepCompleted(step),
+                'text-gray-400 cursor-not-allowed': step > currentStep,
+              }"
+            >
+              <!-- Step badge -->
+              <span
+                class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0"
+                :class="{
+                  'bg-white/25 text-white': currentStep === step,
+                  'bg-orange-100 text-orange-500': isStepCompleted(step),
+                  'bg-gray-100 text-gray-400': step > currentStep,
+                }"
+              >
+                <Check v-if="isStepCompleted(step)" :size="10" />
+                <span v-else>{{ step }}</span>
+              </span>
+              <span class="hidden sm:inline">{{ stepLabels[step - 1] }}</span>
+            </button>
+            <ChevronRight v-if="step < 4" :size="14" class="text-gray-300 shrink-0" />
+          </template>
+        </nav>
+
+        <!-- Preview button -->
+        <button
+          class="shrink-0 text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-xl border border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 cursor-pointer"
+        >
+          Preview
+        </button>
+      </div>
     </header>
 
-    <!-- Step Content Area -->
-    <main class="bg-white p-8 rounded-xl shadow-lg">
-      <!-- Step 1: Course Information & FAQ -->
+    <!-- ── Step content ── -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+      <!-- ════ STEP 1: Course Info ════ -->
       <div v-if="currentStep === 1">
-        <h1 class="text-xl font-bold text-gray-800 mb-6">Course Information</h1>
+        <!--
+          🎨 CARD BACKGROUND — change bg-white below.
+        -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+          <!-- Card header -->
+          <div class="px-6 sm:px-8 py-5 border-b border-gray-100">
+            <h1 class="text-lg sm:text-xl font-bold text-gray-900">Course Information</h1>
+            <p class="text-sm text-gray-500 mt-0.5">Fill in the basic details about your course.</p>
+          </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-1 gap-8">
-          <!-- Left Column: Text Inputs -->
-          <div class="space-y-6">
+          <div class="px-6 sm:px-8 py-7 space-y-6">
             <!-- Title -->
-            <div>
-              <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">Title</label>
+            <div class="flex flex-col gap-1.5">
+              <label for="title" class="text-sm font-semibold text-gray-700"> Course Title <span class="text-red-400">*</span> </label>
               <input
                 :disabled="!!courseId"
                 id="title"
                 type="text"
                 v-model="courseData.title"
                 placeholder="e.g. Introduction to Data Analysis"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 placeholder:text-gray-400"
+                class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-400/40 focus:border-orange-400 placeholder:text-gray-400 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               />
             </div>
 
-            <!-- Category & Level -->
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label for="category" class="block text-sm font-semibold text-gray-700 mb-2">Category</label>
+            <!-- Category + Level -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="flex flex-col gap-1.5">
+                <label for="category" class="text-sm font-semibold text-gray-700">Category</label>
                 <select
                   id="category"
                   v-model="courseData.category"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg appearance-none bg-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-400/40 focus:border-orange-400 appearance-none transition-colors cursor-pointer"
                 >
                   <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
                 </select>
               </div>
-              <div>
-                <label for="level" class="block text-sm font-semibold text-gray-700 mb-2">Level</label>
-                <select id="level" v-model="courseData.level" class="w-full px-4 py-3 border border-gray-300 rounded-lg appearance-none bg-white focus:outline-none focus:ring-2 focus:ring-violet-500">
+              <div class="flex flex-col gap-1.5">
+                <label for="level" class="text-sm font-semibold text-gray-700">Level</label>
+                <select
+                  id="level"
+                  v-model="courseData.level"
+                  class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-400/40 focus:border-orange-400 appearance-none transition-colors cursor-pointer"
+                >
                   <option v-for="lvl in levels" :key="lvl" :value="lvl">{{ lvl }}</option>
                 </select>
               </div>
             </div>
 
             <!-- Description -->
-            <div>
-              <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+            <div class="flex flex-col gap-1.5">
+              <label for="description" class="text-sm font-semibold text-gray-700"> Description <span class="text-red-400">*</span> </label>
               <textarea
                 id="description"
                 v-model="courseData.description"
                 maxlength="2000"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 resize-none h-32 placeholder:text-gray-400"
+                rows="5"
+                placeholder="Describe what students will learn in this course..."
+                class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-400/40 focus:border-orange-400 resize-none placeholder:text-gray-400 transition-colors"
               ></textarea>
-              <p class="text-xs text-right text-gray-500 mt-1">{{ descriptionCharCount }}/2000 characters</p>
+              <p class="text-xs text-gray-400 text-right">{{ descriptionCharCount }}/2000</p>
             </div>
 
-            <!-- Frequently Asked Questions -->
-            <div class="pt-4">
-              <h2 class="text-lg font-bold text-gray-800 mb-4">Frequently Asked Questions</h2>
-
-              <div v-for="(faq, index) in courseData.faqs" :key="index" class="mb-4 p-4 border border-gray-200 rounded-lg relative">
-                <!-- Remove button -->
-                <button v-if="courseData.faqs.length > 1" @click="removeFaq(index)" class="absolute top-2 right-2 text-red-500 hover:text-red-700 transition">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
-                  </svg>
-                </button>
-
-                <label :for="`faq-q-${index}`" class="block text-xs font-semibold text-gray-700 mb-1">Question</label>
-                <input
-                  :disabled="!!courseId"
-                  :id="`faq-q-${index}`"
-                  type="text"
-                  v-model="faq.question"
-                  placeholder="e.g. Do you offer 1 on 1 calls"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-violet-500 mb-2"
-                />
-
-                <label :for="`faq-a-${index}`" class="block text-xs font-semibold text-gray-700 mb-1">Answer</label>
-                <input
-                  :disabled="!!courseId"
-                  :id="`faq-a-${index}`"
-                  type="text"
-                  v-model="faq.answer"
-                  placeholder="e.g. Yes, at a fixed cost per call"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-violet-500"
-                />
+            <!-- ── FAQs ── -->
+            <div class="pt-2">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h2 class="text-base font-bold text-gray-900">Frequently Asked Questions</h2>
+                  <p class="text-xs text-gray-400 mt-0.5">Help students know what to expect.</p>
+                </div>
               </div>
 
-              <button @click="addFaq" class="text-sm text-violet-600 font-semibold hover:text-violet-700 transition flex items-center mt-2"><Plus class="h-4 w-4 mr-1" /> Add another FAQ</button>
+              <div class="flex flex-col gap-3">
+                <div v-for="(faq, index) in courseData.faqs" :key="index" class="relative flex flex-col gap-3 p-4 sm:p-5 bg-gray-50 border border-gray-200 rounded-xl">
+                  <!-- Remove FAQ -->
+                  <button
+                    v-if="courseData.faqs.length > 1"
+                    @click="removeFaq(index)"
+                    class="absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center bg-red-50 border border-red-100 text-red-400 hover:bg-red-100 hover:text-red-500 transition-all cursor-pointer"
+                  >
+                    <X :size="12" />
+                  </button>
+
+                  <div class="flex flex-col gap-1.5 pr-8">
+                    <label :for="`faq-q-${index}`" class="text-xs font-semibold text-gray-600 uppercase tracking-wide">Question</label>
+                    <input
+                      :disabled="!!courseId"
+                      :id="`faq-q-${index}`"
+                      type="text"
+                      v-model="faq.question"
+                      placeholder="e.g. Do you offer 1 on 1 calls?"
+                      class="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-orange-400/40 focus:border-orange-400 placeholder:text-gray-400 transition-colors disabled:opacity-60"
+                    />
+                  </div>
+
+                  <div class="flex flex-col gap-1.5">
+                    <label :for="`faq-a-${index}`" class="text-xs font-semibold text-gray-600 uppercase tracking-wide">Answer</label>
+                    <input
+                      :disabled="!!courseId"
+                      :id="`faq-a-${index}`"
+                      type="text"
+                      v-model="faq.answer"
+                      placeholder="e.g. Yes, at a fixed cost per call."
+                      class="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-orange-400/40 focus:border-orange-400 placeholder:text-gray-400 transition-colors disabled:opacity-60"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <button @click="addFaq" class="mt-3 flex items-center gap-1.5 text-sm font-semibold text-orange-500 hover:text-orange-600 transition-colors cursor-pointer">
+                <Plus :size="15" /> Add another FAQ
+              </button>
+            </div>
+
+            <!-- ── Level Check ── -->
+            <div class="pt-6 border-t border-gray-100">
+              <div class="flex items-center justify-between mb-5">
+                <div>
+                  <h2 class="text-base font-bold text-gray-900">Level Check <span class="text-xs font-normal text-gray-400 ml-1">(Optional)</span></h2>
+                  <p class="text-xs text-gray-400 mt-0.5">Quiz students before they enroll to confirm their readiness.</p>
+                </div>
+
+                <!-- Toggle -->
+                <label class="flex items-center gap-2.5 cursor-pointer shrink-0">
+                  <span class="text-sm text-gray-500">{{ levelCheckEnabled ? 'On' : 'Off' }}</span>
+                  <div
+                    class="w-10 h-5 rounded-full p-0.5 transition-colors duration-200 relative"
+                    :class="levelCheckEnabled ? 'bg-orange-500' : 'bg-gray-200'"
+                    @click="levelCheckEnabled = !levelCheckEnabled"
+                  >
+                    <div class="w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200" :class="levelCheckEnabled ? 'translate-x-5' : 'translate-x-0'"></div>
+                  </div>
+                </label>
+              </div>
+
+              <!-- Questions -->
+              <div v-if="levelCheckEnabled" class="flex flex-col gap-4">
+                <div v-for="(q, qIndex) in levelCheckQuestions" :key="qIndex" class="relative p-4 sm:p-5 bg-gray-50 border border-gray-200 rounded-xl">
+                  <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Question {{ qIndex + 1 }}</span>
+                    <button v-if="levelCheckQuestions.length > 1" @click="removeQuestion(qIndex)" class="text-xs font-semibold text-red-400 hover:text-red-500 transition-colors cursor-pointer">
+                      Remove
+                    </button>
+                  </div>
+
+                  <input
+                    v-model="q.question"
+                    type="text"
+                    placeholder="Enter your question..."
+                    class="w-full mb-4 px-3 py-2.5 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-orange-400/40 focus:border-orange-400 placeholder:text-gray-400 transition-colors"
+                  />
+
+                  <div class="flex flex-col gap-2">
+                    <div v-for="(ans, aIndex) in q.answers" :key="aIndex" class="flex items-center gap-3">
+                      <input
+                        type="radio"
+                        :name="'correct-' + qIndex"
+                        :checked="q.correctAnswerIndex === aIndex"
+                        @change="q.correctAnswerIndex = aIndex"
+                        class="accent-orange-500 shrink-0 cursor-pointer"
+                      />
+                      <input
+                        v-model="q.answers[aIndex]"
+                        type="text"
+                        :placeholder="`Answer ${aIndex + 1}...`"
+                        class="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-orange-400/40 focus:border-orange-400 placeholder:text-gray-400 transition-colors"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <button @click="addQuestion" class="flex items-center gap-1.5 text-sm font-semibold text-orange-500 hover:text-orange-600 transition-colors cursor-pointer">
+                  <Plus :size="15" /> Add Question
+                </button>
+              </div>
             </div>
           </div>
+
+          <!-- Card footer: actions -->
+          <div class="px-6 sm:px-8 py-5 border-t border-gray-100 bg-gray-50 flex flex-col sm:flex-row items-center justify-end gap-3">
+            <button
+              @click="handleSave('draft')"
+              class="w-full sm:w-auto px-5 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-100 hover:border-gray-300 transition-all cursor-pointer"
+            >
+              Save as Draft
+            </button>
+            <button
+              @click="handleSave('continue')"
+              :disabled="isSaving"
+              class="w-full sm:w-auto px-6 py-2.5 text-sm font-semibold text-white bg-orange-500 rounded-xl hover:bg-orange-600 shadow-[0_4px_14px_rgba(255,120,45,0.3)] hover:shadow-[0_6px_20px_rgba(255,120,45,0.4)] hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 transition-all cursor-pointer"
+            >
+              <span v-if="isSaving" class="flex items-center justify-center gap-2">
+                <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                </svg>
+                Saving...
+              </span>
+              <span v-else>Save & Continue →</span>
+            </button>
+          </div>
         </div>
+      </div>
 
-        <!-- Footer Actions -->
-        <div class="flex justify-end pt-8 border-t border-gray-100 mt-8 space-x-4">
-          <button @click="handleSave('draft')" class="px-6 py-3 text-sm font-semibold text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition">Save as draft</button>
-          <button @click="handleSave('continue')" class="px-6 cursor-pointer py-3 text-sm font-semibold text-white bg-violet-600 rounded-lg hover:bg-violet-700 transition shadow-md shadow-violet-300">
-            Save & Continue
-          </button>
+      <!-- ════ STEP 2 ════ -->
+      <div v-else-if="currentStep === 2" class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="px-6 sm:px-8 py-5 border-b border-gray-100">
+          <h1 class="text-lg sm:text-xl font-bold text-gray-900">Upload Course Materials</h1>
+          <p class="text-sm text-gray-500 mt-0.5">Add your lessons, videos, and resources.</p>
+        </div>
+        <div class="px-6 sm:px-8 py-7">
+          <CustomTeacherCourseMaterialsStep :courseId="courseId" @continue="goToNextStep" />
         </div>
       </div>
 
-      <!-- future steps -->
-      <!-- STEP 2 -->
-      <div v-else-if="currentStep === 2">
-        <CustomTeacherCourseMaterialsStep :courseId="courseId" @continue="goToNextStep" />
+      <!-- ════ STEP 3 ════ -->
+      <div v-else-if="currentStep === 3" class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="px-6 sm:px-8 py-5 border-b border-gray-100">
+          <h1 class="text-lg sm:text-xl font-bold text-gray-900">Pricing</h1>
+          <p class="text-sm text-gray-500 mt-0.5">Set your course price or offer it for free.</p>
+        </div>
+        <div class="px-6 sm:px-8 py-7">
+          <CustomTeacherCoursePricingStep :courseId="courseId" @continue="goToNextStep" />
+        </div>
       </div>
 
-      <!-- STEP 3 -->
-      <div v-else-if="currentStep === 3" class="text-center p-20">
-        <CustomTeacherCoursePricingStep :courseId="courseId" @continue="goToNextStep" />
-      </div>
-
-      <!-- STEP 4 -->
-      <div v-else-if="currentStep === 4">
-        <CustomTeacherCoursePublishStep :courseId="courseId" @published="onPublished" />
+      <!-- ════ STEP 4 ════ -->
+      <div v-else-if="currentStep === 4" class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="px-6 sm:px-8 py-5 border-b border-gray-100">
+          <h1 class="text-lg sm:text-xl font-bold text-gray-900">Publish Your Course</h1>
+          <p class="text-sm text-gray-500 mt-0.5">Review everything and go live.</p>
+        </div>
+        <div class="px-6 sm:px-8 py-7">
+          <CustomTeacherCoursePublishStep :courseId="courseId" @published="onPublished" />
+        </div>
       </div>
     </main>
   </div>

@@ -43,6 +43,24 @@ const courseSchema = new mongoose.Schema(
       enum: ['Basic', 'Intermediate', 'Advanced', 'Expert'],
     },
 
+    levelCheck: {
+      questions: [
+        {
+          question: String,
+          answers: [
+            {
+              text: String,
+              isCorrect: Boolean,
+            },
+          ],
+        },
+      ],
+      enabled: {
+        type: Boolean,
+        default: false,
+      },
+    },
+
     isPublished: {
       type: Boolean,
       default: false,

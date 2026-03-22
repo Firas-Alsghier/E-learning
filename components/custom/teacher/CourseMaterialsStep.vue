@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
-import { Plus, Upload, Trash } from 'lucide-vue-next';
+import { Plus, Upload, Trash, CheckCircle, Film, Image, Loader } from 'lucide-vue-next';
 
 /* =========================
         EMITS & PROPS
 ========================= */
-
 const emit = defineEmits<{
   (e: 'continue'): void;
 }>();
@@ -18,10 +17,12 @@ const props = defineProps<{
 /* =========================
           TYPES
 ========================= */
-
 interface Lesson {
   _id: string;
   title: string;
+  videoUploaded?: boolean;
+  uploadProgress?: number;
+  isUploading?: boolean;
 }
 
 interface Section {
@@ -33,54 +34,64 @@ interface Section {
 /* =========================
           STATE
 ========================= */
-
 const sections = ref<Section[]>([]);
 const coverInputRef = ref<HTMLInputElement | null>(null);
 const videoInputRef = ref<HTMLInputElement | null>(null);
 const selectedLessonId = ref<string | null>(null);
-
 const token = useCookie('teacher_token').value;
+
+// Cover image state
+const coverPreviewUrl = ref<string | null>(null);
+const coverUploading = ref(false);
+const coverUploaded = ref(false);
 
 /* =========================
       FETCH FULL COURSE
 ========================= */
-
 onMounted(async () => {
   if (!props.courseId || !token) return;
-
   try {
     const res = await axios.get(`http://localhost:3001/api/teacher/courses/${props.courseId}/full`, { headers: { Authorization: `Bearer ${token}` } });
-
-    sections.value = res.data.sections || [];
+    sections.value = (res.data.sections || []).map((s: any) => ({
+      ...s,
+      lessons: (s.lessons || []).map((l: any) => ({
+        ...l,
+        videoUploaded: false,
+        uploadProgress: 0,
+        isUploading: false,
+      })),
+    }));
   } catch (err) {
     console.error(err);
-    alert('Failed to load course materials');
   }
 });
 
 /* =========================
         COVER UPLOAD
 ========================= */
-
-const triggerCoverUpload = () => {
-  coverInputRef.value?.click();
-};
+const triggerCoverUpload = () => coverInputRef.value?.click();
 
 const handleCoverSelected = async (event: Event) => {
   const file = (event.target as HTMLInputElement).files?.[0];
   if (!file || !props.courseId || !token) return;
+
+  // Show local preview immediately
+  coverPreviewUrl.value = URL.createObjectURL(file);
+  coverUploading.value = true;
+  coverUploaded.value = false;
 
   const formData = new FormData();
   formData.append('cover', file);
 
   try {
     await axios.patch(`http://localhost:3001/api/teacher/courses/${props.courseId}/cover`, formData, { headers: { Authorization: `Bearer ${token}` } });
-
-    alert('Cover uploaded ✅');
+    coverUploaded.value = true;
   } catch (err) {
     console.error(err);
+    coverPreviewUrl.value = null;
     alert('Cover upload failed');
   } finally {
+    coverUploading.value = false;
     (event.target as HTMLInputElement).value = '';
   }
 };
@@ -88,46 +99,38 @@ const handleCoverSelected = async (event: Event) => {
 /* =========================
      SECTION & LESSONS
 ========================= */
-
 const addSection = async () => {
   if (!props.courseId || !token) return;
-
   try {
     const res = await axios.post(
       `http://localhost:3001/api/teacher/courses/${props.courseId}/sections`,
       { title: `Section ${sections.value.length + 1}` },
       { headers: { Authorization: `Bearer ${token}` } }
     );
-
-    sections.value.push({
-      _id: res.data._id,
-      title: res.data.title,
-      lessons: [],
-    });
+    sections.value.push({ _id: res.data._id, title: res.data.title, lessons: [] });
   } catch (err) {
     console.error(err);
     alert('Failed to add section');
   }
 };
 
-const removeSection = (index: number) => {
-  sections.value.splice(index, 1);
-};
+const removeSection = (index: number) => sections.value.splice(index, 1);
 
 const addLesson = async (sectionIndex: number) => {
   const section = sections.value[sectionIndex];
   if (!section._id || !token) return;
-
   try {
     const res = await axios.post(
       `http://localhost:3001/api/teacher/courses/${section._id}/lessons`,
       { title: `Lesson ${section.lessons.length + 1}` },
       { headers: { Authorization: `Bearer ${token}` } }
     );
-
     section.lessons.push({
       _id: res.data._id,
       title: res.data.title,
+      videoUploaded: false,
+      uploadProgress: 0,
+      isUploading: false,
     });
   } catch (err) {
     console.error(err);
@@ -142,28 +145,48 @@ const removeLesson = (sectionIndex: number, lessonIndex: number) => {
 /* =========================
         VIDEO UPLOAD
 ========================= */
-
 const triggerVideoUpload = (lessonId: string) => {
   selectedLessonId.value = lessonId;
   videoInputRef.value?.click();
+};
+
+const findLesson = (lessonId: string): Lesson | undefined => {
+  for (const section of sections.value) {
+    const lesson = section.lessons.find((l) => l._id === lessonId);
+    if (lesson) return lesson;
+  }
 };
 
 const handleVideoSelected = async (event: Event) => {
   const file = (event.target as HTMLInputElement).files?.[0];
   if (!file || !selectedLessonId.value || !token) return;
 
+  const lessonId = selectedLessonId.value;
+  const lesson = findLesson(lessonId);
+  if (!lesson) return;
+
+  lesson.isUploading = true;
+  lesson.uploadProgress = 0;
+  lesson.videoUploaded = false;
+
   const formData = new FormData();
   formData.append('video', file);
-  console.log('Uploading video for lesson:', selectedLessonId.value);
 
   try {
-    await axios.patch(`http://localhost:3001/api/teacher/courses/lessons/${selectedLessonId.value}/video`, formData, { headers: { Authorization: `Bearer ${token}` } });
-
-    alert('Video uploaded ✅');
+    await axios.patch(`http://localhost:3001/api/teacher/courses/lessons/${lessonId}/video`, formData, {
+      headers: { Authorization: `Bearer ${token}` },
+      onUploadProgress: (progressEvent) => {
+        if (progressEvent.total) {
+          lesson.uploadProgress = Math.round((progressEvent.loaded / progressEvent.total) * 100);
+        }
+      },
+    });
+    lesson.videoUploaded = true;
   } catch (err) {
     console.error(err);
     alert('Video upload failed');
   } finally {
+    lesson.isUploading = false;
     (event.target as HTMLInputElement).value = '';
     selectedLessonId.value = null;
   }
@@ -172,58 +195,207 @@ const handleVideoSelected = async (event: Event) => {
 /* =========================
       SAVE & CONTINUE
 ========================= */
-
-const saveAndContinue = () => {
-  emit('continue');
-};
+const saveAndContinue = () => emit('continue');
 </script>
 
 <template>
-  <div>
-    <h1 class="text-xl font-bold mb-6">Course Materials</h1>
-
-    <!-- Media -->
-    <div class="border rounded-xl p-6 mb-10">
-      <h2 class="font-semibold mb-4">Media</h2>
-
-      <div @click="triggerCoverUpload" class="h-48 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer">
-        <Upload class="w-5 h-5 mr-2" />
-        Upload cover image
+  <div class="flex flex-col gap-8">
+    <!-- ── Cover Image ── -->
+    <div class="flex flex-col gap-3">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wide">Cover Image</h2>
+          <p class="text-xs text-gray-400 mt-0.5">This is the first thing students will see.</p>
+        </div>
+        <button v-if="coverPreviewUrl" @click="triggerCoverUpload" class="text-xs font-semibold text-orange-500 hover:text-orange-600 transition-colors cursor-pointer">Change image</button>
       </div>
+
+      <!-- Drop zone / preview -->
+      <div
+        @click="!coverPreviewUrl && triggerCoverUpload()"
+        class="relative w-full rounded-2xl overflow-hidden border-2 transition-all duration-200"
+        :class="coverPreviewUrl ? 'border-transparent cursor-default' : 'border-dashed border-gray-200 bg-gray-50 hover:border-orange-400/50 hover:bg-orange-50/30 cursor-pointer'"
+        style="aspect-ratio: 16/7"
+      >
+        <!-- Preview image -->
+        <img v-if="coverPreviewUrl" :src="coverPreviewUrl" alt="Cover preview" class="w-full h-full object-cover" />
+
+        <!-- Empty state -->
+        <div v-else class="absolute inset-0 flex flex-col items-center justify-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-orange-50 border border-orange-100 flex items-center justify-center">
+            <Image :size="22" class="text-orange-400" />
+          </div>
+          <div class="text-center">
+            <p class="text-sm font-semibold text-gray-600">Click to upload cover image</p>
+            <p class="text-xs text-gray-400 mt-0.5">PNG, JPG, WEBP recommended (16:9 ratio)</p>
+          </div>
+        </div>
+
+        <!-- Uploading overlay -->
+        <div v-if="coverUploading" class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center gap-3">
+          <Loader :size="28" class="text-white animate-spin" />
+          <p class="text-sm font-semibold text-white">Uploading...</p>
+        </div>
+      </div>
+
+      <!-- Success message -->
+      <Transition name="fade-slide">
+        <div v-if="coverUploaded && !coverUploading" class="flex items-center gap-2 text-sm text-emerald-600 font-semibold">
+          <CheckCircle :size="16" class="shrink-0" />
+          Cover image uploaded successfully
+        </div>
+      </Transition>
 
       <input ref="coverInputRef" type="file" accept="image/*" class="hidden" @change="handleCoverSelected" />
     </div>
 
-    <!-- Curriculum -->
-    <div v-for="(section, sIndex) in sections" :key="section._id" class="border rounded-xl p-5 mb-6">
-      <div class="flex justify-between mb-4">
-        <input v-model="section.title" class="font-semibold w-full border-none" />
-        <button @click="removeSection(sIndex)">
-          <Trash class="w-4 h-4 text-red-500" />
-        </button>
-      </div>
-
-      <div v-for="(lesson, lIndex) in section.lessons" :key="lesson._id" class="flex justify-between mb-2">
-        <input v-model="lesson.title" class="w-full border-none" />
-        <div class="flex gap-3">
-          <button @click="triggerVideoUpload(lesson._id)">
-            <Upload class="w-4 h-4" />
-          </button>
-          <button @click="removeLesson(sIndex, lIndex)">
-            <Trash class="w-4 h-4 text-red-500" />
-          </button>
+    <!-- ── Curriculum ── -->
+    <div class="flex flex-col gap-3">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wide">Curriculum</h2>
+          <p class="text-xs text-gray-400 mt-0.5">Organize your course into sections and lessons.</p>
         </div>
       </div>
 
-      <button @click="addLesson(sIndex)" class="text-sm text-violet-600 mt-2">+ Add Lesson</button>
+      <!-- Empty state -->
+      <div v-if="sections.length === 0" class="flex flex-col items-center justify-center gap-3 py-12 rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 text-center">
+        <div class="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center">
+          <Film :size="20" class="text-gray-400" />
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-gray-600">No sections yet</p>
+          <p class="text-xs text-gray-400 mt-0.5">Click "Add Section" to get started</p>
+        </div>
+      </div>
+
+      <!-- Sections list -->
+      <div class="flex flex-col gap-3">
+        <div v-for="(section, sIndex) in sections" :key="section._id" class="rounded-2xl border border-gray-200 bg-white overflow-hidden shadow-sm">
+          <!-- Section header -->
+          <div class="flex items-center gap-3 px-4 sm:px-5 py-3.5 bg-gray-50 border-b border-gray-100">
+            <div class="w-6 h-6 rounded-lg bg-orange-100 flex items-center justify-center shrink-0">
+              <span class="text-[11px] font-bold text-orange-500">{{ sIndex + 1 }}</span>
+            </div>
+            <input
+              v-model="section.title"
+              class="flex-1 min-w-0 text-sm font-bold text-gray-800 bg-transparent border-none outline-none focus:outline-none placeholder:text-gray-400"
+              placeholder="Section title..."
+            />
+            <button @click="removeSection(sIndex)" class="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer shrink-0">
+              <Trash :size="14" />
+            </button>
+          </div>
+
+          <!-- Lessons list -->
+          <div class="divide-y divide-gray-100">
+            <div v-for="(lesson, lIndex) in section.lessons" :key="lesson._id" class="flex flex-col gap-2 px-4 sm:px-5 py-3">
+              <!-- Lesson row -->
+              <div class="flex items-center gap-3">
+                <!-- Status icon -->
+                <div class="w-6 h-6 rounded-full shrink-0 flex items-center justify-center">
+                  <CheckCircle v-if="lesson.videoUploaded" :size="18" class="text-emerald-500" />
+                  <Loader v-else-if="lesson.isUploading" :size="16" class="text-orange-400 animate-spin" />
+                  <div v-else class="w-5 h-5 rounded-full border-2 border-gray-200"></div>
+                </div>
+
+                <!-- Title input -->
+                <input
+                  v-model="lesson.title"
+                  class="flex-1 min-w-0 text-sm text-gray-700 bg-transparent border-none outline-none focus:outline-none placeholder:text-gray-400"
+                  placeholder="Lesson title..."
+                />
+
+                <!-- Actions -->
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <!-- Upload video button -->
+                  <button
+                    @click="triggerVideoUpload(lesson._id)"
+                    :disabled="lesson.isUploading"
+                    class="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border transition-all duration-150 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                    :class="
+                      lesson.videoUploaded
+                        ? 'border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-100'
+                        : 'border-orange-200 bg-orange-50 text-orange-500 hover:bg-orange-100 hover:border-orange-300'
+                    "
+                  >
+                    <Upload :size="11" />
+                    <span>{{ lesson.videoUploaded ? 'Replace' : 'Upload' }}</span>
+                  </button>
+
+                  <!-- Remove lesson -->
+                  <button
+                    @click="removeLesson(sIndex, lIndex)"
+                    class="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer"
+                  >
+                    <Trash :size="13" />
+                  </button>
+                </div>
+              </div>
+
+              <!-- Upload progress bar -->
+              <Transition name="fade-slide">
+                <div v-if="lesson.isUploading || (lesson.videoUploaded && lesson.uploadProgress === 100)" class="pl-9">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="text-[11px] text-gray-500 font-medium">
+                      {{ lesson.isUploading ? `Uploading... ${lesson.uploadProgress}%` : 'Upload complete' }}
+                    </span>
+                    <span class="text-[11px]" :class="lesson.videoUploaded ? 'text-emerald-500 font-semibold' : 'text-orange-500'"> {{ lesson.uploadProgress }}% </span>
+                  </div>
+                  <!-- Track -->
+                  <div class="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      class="h-full rounded-full transition-all duration-300"
+                      :class="lesson.videoUploaded ? 'bg-emerald-500' : 'bg-orange-500'"
+                      :style="{ width: lesson.uploadProgress + '%' }"
+                    ></div>
+                  </div>
+                </div>
+              </Transition>
+            </div>
+          </div>
+
+          <!-- Add lesson -->
+          <div class="px-4 sm:px-5 py-3 border-t border-gray-100 bg-gray-50/50">
+            <button @click="addLesson(sIndex)" class="flex items-center gap-1.5 text-sm font-semibold text-orange-500 hover:text-orange-600 transition-colors cursor-pointer">
+              <Plus :size="14" /> Add Lesson
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Section -->
+      <button
+        @click="addSection"
+        class="flex items-center justify-center gap-2 w-full py-3 rounded-2xl border-2 border-dashed border-gray-200 text-sm font-semibold text-gray-500 hover:border-orange-400/50 hover:text-orange-500 hover:bg-orange-50/20 transition-all duration-200 cursor-pointer mt-1"
+      >
+        <Plus :size="15" /> Add Section
+      </button>
     </div>
 
-    <button @click="addSection" class="text-violet-600 text-sm">+ Add Section</button>
-
+    <!-- Hidden inputs -->
     <input ref="videoInputRef" type="file" accept="video/*" class="hidden" @change="handleVideoSelected" />
 
-    <div class="flex justify-end mt-10">
-      <button @click="saveAndContinue" class="px-6 py-3 bg-violet-600 text-white rounded-lg">Save & Continue</button>
+    <!-- Footer -->
+    <div class="flex justify-end pt-4 border-t border-gray-100">
+      <button
+        @click="saveAndContinue"
+        class="px-6 py-2.5 text-sm font-bold text-white bg-orange-500 rounded-xl hover:bg-orange-600 shadow-[0_4px_14px_rgba(255,120,45,0.3)] hover:shadow-[0_6px_20px_rgba(255,120,45,0.4)] hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
+      >
+        Save & Continue →
+      </button>
     </div>
   </div>
 </template>
+
+<style scoped>
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+</style>

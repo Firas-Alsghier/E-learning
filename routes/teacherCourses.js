@@ -3,6 +3,7 @@ import express from 'express';
 import Course from '../models/Course.js';
 import Section from '../models/Section.js';
 import Lesson from '../models/Lesson.js';
+import LevelCheck from '../models/LevelCheck.js';
 import { teacherAuth } from '../middleware/teacherAuth.js';
 import { uploadCover } from '../middleware/upload.js';
 import { videoUpload } from '../middleware/videoUpload.js';
@@ -17,7 +18,7 @@ const router = express.Router();
  */
 router.post('/', teacherAuth, uploadCover.single('cover'), async (req, res) => {
   try {
-    const { title, description, category, level, faqs } = req.body;
+    const { title, description, category, level, faqs, levelCheck } = req.body;
 
     const coverImage = req.file ? `${req.protocol}://${req.get('host')}/${req.file.path.replace(/\\/g, '/')}` : null;
 
@@ -47,7 +48,16 @@ router.post('/', teacherAuth, uploadCover.single('cover'), async (req, res) => {
       slug,
       teacher: req.teacher._id,
       coverImage,
-      faqs: faqs || [], // ✅ added
+      faqs: faqs || [],
+
+      // ✅ Level Check (optional)
+      levelCheck: {
+        enabled: levelCheck?.enabled || false,
+        questions: levelCheck?.questions || [],
+      },
+
+      sections: [],
+      isPublished: false,
       sections: [],
       isPublished: false,
     });
@@ -303,6 +313,47 @@ router.get('/:courseId/full', teacherAuth, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// ===============================
+// ADD / UPDATE LEVEL CHECK
+// ===============================
+router.put('/:courseId/level-check', teacherAuth, async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const { questions, isEnabled } = req.body;
+
+    // ✅ Make sure course belongs to teacher
+    const course = await Course.findOne({
+      _id: courseId,
+      teacher: req.teacher._id,
+    });
+
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    // ✅ Create or update
+    let levelCheck = await LevelCheck.findOne({ courseId });
+
+    if (!levelCheck) {
+      levelCheck = new LevelCheck({
+        courseId,
+        questions: questions || [],
+        isEnabled: isEnabled || false,
+      });
+    } else {
+      levelCheck.questions = questions || [];
+      levelCheck.isEnabled = isEnabled || false;
+    }
+
+    await levelCheck.save();
+
+    res.json(levelCheck);
+  } catch (err) {
+    console.error('Level check error:', err);
+    res.status(500).json({ message: 'Failed to save level check' });
   }
 });
 
