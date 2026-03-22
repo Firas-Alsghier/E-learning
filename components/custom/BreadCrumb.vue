@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 
-// Props to accept breadcrumb items
 interface BreadcrumbItemType {
   label: string;
-  href?: string; // optional: if no href, it will be just text
+  href?: string;
 }
 
 defineProps<{
@@ -13,21 +12,24 @@ defineProps<{
 </script>
 
 <template>
-  <Breadcrumb class="bg-[#F5F5F5] py-3 px-8">
+  <Breadcrumb class="bg-[#f2f6f9] border-b border-white/[0.06] py-4 sm:py-4">
     <CustomContainer>
-      <BreadcrumbList class="flex gap-1 text-sm text-[#555555] whitespace-nowrap">
+      <BreadcrumbList class="flex items-center flex-wrap gap-x-1 gap-y-1 text-sm sm:text-sm min-w-0">
         <template v-for="(item, index) in items" :key="index">
-          <BreadcrumbItem>
+          <BreadcrumbItem class="flex items-center min-w-0">
             <template v-if="item.href">
-              <BreadcrumbLink :href="item.href">{{ item.label }}</BreadcrumbLink>
+              <BreadcrumbLink :href="item.href" class="text-zinc-500 hover:text-orange-400 transition-colors duration-200 truncate max-w-[120px] sm:max-w-[200px] lg:max-w-none">
+                {{ item.label }}
+              </BreadcrumbLink>
             </template>
             <template v-else>
-              <BreadcrumbPage>{{ item.label }}</BreadcrumbPage>
+              <BreadcrumbPage class="text-zinc-400 font-medium truncate max-w-[140px] sm:max-w-[220px] lg:max-w-xs">
+                {{ item.label }}
+              </BreadcrumbPage>
             </template>
           </BreadcrumbItem>
 
-          <!-- Add separator except after the last item -->
-          <BreadcrumbSeparator v-if="index !== items.length - 1">/</BreadcrumbSeparator>
+          <BreadcrumbSeparator v-if="index !== items.length - 1" class="text-zinc-700 select-none shrink-0 text-xs"> / </BreadcrumbSeparator>
         </template>
       </BreadcrumbList>
     </CustomContainer>

@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import { ChevronUp, ChevronDown } from 'lucide-vue-next';
+import { ref } from 'vue';
+import { ChevronDown } from 'lucide-vue-next';
+
 defineProps<{
   faqs: {
     question: string;
     answer: string;
   }[];
 }>();
+
 const openIndexes = ref<number[]>([]);
+
 const toggleItem = (index: number) => {
   if (openIndexes.value.includes(index)) {
     openIndexes.value = openIndexes.value.filter((i) => i !== index);
@@ -17,41 +21,49 @@ const toggleItem = (index: number) => {
 </script>
 
 <template>
-  <div class="grid grid-cols-1 disable md:grid-cols-1 gap-6">
-    <div v-for="(faq, index) in faqs" :key="index" class="bg-white cursor-pointer rounded-md p-4 transition-all duration-300">
-      <button @click="toggleItem(index)" class="w-full flex justify-between items-center font-semibold text-black">
-        <span class="text-base">{{ faq.question }}</span>
-        <span class="text-xl">
-          <span v-if="openIndexes.includes(index)"><ChevronUp /></span>
-          <span v-else><ChevronDown /></span>
+  <div class="flex flex-col gap-2 sm:gap-3 select-none" dir="rtl">
+    <div
+      v-for="(faq, index) in faqs"
+      :key="index"
+      class="rounded-xl border transition-all duration-300 overflow-hidden"
+      :class="openIndexes.includes(index) ? 'border-orange-500/30 bg-orange-500/[0.04]' : 'border-white/[0.08] bg-white/[0.03] hover:border-white/[0.14] hover:bg-white/[0.05]'"
+    >
+      <!-- Question row -->
+      <button @click="toggleItem(index)" class="w-full flex items-center justify-between gap-4 px-4 sm:px-5 py-3.5 sm:py-4 text-right cursor-pointer">
+        <span class="text-sm sm:text-base font-semibold leading-snug transition-colors duration-200" :class="openIndexes.includes(index) ? 'text-orange-400' : 'text-white'">
+          {{ faq.question }}
+        </span>
+
+        <span
+          class="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-300 border"
+          :class="openIndexes.includes(index) ? 'bg-orange-500/15 border-orange-500/30 text-orange-400 rotate-180' : 'bg-white/5 border-white/[0.08] text-zinc-500'"
+        >
+          <ChevronDown :size="15" />
         </span>
       </button>
 
-      <!-- Animated answer -->
-      <transition name="fade-slide">
-        <p v-show="openIndexes.includes(index)" class="text-sm cursor-pointer text-gray-600 mt-2">
-          {{ faq.answer }}
-        </p>
-      </transition>
+      <!-- Answer -->
+      <Transition name="fade-slide">
+        <div v-show="openIndexes.includes(index)" class="px-4 sm:px-5 pb-4 sm:pb-5">
+          <div class="h-px bg-white/[0.06] mb-3 sm:mb-4"></div>
+          <p class="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+            {{ faq.answer }}
+          </p>
+        </div>
+      </Transition>
     </div>
   </div>
-
-  <!-- Bottom Image -->
 </template>
 
 <style scoped>
-.disable {
-  -webkit-user-select: none; /* Safari */
-  user-select: none;
-}
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: all 0.3s ease;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 .fade-slide-enter-from,
 .fade-slide-leave-to {
   opacity: 0;
-  transform: translateY(-5px);
+  transform: translateY(-6px);
 }
 .fade-slide-enter-to,
 .fade-slide-leave-from {

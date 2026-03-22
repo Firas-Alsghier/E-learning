@@ -40,13 +40,15 @@ const handleLogout = () => {
       <DropdownMenuSeparator />
       <DropdownMenuGroup>
         <DropdownMenuItem class="cursor-pointer">
-          <span>My learning</span>
+          <a href="user/my-courses">My Courses</a>
+          <!-- <span>My Courses</span> -->
         </DropdownMenuItem>
         <DropdownMenuItem class="cursor-pointer">
-          <span>My cart</span>
+          <a href="/cart">My cart</a>
         </DropdownMenuItem>
         <DropdownMenuItem class="cursor-pointer">
-          <span>Wishlist</span>
+          <a href="/wishlist">Wishlist</a>
+          <!-- <span>Wishlist</span> -->
         </DropdownMenuItem>
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
@@ -55,7 +57,7 @@ const handleLogout = () => {
           <span>Notifications</span>
         </DropdownMenuItem>
         <DropdownMenuItem class="cursor-pointer">
-          <span>Message</span>
+          <a href="user/message">Message</a>
         </DropdownMenuItem>
       </DropdownMenuGroup>
       <DropdownMenuSeparator />

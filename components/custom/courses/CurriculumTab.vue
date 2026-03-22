@@ -4,7 +4,8 @@ import { ChevronDown, Lock, Check } from 'lucide-vue-next';
 
 const currentLesson = ref<any>(null);
 const showPlayer = ref(false);
-
+const token = useCookie<string | null>('token');
+const isLoggedIn = computed(() => !!token.value);
 const props = defineProps<{
   sections: any[];
   courseId: string;
@@ -26,8 +27,15 @@ const curriculum = ref(
 );
 
 function openLesson(section: any, lesson: any) {
+  // ❌ Guest user → block access
+  if (!token.value) {
+    return navigateTo('/login');
+  }
+
+  // ❌ Locked lesson → block
   if (lesson.locked) return;
 
+  // ✅ Allowed
   window.open(`/learn/${props.courseId}?lesson=${lesson._id}`, '_blank');
 }
 const bodyRefs = ref<(HTMLElement | null)[]>(curriculum.value.map(() => null));
@@ -43,26 +51,6 @@ function measureHeight(index: number) {
   if (el) sectionHeights.value[index] = el.scrollHeight;
 }
 
-onMounted(async () => {
-  await nextTick();
-  curriculum.value.forEach((_: any, i: number) => measureHeight(i));
-
-  const progress = await $fetch<{ completedLessons: string[] }>(`http://localhost:3001/api/progress/${courseId}`, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
-    },
-  });
-
-  curriculum.value.forEach((section) => {
-    section.lessons.forEach((lesson: { _id: string; id: any; completed: boolean; locked: boolean }) => {
-      if (progress.completedLessons.includes(lesson._id)) {
-        lesson.completed = true;
-        lesson.locked = false;
-      }
-    });
-  });
-});
-
 const toggleSection = async (index: number) => {
   curriculum.value[index].open = !curriculum.value[index].open;
   if (curriculum.value[index].open) {
@@ -72,8 +60,8 @@ const toggleSection = async (index: number) => {
 };
 
 function progressPercent(section: (typeof curriculum.value)[0]) {
-  const unlocked = section.lessons.filter((l: { locked: any }) => !l.locked).length;
-  return Math.round((unlocked / section.lessons.length) * 100);
+  const completed = section.lessons.filter((l: any) => l.completed).length;
+  return Math.round((completed / section.lessons.length) * 100);
 }
 
 function unlockNextLesson() {
@@ -139,6 +127,32 @@ function prevLesson() {
     }
   }
 }
+
+async function fetchProgress() {
+  const progress = await $fetch<{ completedLessons: string[] }>(`http://localhost:3001/api/progress/${courseId}`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
+  });
+
+  curriculum.value.forEach((section) => {
+    section.lessons.forEach((lesson: any) => {
+      if (progress.completedLessons.includes(lesson._id)) {
+        lesson.completed = true;
+        lesson.locked = false;
+      }
+    });
+  });
+}
+
+onMounted(async () => {
+  await nextTick();
+  curriculum.value.forEach((_: any, i: number) => measureHeight(i));
+
+  if (token.value) {
+    await fetchProgress();
+  }
+});
 </script>
 
 <template>
@@ -159,7 +173,7 @@ function prevLesson() {
       </div>
 
       <!-- Progress bar -->
-      <div class="h-0.5 bg-gray-100 mx-4">
+      <div v-if="isLoggedIn" class="h-0.5 bg-gray-100 mx-4">
         <div class="h-full bg-[#FF782D] rounded-full transition-all duration-500" :style="{ width: progressPercent(section) + '%' }" />
       </div>
 
@@ -172,7 +186,7 @@ function prevLesson() {
           <div
             v-for="(lesson, i) in section.lessons"
             @click="openLesson(section, lesson)"
-            class="cursor-pointer flex items-center justify-between px-4 py-2 gap-3 hover:bg-white transition-colors duration-150"
+            :class="['flex items-center justify-between px-4 py-2 gap-3 transition-colors duration-150', isLoggedIn ? 'cursor-pointer hover:bg-white' : 'cursor-not-allowed opacity-70']"
           >
             <!-- Left -->
             <div class="flex items-center gap-3 flex-1 min-w-0">

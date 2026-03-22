@@ -48,12 +48,16 @@ router.get('/:courseId', userAuth, async (req, res) => {
 });
 
 // ❌ REMOVE lesson progress
-router.post('/remove-lesson', async (req, res) => {
+router.post('/remove-lesson', userAuth, async (req, res) => {
   try {
-    const userId = req.user.id; // from auth middleware
+    console.log(req.user);
+    const userId = req.user._id; // from auth middleware
     const { courseId, lessonId } = req.body;
 
-    const progress = await UserProgress.findOne({ user: userId, course: courseId });
+    const progress = await UserProgress.findOne({
+      userId,
+      courseId,
+    });
 
     if (!progress) {
       return res.status(404).json({ message: 'Progress not found' });

@@ -50,6 +50,11 @@ const data = computed(() => ({
       url: 'message',
       icon: Settings2,
     },
+    {
+      title: 'My Courses',
+      url: 'my-courses',
+      icon: Settings2,
+    },
   ],
 }));
 </script>

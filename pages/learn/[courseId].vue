@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, ChevronDown, Play, PanelRight, X, Check, Loc
 // import LessonPlayer from '~/components/custom/player/LessonPlayer.vue';
 definePageMeta({
   layout: false,
+  middleware: ['user-auth'],
 });
 // ── Props ──────────────────────────────────────────────
 interface Lesson {
@@ -116,7 +117,16 @@ async function toggleLessonComplete(lesson: Lesson, section: Section, index: num
       },
     });
   } else {
-    // ❌ UNMARK (NEW 🔥)
+    // ❌ UNMARK
+
+    // 1. Update UI immediately
+    lesson.completed = false;
+
+    // 2. Relock next lesson (important for progression logic)
+    const next = section.lessons[index + 1];
+    if (next) next.locked = true;
+
+    // 3. Save to backend
     await $fetch('http://localhost:3001/api/progress/remove-lesson', {
       method: 'POST',
       headers: {
@@ -127,10 +137,6 @@ async function toggleLessonComplete(lesson: Lesson, section: Section, index: num
         lessonId: lesson._id,
       },
     });
-
-    // 🔒 Optional: relock next lesson
-    const next = section.lessons[index + 1];
-    if (next) next.locked = true;
   }
 }
 function nextLesson() {
@@ -380,7 +386,7 @@ onMounted(async () => {
           <div class="overflow-y-auto flex-1">
             <div v-for="(section, si) in curriculum" :key="si" class="border-b border-gray-200">
               <!-- Section header -->
-              <button class="w-full flex items-center justify-between px-4 py-3 bg-white hover:bg-gray-50 transition-colors text-left" @click="section.open = !section.open">
+              <button class="w-full cursor-pointer flex items-center justify-between px-4 py-3 bg-white hover:bg-gray-50 transition-colors text-left" @click="section.open = !section.open">
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-semibold text-gray-900 leading-snug">{{ section.title }}</p>
                   <p class="text-xs text-gray-500 mt-0.5">{{ sectionCompletedCount(section) }}/{{ section.lessons.length }} | {{ section.totalTime }}</p>

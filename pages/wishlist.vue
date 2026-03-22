@@ -2,7 +2,10 @@
 import { ref } from 'vue';
 // Added Calendar icon to imports
 import { Clock, UsersRound, Heart, ArrowLeft, Calendar } from 'lucide-vue-next';
-
+definePageMeta({
+  layout: false,
+  middleware: ['user-auth'],
+});
 // --- TYPE DEFINITIONS ---
 interface Course {
   id: string;

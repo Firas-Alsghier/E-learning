@@ -3,12 +3,14 @@
 export default defineNuxtRouteMiddleware((to) => {
   const token = useCookie('token');
 
-  // ❌ Not logged in → redirect to login
-  if (!token.value && to.path !== '/login') {
-    return navigateTo('/login');
+  // 🎯 ONLY protect /learn routes
+  if (to.path.startsWith('/learn')) {
+    if (!token.value) {
+      return navigateTo('/login');
+    }
   }
 
-  // ✅ Logged in → prevent visiting login or signup
+  // ✅ Prevent logged-in users from going back to auth pages
   if (token.value && (to.path === '/login' || to.path === '/signup')) {
     return navigateTo('/user/edit-profile');
   }
