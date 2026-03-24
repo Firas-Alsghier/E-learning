@@ -9,17 +9,8 @@ This file does the following:
 ✔ Used only inside upload routes
 */
 import multer from 'multer';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
-import cloudinary from '../config/cloudinary.js';
 
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: 'courses/videos',
-    resource_type: 'video',
-    format: 'mp4',
-  },
-});
+const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
   if (file.mimetype.startsWith('video/')) {

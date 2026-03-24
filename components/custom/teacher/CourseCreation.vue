@@ -128,17 +128,56 @@ const descriptionCharCount = computed(() => courseData.value.description.length)
 const addFaq = () => courseData.value.faqs.push({ question: '', answer: '' });
 const removeFaq = (index: number) => courseData.value.faqs.splice(index, 1);
 
+const updateCourse = async () => {
+  isSaving.value = true;
+  try {
+    const token = useCookie('teacher_token').value;
+    if (!token) {
+      alert('Not authenticated');
+      return;
+    }
+
+    await axios.patch(
+      `http://localhost:3001/api/teacher/courses/${courseId.value}`,
+      {
+        title: courseData.value.title,
+        description: courseData.value.description,
+        category: courseData.value.category,
+        level: courseData.value.level,
+        faqs: courseData.value.faqs,
+        levelCheck: levelCheckEnabled.value ? { enabled: true, questions: levelCheckQuestions.value } : { enabled: false, questions: [] },
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    goToNextStep();
+  } catch (err: any) {
+    console.error('Update course error:', err);
+    alert(err?.response?.data?.message || 'Failed to update course');
+  } finally {
+    isSaving.value = false;
+  }
+};
+
 // --- Save Handler ---
 const handleSave = async (action: 'continue' | 'draft') => {
   if (action === 'draft') {
     alert('Draft saved (not implemented yet)');
     return;
   }
+
   if (!courseData.value.title || !courseData.value.description) {
     alert('Title and description are required');
     return;
   }
-  await createCourse();
+
+  if (!courseId.value) {
+    await createCourse();
+  } else {
+    await updateCourse();
+  }
 };
 
 const handleFileUpload = (type: 'cover' | 'video') => {
@@ -216,7 +255,7 @@ const stepLabels = ['Course Info & FAQ', 'Upload Materials', 'Pricing', 'Publish
             <div class="flex flex-col gap-1.5">
               <label for="title" class="text-sm font-semibold text-gray-700"> Course Title <span class="text-red-400">*</span> </label>
               <input
-                :disabled="!!courseId"
+                :disabled="false"
                 id="title"
                 type="text"
                 v-model="courseData.title"
@@ -286,7 +325,6 @@ const stepLabels = ['Course Info & FAQ', 'Upload Materials', 'Pricing', 'Publish
                   <div class="flex flex-col gap-1.5 pr-8">
                     <label :for="`faq-q-${index}`" class="text-xs font-semibold text-gray-600 uppercase tracking-wide">Question</label>
                     <input
-                      :disabled="!!courseId"
                       :id="`faq-q-${index}`"
                       type="text"
                       v-model="faq.question"
@@ -298,7 +336,6 @@ const stepLabels = ['Course Info & FAQ', 'Upload Materials', 'Pricing', 'Publish
                   <div class="flex flex-col gap-1.5">
                     <label :for="`faq-a-${index}`" class="text-xs font-semibold text-gray-600 uppercase tracking-wide">Answer</label>
                     <input
-                      :disabled="!!courseId"
                       :id="`faq-a-${index}`"
                       type="text"
                       v-model="faq.answer"
