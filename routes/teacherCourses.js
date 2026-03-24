@@ -39,10 +39,7 @@ const router = express.Router();
  * 5. Delete the temp file
  */
 router.patch('/lessons/:lessonId/video', teacherAuth, videoUpload.single('video'), async (req, res) => {
-  console.log('🎬 Video upload route hit — lessonId:', req.params.lessonId);
-
-  // Absolute path to the temp file inside your existing uploads/videos/ folder
-  const tempPath = path.join(__dirname, '..', 'uploads', 'videos', `temp-${Date.now()}.mp4`);
+  console.log('🎬 Video upload route hit:', req.params.lessonId);
 
   try {
     if (!req.file) {
@@ -54,45 +51,40 @@ router.patch('/lessons/:lessonId/video', teacherAuth, videoUpload.single('video'
       return res.status(404).json({ message: 'Lesson not found' });
     }
 
-    // Step 1: Write buffer to a real file on disk
-    fs.writeFileSync(tempPath, req.file.buffer);
-    console.log('📁 Temp file written:', tempPath);
+    console.log('☁️ Uploading to Cloudinary (stream)...');
 
-    // Step 2: Upload to Cloudinary
-    // Using regular upload() — works for files up to 100MB
-    // For bigger files, switch to upload_large() with the same params
-    console.log('☁️  Uploading to Cloudinary...');
-    const result = await cloudinary.uploader.upload(tempPath, {
-      resource_type: 'video',
-      folder: 'courses/videos',
-    });
-    console.log('✅ Cloudinary URL:', result.secure_url);
+    // 🔥 STREAM upload (no temp file, no blocking)
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        resource_type: 'video',
+        folder: 'courses/videos',
+      },
+      async (error, result) => {
+        if (error) {
+          console.error('❌ Cloudinary error:', error);
+          return res.status(500).json({ message: 'Cloudinary upload failed' });
+        }
 
-    // Step 3: Save the Cloudinary URL to the lesson
-    lesson.videoUrl = result.secure_url;
-    lesson.duration = Math.round(result.duration || 0);
-    await lesson.save();
+        console.log('✅ Uploaded:', result.secure_url);
 
-    res.json({
-      message: 'Video uploaded successfully',
-      videoUrl: lesson.videoUrl,
-    });
+        lesson.videoUrl = result.secure_url;
+        lesson.duration = Math.round(result.duration || 0);
+        await lesson.save();
+
+        return res.json({
+          message: 'Video uploaded successfully',
+          videoUrl: lesson.videoUrl,
+        });
+      }
+    );
+
+    // send buffer to Cloudinary
+    uploadStream.end(req.file.buffer);
   } catch (err) {
     console.error('❌ Video upload error:', err);
     res.status(500).json({ message: 'Failed to upload video' });
-  } finally {
-    // Always clean up the temp file
-    try {
-      if (fs.existsSync(tempPath)) {
-        fs.unlinkSync(tempPath);
-        console.log('🗑️  Temp file deleted');
-      }
-    } catch (e) {
-      console.warn('Could not delete temp file:', e.message);
-    }
   }
 });
-
 /**
  * CREATE COURSE
  * POST /api/teacher/courses

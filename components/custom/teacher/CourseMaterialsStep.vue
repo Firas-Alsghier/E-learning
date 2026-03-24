@@ -296,7 +296,7 @@ const saveAndContinue = () => emit('continue');
                   <div class="flex items-center justify-between mb-1">
                     <span class="text-[11px] text-gray-500 font-medium">
                       <template v-if="lesson.isUploading && lesson.uploadProgress < 90"> Sending to server... {{ lesson.uploadProgress }}% </template>
-                      <template v-else-if="lesson.isUploading"> Uploading to Cloudinary... </template>
+                      <template v-else-if="lesson.isUploading"> Processing video... (this may take a minute) </template>
                       <template v-else> ✓ Upload complete </template>
                     </span>
                     <span class="text-[11px] font-bold" :class="lesson.videoUploaded ? 'text-emerald-500' : 'text-orange-500'"> {{ lesson.uploadProgress }}% </span>
