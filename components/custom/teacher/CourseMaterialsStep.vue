@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue';
 import axios from 'axios';
 import { Plus, Upload, Trash, CheckCircle, Film, Image, Loader } from 'lucide-vue-next';
 
-const emit = defineEmits<{ (e: 'continue'): void }>();
+// const emit = defineEmits<{ (e: 'continue'): void }>();
+const emit = defineEmits<{
+  (e: 'continue'): void;
+  (e: 'uploading', value: boolean): void;
+}>();
 const props = defineProps<{ courseId: string | null }>();
 
 interface Lesson {
@@ -28,25 +32,6 @@ const token = useCookie('teacher_token').value;
 const coverPreviewUrl = ref<string | null>(null);
 const coverUploading = ref(false);
 const coverUploaded = ref(false);
-
-/* ── Load existing course data ── */
-onMounted(async () => {
-  if (!props.courseId || !token) return;
-  try {
-    const res = await axios.get(`http://localhost:3001/api/teacher/courses/${props.courseId}/full`, { headers: { Authorization: `Bearer ${token}` } });
-    sections.value = (res.data.sections || []).map((s: any) => ({
-      ...s,
-      lessons: (s.lessons || []).map((l: any) => ({
-        ...l,
-        videoUploaded: !!l.videoUrl, // mark green if video already exists
-        uploadProgress: l.videoUrl ? 100 : 0,
-        isUploading: false,
-      })),
-    }));
-  } catch (err) {
-    console.error(err);
-  }
-});
 
 /* ── Cover upload ── */
 const triggerCoverUpload = () => coverInputRef.value?.click();
@@ -182,7 +167,55 @@ const handleVideoSelected = async (event: Event) => {
   }
 };
 
-const saveAndContinue = () => emit('continue');
+const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+  if (isAnyUploading.value) {
+    event.preventDefault();
+    event.returnValue = ''; // required for Chrome
+  }
+};
+
+/* ── Load existing course data ── */
+onMounted(async () => {
+  if (!props.courseId || !token) return;
+  try {
+    const res = await axios.get(`http://localhost:3001/api/teacher/courses/${props.courseId}/full`, { headers: { Authorization: `Bearer ${token}` } });
+    sections.value = (res.data.sections || []).map((s: any) => ({
+      ...s,
+      lessons: (s.lessons || []).map((l: any) => ({
+        ...l,
+        videoUploaded: !!l.videoUrl, // mark green if video already exists
+        uploadProgress: l.videoUrl ? 100 : 0,
+        isUploading: false,
+      })),
+    }));
+  } catch (err) {
+    console.error(err);
+  }
+});
+
+onMounted(() => {
+  window.addEventListener('beforeunload', handleBeforeUnload);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeunload', handleBeforeUnload);
+});
+
+const isAnyUploading = computed(() => {
+  return sections.value.some((section) => section.lessons.some((lesson) => lesson.isUploading));
+});
+
+watch(isAnyUploading, (val) => {
+  emit('uploading', val);
+});
+
+const saveAndContinue = () => {
+  if (isAnyUploading.value) {
+    alert('Please wait until upload finishes');
+    return;
+  }
+  emit('continue');
+};
 </script>
 
 <template>
@@ -344,7 +377,9 @@ const saveAndContinue = () => emit('continue');
 
     <div class="flex justify-end pt-4 border-t border-gray-100">
       <button
-        @click="saveAndContinue"
+        @click="!isAnyUploading && saveAndContinue()"
+        :disabled="isAnyUploading"
+        :class="isAnyUploading ? 'opacity-50 cursor-not-allowed' : ''"
         class="px-6 py-2.5 text-sm font-bold text-white bg-orange-500 rounded-xl hover:bg-orange-600 shadow-[0_4px_14px_rgba(255,120,45,0.3)] hover:-translate-y-0.5 transition-all cursor-pointer"
       >
         Save & Continue →

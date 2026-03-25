@@ -1,12 +1,12 @@
 <!-- components\custom\teacher\CourseCreation.vue -->
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { onBeforeRouteLeave } from 'vue-router';
 import axios from 'axios';
 import { ChevronRight, Upload, Plus, X, Check } from 'lucide-vue-next';
-
 const courseId = ref<string | null>(null);
 const isSaving = ref(false);
-
+const isAnyUploading = ref(false);
 // --- Step Management ---
 const currentStep = ref(1);
 const onPublished = () => {
@@ -36,6 +36,10 @@ interface LevelCheckQuestion {
   answers: string[];
   correctAnswerIndex: number | null;
 }
+
+const handleUploading = (val: boolean) => {
+  isAnyUploading.value = val;
+};
 
 const levelCheckEnabled = ref(false);
 
@@ -120,6 +124,10 @@ const goToNextStep = () => {
   if (currentStep.value < 4) currentStep.value++;
 };
 const goToStep = (step: number) => {
+  if (isAnyUploading.value) {
+    alert('Please wait until video upload is finished');
+    return;
+  }
   if (step <= currentStep.value) currentStep.value = step;
 };
 const descriptionCharCount = computed(() => courseData.value.description.length);
@@ -179,6 +187,12 @@ const handleSave = async (action: 'continue' | 'draft') => {
     await updateCourse();
   }
 };
+
+onBeforeRouteLeave(() => {
+  if (isAnyUploading.value) {
+    return confirm('Upload in progress. Are you sure you want to leave?');
+  }
+});
 
 const handleFileUpload = (type: 'cover' | 'video') => {
   alert(`Simulating ${type} file upload...`);
@@ -448,7 +462,7 @@ const stepLabels = ['Course Info & FAQ', 'Upload Materials', 'Pricing', 'Publish
           <p class="text-sm text-gray-500 mt-0.5">Add your lessons, videos, and resources.</p>
         </div>
         <div class="px-6 sm:px-8 py-7">
-          <CustomTeacherCourseMaterialsStep :courseId="courseId" @continue="goToNextStep" />
+          <CustomTeacherCourseMaterialsStep :courseId="courseId" @continue="goToNextStep" @uploading="handleUploading" />
         </div>
       </div>
 
