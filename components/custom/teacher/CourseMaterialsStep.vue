@@ -129,7 +129,7 @@ const handleVideoSelected = async (event: Event) => {
 
   const lessonId = selectedLessonId.value;
 
-  // Find the lesson by index (not reference) so Vue reactivity works correctly
+  // Find lesson
   let lesson: Lesson | null = null;
   for (const section of sections.value) {
     const found = section.lessons.find((l) => l._id === lessonId);
@@ -144,35 +144,37 @@ const handleVideoSelected = async (event: Event) => {
   lesson.uploadProgress = 0;
   lesson.videoUploaded = false;
 
-  const formData = new FormData();
-  formData.append('video', file);
-
   try {
-    await axios.patch(`http://localhost:3001/api/teacher/courses/lessons/${lessonId}/video`, formData, {
-      headers: { Authorization: `Bearer ${token}` },
-      timeout: 0, // no timeout — Cloudinary uploads can take a while
-      maxContentLength: Infinity,
-      maxBodyLength: Infinity,
+    // 🔥 STEP 1: Upload directly to Cloudinary
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'course_videos');
 
-      // This tracks bytes going from your browser to your server.
-      // It reaches ~100% fast (local server). We cap it at 90 so the
-      // bar doesn't falsely show 100% before Cloudinary is done.
-      // When the server finally responds, we snap it to 100%.
+    const res = await axios.post(`https://api.cloudinary.com/v1_1/ddptjfnlp/video/upload`, formData, {
       onUploadProgress: (progressEvent) => {
         if (progressEvent.total) {
-          const pct = Math.round((progressEvent.loaded / progressEvent.total) * 100);
-          lesson!.uploadProgress = Math.min(pct, 90); // cap at 90
+          lesson!.uploadProgress = Math.round((progressEvent.loaded / progressEvent.total) * 100);
         }
       },
     });
 
-    // Server responded — Cloudinary upload is fully done
-    lesson.uploadProgress = 100;
+    const videoUrl = res.data.secure_url;
+
+    // 🔥 STEP 2: Save URL to your backend
+    await axios.patch(
+      `http://localhost:3001/api/teacher/courses/lessons/${lessonId}/video-url`,
+      { videoUrl },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
     lesson.videoUploaded = true;
+    lesson.uploadProgress = 100;
   } catch (err: any) {
-    console.error('Video upload error:', err);
-    alert(err?.response?.data?.message || 'Video upload failed');
+    console.error('Upload error:', err);
     lesson.uploadProgress = 0;
+    alert('Video upload failed');
   } finally {
     lesson.isUploading = false;
     (event.target as HTMLInputElement).value = '';

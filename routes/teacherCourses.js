@@ -18,32 +18,12 @@ const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ⚠️  ROUTE ORDER MATTERS
-//  PATCH /lessons/:lessonId/video  ← must be FIRST
-//  PATCH /:courseId                ← must be LAST
-//
-//  If /:courseId comes first, Express matches it with courseId = "lessons"
-//  and the video upload route is NEVER reached.
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * UPLOAD LESSON VIDEO
- * PATCH /api/teacher/courses/lessons/:lessonId/video
- *
- * Steps:
- * 1. Get the video file from the request (multer puts it in memory)
- * 2. Write it to a temp file in uploads/videos/ (Cloudinary needs a real file)
- * 3. Upload the temp file to Cloudinary
- * 4. Save the Cloudinary URL to the lesson in the database
- * 5. Delete the temp file
- */
-router.patch('/lessons/:lessonId/video', teacherAuth, videoUpload.single('video'), async (req, res) => {
-  console.log('🎬 Video upload route hit:', req.params.lessonId);
-
+router.patch('/lessons/:lessonId/video-url', teacherAuth, async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: 'No video file uploaded' });
+    const { videoUrl } = req.body;
+
+    if (!videoUrl) {
+      return res.status(400).json({ message: 'Video URL is required' });
     }
 
     const lesson = await Lesson.findById(req.params.lessonId);
@@ -51,38 +31,13 @@ router.patch('/lessons/:lessonId/video', teacherAuth, videoUpload.single('video'
       return res.status(404).json({ message: 'Lesson not found' });
     }
 
-    console.log('☁️ Uploading to Cloudinary (stream)...');
+    lesson.videoUrl = videoUrl;
+    await lesson.save();
 
-    // 🔥 STREAM upload (no temp file, no blocking)
-    const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        resource_type: 'video',
-        folder: 'courses/videos',
-      },
-      async (error, result) => {
-        if (error) {
-          console.error('❌ Cloudinary error:', error);
-          return res.status(500).json({ message: 'Cloudinary upload failed' });
-        }
-
-        console.log('✅ Uploaded:', result.secure_url);
-
-        lesson.videoUrl = result.secure_url;
-        lesson.duration = Math.round(result.duration || 0);
-        await lesson.save();
-
-        return res.json({
-          message: 'Video uploaded successfully',
-          videoUrl: lesson.videoUrl,
-        });
-      }
-    );
-
-    // send buffer to Cloudinary
-    uploadStream.end(req.file.buffer);
+    res.json({ message: 'Video URL saved successfully' });
   } catch (err) {
-    console.error('❌ Video upload error:', err);
-    res.status(500).json({ message: 'Failed to upload video' });
+    console.error('Save video URL error:', err);
+    res.status(500).json({ message: 'Failed to save video URL' });
   }
 });
 /**
