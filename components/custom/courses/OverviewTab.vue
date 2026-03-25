@@ -7,7 +7,10 @@ defineProps<{
 <template>
   <div class="overview-tab">
     <p class="font-normal text-lg leading-normal">
-      {{ description }}
+      <div
+  class="prose max-w-none"
+  v-html="description"
+></div>
     </p>
   </div>
 </template>

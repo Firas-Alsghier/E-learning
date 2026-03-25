@@ -32,7 +32,7 @@ const token = useCookie('teacher_token').value;
 const coverPreviewUrl = ref<string | null>(null);
 const coverUploading = ref(false);
 const coverUploaded = ref(false);
-
+const savingCurriculum = ref(false);
 /* ── Cover upload ── */
 const triggerCoverUpload = () => coverInputRef.value?.click();
 
@@ -193,6 +193,27 @@ onMounted(async () => {
   }
 });
 
+const saveCurriculum = async () => {
+  if (!props.courseId || !token) return;
+
+  try {
+    await axios.patch(
+      `http://localhost:3001/api/teacher/courses/${props.courseId}/curriculum`,
+      {
+        sections: sections.value,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+  } catch (err) {
+    console.error('Failed to save curriculum', err);
+    throw err;
+  }
+};
+
 onMounted(() => {
   window.addEventListener('beforeunload', handleBeforeUnload);
 });
@@ -209,12 +230,36 @@ watch(isAnyUploading, (val) => {
   emit('uploading', val);
 });
 
-const saveAndContinue = () => {
+const saveAndContinue = async () => {
   if (isAnyUploading.value) {
     alert('Please wait until upload finishes');
     return;
   }
-  emit('continue');
+
+  if (savingCurriculum.value) return;
+
+  savingCurriculum.value = true;
+
+  try {
+    await axios.patch(
+      `http://localhost:3001/api/teacher/courses/${props.courseId}/curriculum`,
+      {
+        sections: sections.value,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    emit('continue'); // ✅ go next ONLY after save
+  } catch (err) {
+    console.error(err);
+    alert('Failed to save curriculum');
+  } finally {
+    savingCurriculum.value = false;
+  }
 };
 </script>
 
@@ -378,7 +423,7 @@ const saveAndContinue = () => {
     <div class="flex justify-end pt-4 border-t border-gray-100">
       <button
         @click="!isAnyUploading && saveAndContinue()"
-        :disabled="isAnyUploading"
+        :disabled="savingCurriculum || isAnyUploading"
         :class="isAnyUploading ? 'opacity-50 cursor-not-allowed' : ''"
         class="px-6 py-2.5 text-sm font-bold text-white bg-orange-500 rounded-xl hover:bg-orange-600 shadow-[0_4px_14px_rgba(255,120,45,0.3)] hover:-translate-y-0.5 transition-all cursor-pointer"
       >

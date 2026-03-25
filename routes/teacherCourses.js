@@ -263,4 +263,80 @@ router.put('/:courseId/level-check', teacherAuth, async (req, res) => {
   }
 });
 
+router.patch('/sections/:sectionId', teacherAuth, async (req, res) => {
+  try {
+    const { title } = req.body;
+
+    const section = await Section.findById(req.params.sectionId);
+    if (!section) {
+      return res.status(404).json({ message: 'Section not found' });
+    }
+
+    section.title = title;
+    await section.save();
+
+    res.json(section);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Failed to update section' });
+  }
+});
+
+router.patch('/lessons/:lessonId', teacherAuth, async (req, res) => {
+  try {
+    const { title } = req.body;
+
+    const lesson = await Lesson.findById(req.params.lessonId);
+    if (!lesson) {
+      return res.status(404).json({ message: 'Lesson not found' });
+    }
+
+    lesson.title = title;
+    await lesson.save();
+
+    res.json(lesson);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Failed to update lesson' });
+  }
+});
+
+router.patch('/:courseId/curriculum', teacherAuth, async (req, res) => {
+  try {
+    const { sections } = req.body;
+
+    // 1. Validate course ownership
+    const course = await Course.findOne({
+      _id: req.params.courseId,
+      teacher: req.teacher._id,
+    });
+
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    // 2. Update sections + lessons
+    for (const sectionData of sections) {
+      const section = await Section.findById(sectionData._id);
+      if (!section) continue;
+
+      section.title = sectionData.title;
+      await section.save();
+
+      for (const lessonData of sectionData.lessons) {
+        const lesson = await Lesson.findById(lessonData._id);
+        if (!lesson) continue;
+
+        lesson.title = lessonData.title;
+        await lesson.save();
+      }
+    }
+
+    res.json({ message: 'Curriculum updated successfully' });
+  } catch (err) {
+    console.error('Curriculum update error:', err);
+    res.status(500).json({ message: 'Failed to update curriculum' });
+  }
+});
+
 export default router;

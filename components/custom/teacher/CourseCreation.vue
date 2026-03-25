@@ -4,11 +4,16 @@ import { ref, computed } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import axios from 'axios';
 import { ChevronRight, Upload, Plus, X, Check } from 'lucide-vue-next';
+// import Quill from 'quill';
+// import 'quill/dist/quill.snow.css';
+
 const courseId = ref<string | null>(null);
 const isSaving = ref(false);
 const isAnyUploading = ref(false);
 // --- Step Management ---
 const currentStep = ref(1);
+const quillEditor = ref<any>(null);
+const quillContainer = ref<HTMLDivElement | null>(null);
 const onPublished = () => {
   window.alert('Done!');
 };
@@ -199,6 +204,28 @@ const handleFileUpload = (type: 'cover' | 'video') => {
 };
 
 const stepLabels = ['Course Info & FAQ', 'Upload Materials', 'Pricing', 'Publish'];
+
+// onMounted(() => {
+//   if (!quillContainer.value) return;
+
+//   quillEditor.value = new Quill(quillContainer.value, {
+//     theme: 'snow',
+//     placeholder: 'Describe your course...',
+//     modules: {
+//       toolbar: [[{ header: [1, 2, false] }], ['bold', 'italic', 'underline'], [{ list: 'ordered' }, { list: 'bullet' }], [{ align: [] }], ['link']],
+//     },
+//   });
+
+//   // 🔥 Sync Quill → Vue
+//   quillEditor.value.on('text-change', () => {
+//     courseData.value.description = quillEditor.value.root.innerHTML;
+//   });
+
+//   // ✅ IMPORTANT: load existing data (edit case)
+//   if (courseData.value.description) {
+//     quillEditor.value.root.innerHTML = courseData.value.description;
+//   }
+// });
 </script>
 
 <template>
@@ -305,14 +332,15 @@ const stepLabels = ['Course Info & FAQ', 'Upload Materials', 'Pricing', 'Publish
             <!-- Description -->
             <div class="flex flex-col gap-1.5">
               <label for="description" class="text-sm font-semibold text-gray-700"> Description <span class="text-red-400">*</span> </label>
-              <textarea
+              <!-- <textarea
                 id="description"
                 v-model="courseData.description"
                 maxlength="2000"
                 rows="5"
                 placeholder="Describe what students will learn in this course..."
                 class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-400/40 focus:border-orange-400 resize-none placeholder:text-gray-400 transition-colors"
-              ></textarea>
+              ></textarea> -->
+              <CustomEditorQuillEditor v-model="courseData.description" />
               <p class="text-xs text-gray-400 text-right">{{ descriptionCharCount }}/2000</p>
             </div>
 
