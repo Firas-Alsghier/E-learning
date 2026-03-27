@@ -1,85 +1,11 @@
 <script setup lang="ts">
-// export const description = 'A sidebar that collapses to icons.';
-// export const iframeHeight = '800px';
-// export const containerClass = 'w-full h-full';
 const route = useRoute();
 
 definePageMeta({
-  // middleware: ['auth'], // This is enough!
   ssr: false,
   layout: false,
   middleware: ['require-teacher-auth'],
 });
-
-// Dummy data for demonstration
-const courseData = [
-  {
-    id: 1,
-    image: 'https://via.placeholder.com/40/800080/FFFFFF?text=P', // Example image
-    name: 'Complete Python Bootcamp in Python',
-    description: 'Development',
-    category: 'Design',
-    sale: 150,
-    rating: 4.5,
-    earning: 610.5,
-    visitor: 24512,
-  },
-  {
-    id: 2,
-    image: 'https://via.placeholder.com/40/0000FF/FFFFFF?text=E', // Example image
-    name: 'Advanced Excel Formulas & Functions',
-    description: 'Learn backend',
-    category: 'Development',
-    sale: 20,
-    rating: 5.0,
-    earning: 55.5,
-    visitor: 6200,
-  },
-  {
-    id: 3,
-    image: 'https://via.placeholder.com/40/FF0000/FFFFFF?text=V', // Example image
-    name: 'Video Editor in Filmora9',
-    description: 'Video-Creation',
-    category: 'Photography',
-    sale: 56,
-    rating: 4.5,
-    earning: 610.5,
-    visitor: 24512,
-  },
-  {
-    id: 4,
-    image: 'https://via.placeholder.com/40/00FF00/FFFFFF?text=O', // Example image
-    name: 'Online Meeting Facilitation: The 4 Secret Keys',
-    description: 'Marketing Courses',
-    category: 'Marketing',
-    sale: 150,
-    rating: 4.5,
-    earning: 610.5,
-    visitor: 24512,
-  },
-  {
-    id: 5,
-    image: 'https://via.placeholder.com/40/FFA500/FFFFFF?text=I', // Example image
-    name: 'Intermediate Blues Rhythm Guitar',
-    description: 'Music Fundamentals',
-    category: 'Music',
-    sale: 30,
-    rating: 5.0,
-    earning: 110.5,
-    visitor: 6512,
-  },
-  {
-    id: 6,
-    image: 'https://via.placeholder.com/40/FFFF00/000000?text=B', // Example image
-    name: 'B2B Sales Masterclass: People-Focused Selling',
-    description: 'Business Courses',
-    category: 'Business',
-    sale: 90,
-    rating: 4.5,
-    earning: 240.5,
-    visitor: 512,
-  },
-];
 </script>
 <template>
   <SidebarProvider class="mixt-style">
@@ -99,13 +25,6 @@ const courseData = [
         </div>
       </header>
       <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <!-- <div class="grid auto-rows-min gap-4 md:grid-cols-4">
-          <CustomTeacherDashboardCard />
-          <CustomTeacherDashboardCard />
-          <CustomTeacherDashboardCard />
-          <CustomTeacherDashboardCard />
-          <div class="aspect-video rounded-xl bg-muted/50 ratings flex justify-center items-center text-5xl">20</div>
-        </div> -->
         <div class="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min grid grid-cols-1 gap-6">
           <CustomTeacherCourseCreation />
         </div>
