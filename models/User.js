@@ -19,6 +19,13 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
 
+    wishlist: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Course',
+      },
+    ],
+
     birthDate: {
       day: { type: String, required: true },
       month: { type: String, required: true },

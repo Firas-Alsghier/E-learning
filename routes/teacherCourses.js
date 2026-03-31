@@ -1,7 +1,8 @@
 // routes/teacherCourses.js
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import cloudinary from '../config/cloudinary.js'; // Uncomment your cloudinary import
+// import { fileURLToPath } from 'url';
 import express from 'express';
 import Course from '../models/Course.js';
 import Section from '../models/Section.js';
@@ -9,12 +10,12 @@ import Lesson from '../models/Lesson.js';
 import LevelCheck from '../models/LevelCheck.js';
 import { teacherAuth } from '../middleware/teacherAuth.js';
 import { uploadCover } from '../middleware/upload.js';
-import { videoUpload } from '../middleware/videoUpload.js';
+// import { videoUpload } from '../middleware/videoUpload.js';
 import slugify from 'slugify';
-import cloudinary from '../config/cloudinary.js';
+// import cloudinary from '../config/cloudinary.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
@@ -170,6 +171,45 @@ router.get('/:courseId/full', teacherAuth, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+/**
+ * UPDATE COURSE INFO (Step 1)
+ * PATCH /api/teacher/courses/:courseId
+ */
+router.patch('/:courseId', teacherAuth, async (req, res) => {
+  try {
+    const { title, description, category, level, faqs, levelCheck } = req.body;
+
+    const course = await Course.findOne({
+      _id: req.params.courseId,
+      teacher: req.teacher._id,
+    });
+
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    // --- Update fields ---
+    course.title = title ?? course.title;
+    course.description = description ?? course.description;
+    course.category = category ?? course.category;
+    course.level = level ?? course.level;
+    course.faqs = faqs ?? course.faqs;
+
+    // --- Level Check ---
+    course.levelCheck = {
+      enabled: levelCheck?.enabled || false,
+      questions: levelCheck?.questions || [],
+    };
+
+    await course.save();
+
+    res.json({ message: 'Course updated successfully', course });
+  } catch (err) {
+    console.error('Update course error:', err);
+    res.status(500).json({ message: 'Failed to update course' });
   }
 });
 
@@ -336,6 +376,141 @@ router.patch('/:courseId/curriculum', teacherAuth, async (req, res) => {
   } catch (err) {
     console.error('Curriculum update error:', err);
     res.status(500).json({ message: 'Failed to update curriculum' });
+  }
+});
+
+router.delete('/sections/:sectionId', teacherAuth, async (req, res) => {
+  try {
+    const section = await Section.findById(req.params.sectionId);
+    if (!section) return res.status(404).json({ message: 'Section not found' });
+
+    // remove from course
+    await Course.updateOne({ _id: section.course }, { $pull: { sections: section._id } });
+
+    // delete lessons inside
+    await Lesson.deleteMany({ section: section._id });
+
+    await section.deleteOne();
+
+    res.json({ message: 'Section deleted' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Failed to delete section' });
+  }
+});
+
+router.delete('/lessons/:lessonId', teacherAuth, async (req, res) => {
+  try {
+    const lesson = await Lesson.findById(req.params.lessonId);
+    if (!lesson) return res.status(404).json({ message: 'Lesson not found' });
+
+    await lesson.deleteOne();
+
+    res.json({ message: 'Lesson deleted' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Failed to delete lesson' });
+  }
+});
+
+router.delete('/sections/:sectionId', teacherAuth, async (req, res) => {
+  try {
+    const section = await Section.findById(req.params.sectionId);
+    if (!section) return res.status(404).json({ message: 'Section not found' });
+
+    await Lesson.deleteMany({ section: section._id });
+
+    await Course.findByIdAndUpdate(section.course, {
+      $pull: { sections: section._id },
+    });
+
+    await section.deleteOne();
+
+    res.json({ message: 'Section deleted' });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to delete section' });
+  }
+});
+
+router.delete('/lessons/:lessonId', teacherAuth, async (req, res) => {
+  try {
+    const lesson = await Lesson.findById(req.params.lessonId);
+    if (!lesson) return res.status(404).json({ message: 'Lesson not found' });
+
+    await Section.findByIdAndUpdate(lesson.section, {
+      $pull: { lessons: lesson._id },
+    });
+
+    await lesson.deleteOne();
+
+    res.json({ message: 'Lesson deleted' });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to delete lesson' });
+  }
+});
+
+// --- Helper function to get Cloudinary Public ID from a URL ---
+const getCloudinaryId = (url) => {
+  if (!url || !url.includes('cloudinary')) return null;
+  // Splits the URL to get everything after "/upload/v123456/"
+  const parts = url.split('/upload/');
+  if (parts.length < 2) return null;
+
+  const pathAfterUpload = parts[1].split('/');
+  pathAfterUpload.shift(); // Remove the version number (e.g., v1712345)
+
+  const publicIdWithExt = pathAfterUpload.join('/');
+  return publicIdWithExt.split('.')[0]; // Remove extension like .mp4
+};
+
+/**
+ * DELETE FULL COURSE
+ * DELETE /api/teacher/courses/:courseId
+ */
+router.delete('/:courseId', teacherAuth, async (req, res) => {
+  try {
+    const { courseId } = req.params;
+
+    // 1. Find the course and check if it belongs to this teacher
+    const course = await Course.findOne({ _id: courseId, teacher: req.teacher._id });
+    if (!course) return res.status(404).json({ message: 'Course not found' });
+
+    // 2. Get all lessons to find video URLs
+    const lessons = await Lesson.find({ course: courseId });
+
+    // 3. Delete Videos from Cloudinary
+    for (const lesson of lessons) {
+      if (lesson.videoUrl) {
+        const publicId = getCloudinaryId(lesson.videoUrl);
+        if (publicId) {
+          await cloudinary.uploader.destroy(publicId, { resource_type: 'video' });
+        }
+      }
+    }
+
+    // 4. Delete Cover Image
+    if (course.coverImage) {
+      if (course.coverImage.includes('cloudinary')) {
+        // If stored on Cloudinary
+        const coverId = getCloudinaryId(course.coverImage);
+        if (coverId) await cloudinary.uploader.destroy(coverId);
+      } else {
+        // If stored locally on your server
+        const filename = course.coverImage.split('/').pop();
+        const localPath = path.join('uploads/covers', filename); // Adjust path to your folder
+        if (fs.existsSync(localPath)) fs.unlinkSync(localPath);
+      }
+    }
+
+    // 5. Delete from MongoDB (Order matters!)
+    await Lesson.deleteMany({ course: courseId }); // Delete lessons
+    await Section.deleteMany({ course: courseId }); // Delete sections
+    await course.deleteOne(); // Delete the main course
+
+    res.json({ message: 'Course and all assets deleted successfully! 🗑️' });
+  } catch (error) {
+    console.error('Delete error:', error);
+    res.status(500).json({ message: 'Failed to delete everything' });
   }
 });
 

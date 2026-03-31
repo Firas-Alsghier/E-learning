@@ -51,9 +51,9 @@ const handleContinue = async () => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-8">
+  <div class="flex flex-col items-center gap-8">
     <!-- ── Section header ── -->
-    <div>
+    <div class="text-center">
       <h1 class="text-lg sm:text-xl font-bold text-gray-900">Course Pricing</h1>
       <p class="text-sm text-gray-400 mt-0.5">Set how much learners pay to access your course.</p>
     </div>
@@ -95,8 +95,8 @@ const handleContinue = async () => {
             class="px-3 py-3 text-sm font-semibold border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-400/40 focus:border-orange-400 transition-colors cursor-pointer shrink-0"
           >
             <option value="USD">USD</option>
-            <option value="EUR">EUR</option>
-            <option value="GBP">GBP</option>
+            <!-- <option value="EUR">EUR</option> -->
+            <!-- <option value="GBP">GBP</option> -->
           </select>
 
           <!-- Price input -->
@@ -106,7 +106,7 @@ const handleContinue = async () => {
               type="number"
               min="1"
               v-model.number="price"
-              placeholder="e.g. 49"
+              placeholder="10$"
               class="w-full pl-8 pr-4 py-3 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-400/40 focus:border-orange-400 placeholder:text-gray-400 transition-colors"
             />
           </div>

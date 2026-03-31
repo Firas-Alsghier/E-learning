@@ -1,97 +1,119 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MoreVertical } from 'lucide-vue-next';
+import { MoreVertical, MapPin } from 'lucide-vue-next';
 
-// 1. Define the TypeScript interface for the location data structure
 interface LocationData {
   country: string;
   students: number;
   flag: string;
-  // Removed progress and enrollmentTrend as they are no longer used
 }
 
-// State for the dropdown menu
 const isMenuOpen = ref(false);
-
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
 };
 
-// 2. Data for the Top Student Locations card with explicit typing
 const locationData = ref<LocationData[]>([
-  { country: 'El Salvador', students: 1500, flag: '🇸🇻' },
+  { country: 'Mexico', students: 3200, flag: '🇲🇽' },
   { country: 'Dominican Republic', students: 2500, flag: '🇩🇴' },
+  { country: 'El Salvador', students: 1500, flag: '🇸🇻' },
   { country: 'Chile', students: 1000, flag: '🇨🇱' },
   { country: 'Argentina', students: 800, flag: '🇦🇷' },
-  { country: 'Mexico', students: 3200, flag: '🇲🇽' },
 ]);
 
-// 3. Computed property to calculate the total number of students across all locations
-const totalStudents = computed(() => {
-  return locationData.value.reduce((sum, item) => sum + item.students, 0);
-});
+const totalStudents = computed(() => locationData.value.reduce((sum, item) => sum + item.students, 0));
 
-/**
- * Calculates the percentage share of students for a given country out of the total.
- * @param students - The number of students for the country.
- * @returns The percentage value as a string (e.g., "15.5%").
- */
-function getSharePercentage(students: number): string {
-  if (totalStudents.value === 0) return '0%';
-  const percentage = (students / totalStudents.value) * 100;
-  return `${percentage.toFixed(1)}%`;
+function getSharePercent(students: number): number {
+  if (totalStudents.value === 0) return 0;
+  return parseFloat(((students / totalStudents.value) * 100).toFixed(1));
 }
+
+function getShareLabel(students: number): string {
+  return `${getSharePercent(students)}%`;
+}
+
+// Sort so the biggest bar is always first
+const sorted = computed(() => [...locationData.value].sort((a, b) => b.students - a.students));
 </script>
 
 <template>
-  <!-- Main container - no global background or height styling -->
-  <div class="p-6 md:p-10 font-inter flex justify-center items-start w-full">
-    <!-- Top Student Locations Card -->
-    <Card class="bg-white border-gray-200 shadow-xl w-full max-w-sm overflow-hidden rounded-xl">
-      <!-- Custom Header Background (Purple/Violet) -->
-      <CardHeader class="flex flex-row items-center justify-between p-4 bg-violet-600 rounded-t-xl relative z-10">
-        <CardTitle class="text-xl font-semibold text-white">Top Student locations</CardTitle>
-
-        <!-- Dropdown Menu Implementation -->
-        <div class="relative">
-          <MoreVertical class="h-5 w-5 text-white cursor-pointer hover:text-violet-200 transition" @click.stop="toggleMenu" />
-
-          <div v-if="isMenuOpen" class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20 overflow-hidden" @click.stop="isMenuOpen = false">
-            <button class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out">View Details</button>
-            <button class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out">Filter Countries</button>
-            <button class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out">Export Data</button>
-          </div>
+  <div class="bg-[#161618] border border-white/[0.08] rounded-2xl overflow-hidden flex flex-col" @click="isMenuOpen = false">
+    <!-- Header -->
+    <div class="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
+      <div class="flex items-center gap-2.5">
+        <div class="w-7 h-7 rounded-lg bg-orange-500/15 border border-orange-500/25 flex items-center justify-center shrink-0">
+          <MapPin :size="13" class="text-orange-400" />
         </div>
-      </CardHeader>
+        <div>
+          <h3 class="text-sm font-bold text-white leading-tight">Top Student Locations</h3>
+          <p class="text-[11px] text-zinc-600">{{ totalStudents.toLocaleString() }} total students</p>
+        </div>
+      </div>
 
-      <CardContent class="p-4">
-        <div v-for="(item, index) in locationData" :key="index" class="flex flex-col py-3 border-b border-gray-200 last:border-b-0">
-          <!-- Top Row: Country, Students, and Percentage -->
-          <div class="flex items-center justify-between mb-1">
-            <div class="flex items-center space-x-3">
-              <!-- Flag (using emoji) -->
-              <span class="text-xl">{{ item.flag }}</span>
-              <div>
-                <p class="text-gray-800 font-medium leading-none">{{ item.country }}</p>
-                <p class="text-xs text-gray-500">{{ item.students }} Students</p>
-              </div>
+      <!-- Menu -->
+      <div class="relative" @click.stop>
+        <button @click="toggleMenu" class="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-600 hover:text-white hover:bg-white/10 transition-all cursor-pointer">
+          <MoreVertical :size="15" />
+        </button>
+
+        <Transition name="fade-slide">
+          <div v-if="isMenuOpen" class="absolute right-0 top-full mt-1.5 w-44 bg-[#1c1c1f] border border-white/[0.1] rounded-xl shadow-2xl overflow-hidden z-20">
+            <button class="w-full text-left px-4 py-2.5 text-xs text-zinc-300 hover:bg-white/[0.05] hover:text-white transition-colors cursor-pointer">View Details</button>
+            <button class="w-full text-left px-4 py-2.5 text-xs text-zinc-300 hover:bg-white/[0.05] hover:text-white transition-colors cursor-pointer">Filter Countries</button>
+            <button class="w-full text-left px-4 py-2.5 text-xs text-zinc-300 hover:bg-white/[0.05] hover:text-white transition-colors cursor-pointer">Export Data</button>
+          </div>
+        </Transition>
+      </div>
+    </div>
+
+    <!-- Location rows -->
+    <div class="flex flex-col divide-y divide-white/[0.04] px-5 py-2">
+      <div v-for="(item, index) in sorted" :key="index" class="flex flex-col gap-2 py-3.5">
+        <!-- Row: flag + name + students + percent -->
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3 min-w-0">
+            <!-- Rank -->
+            <span class="text-[11px] font-bold text-zinc-700 w-4 shrink-0">{{ index + 1 }}</span>
+            <!-- Flag -->
+            <span class="text-xl leading-none shrink-0">{{ item.flag }}</span>
+            <!-- Name + count -->
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-white leading-tight truncate">{{ item.country }}</p>
+              <p class="text-[11px] text-zinc-500">{{ item.students.toLocaleString() }} students</p>
             </div>
-
-            <!-- Percentage Share -->
-            <p class="text-sm font-semibold text-violet-600">
-              {{ getSharePercentage(item.students) }}
-            </p>
           </div>
-
-          <!-- Bottom Row: Horizontal Progress Bar (The non-chart visualization) -->
-          <div class="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
-            <div class="h-1.5 bg-violet-600 transition-all duration-500 ease-out" :style="{ width: getSharePercentage(item.students) }"></div>
-          </div>
+          <!-- Percent -->
+          <span class="text-sm font-extrabold text-orange-400 shrink-0 tabular-nums">
+            {{ getShareLabel(item.students) }}
+          </span>
         </div>
-      </CardContent>
-    </Card>
+
+        <!-- Progress bar -->
+        <div class="w-full h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+          <div
+            class="h-full rounded-full transition-all duration-700 ease-out"
+            :style="{
+              width: getShareLabel(item.students),
+              background: index === 0 ? 'linear-gradient(90deg, #ff782d, #ffab6b)' : index === 1 ? 'rgba(255,120,45,0.6)' : 'rgba(255,120,45,0.3)',
+            }"
+          ></div>
+        </div>
+      </div>
+    </div>
   </div>
-  <!-- Click outside overlay to close the menu -->
+
+  <!-- Click-outside backdrop -->
   <div v-if="isMenuOpen" class="fixed inset-0 z-10" @click="isMenuOpen = false"></div>
 </template>
+
+<style scoped>
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(4px);
+}
+</style>

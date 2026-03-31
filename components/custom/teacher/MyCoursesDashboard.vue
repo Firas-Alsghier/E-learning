@@ -406,7 +406,7 @@ const tabs = [
                     >
                       <Globe :size="13" class="text-emerald-400" /> Publish
                     </button>
-                    <button
+                    <!-- <button
                       v-if="course.status === 'published'"
                       @click="
                         publishCourse(course._id);
@@ -415,7 +415,7 @@ const tabs = [
                       class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-zinc-300 hover:bg-white/[0.05] hover:text-white transition-colors cursor-pointer"
                     >
                       <Globe :size="13" class="text-yellow-400" /> Unpublish
-                    </button>
+                    </button> -->
                     <div class="h-px bg-white/[0.06] mx-2"></div>
                     <button
                       @click="

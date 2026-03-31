@@ -22,7 +22,7 @@ import adminManagementRoutes from './routes/adminManagementRoutes.js';
 import adminCategories from './routes/adminCategories.js';
 import messageRoutes from './routes/messages.js';
 import progressRoutes from './routes/progress.js';
-
+import userRoutes from './routes/user.js';
 // import verifyEmailRoute from './routes/verifyEmail.js';
 
 const app = express();
@@ -32,6 +32,7 @@ app.use(express.json({ limit: '1000mb' }));
 app.use(express.urlencoded({ limit: '1000mb', extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/blogs', blogRoutes);
+app.use('/api/user', userRoutes);
 app.use('/api/teacher', teacherAuthRoutes);
 app.use('/uploads', express.static('uploads'));
 app.use('/api/teacher/articles', teacherArticlesRoutes);

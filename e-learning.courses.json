@@ -1,0 +1,42 @@
+[{
+  "_id": {
+    "$oid": "69c34e703f405a41cc65307f"
+  },
+  "title": "TypeScripts",
+  "description": "<p><strong style=\"background-color: oklch(1 0 0); color: oklch(0.2974 0.0362 281.74);\"><em>Welcome to the best resource online for mastering TypeScript.</em></strong></p><p><span style=\"background-color: oklch(1 0 0); color: oklch(0.2974 0.0362 281.74);\">TypeScript is a powerful superset of JavaScript that makes development smoother, safer, and helps you catch errors and avoid bugs early on. TypeScript adds a bunch of useful features to the JavaScript that you know and love. It helps you be a more productive developer and forces you to write better code.</span></p><p><span style=\"background-color: oklch(1 0 0); color: oklch(0.2974 0.0362 281.74);\">TypeScript has skyrocketed in popularity to become one of the world’s most popular and loved programming languages. It has </span><strong style=\"background-color: oklch(1 0 0); color: oklch(0.2974 0.0362 281.74);\">doubled in popularity every year since 2017</strong><span style=\"background-color: oklch(1 0 0); color: oklch(0.2974 0.0362 281.74);\">, and it continues to grow at an astronomical rate. It’s definitely the right time to learn TypeScript!</span></p><p><br></p><ol><li data-list=\"ordered\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span style=\"background-color: oklch(1 0 0); color: oklch(0.2974 0.0362 281.74);\">The TypeScript type system</span></li><li data-list=\"ordered\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span style=\"background-color: oklch(1 0 0); color: oklch(0.2974 0.0362 281.74);\">Union Types</span></li><li data-list=\"ordered\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span style=\"background-color: oklch(1 0 0); color: oklch(0.2974 0.0362 281.74);\">Intersection Types</span></li><li data-list=\"ordered\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span style=\"background-color: oklch(1 0 0); color: oklch(0.2974 0.0362 281.74);\">Tuples and Enums</span></li><li data-list=\"ordered\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span style=\"background-color: oklch(1 0 0); color: oklch(0.2974 0.0362 281.74);\">Interfaces</span></li><li data-list=\"ordered\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span style=\"background-color: oklch(1 0 0); color: oklch(0.2974 0.0362 281.74);\">The TypeScript compiler and how to configure it</span></li><li data-list=\"ordered\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span style=\"background-color: oklch(1 0 0); color: oklch(0.2974 0.0362 281.74);\">Working with the DOM and TypeScript</span></li><li data-list=\"ordered\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span style=\"background-color: oklch(1 0 0); color: oklch(0.2974 0.0362 281.74);\">TypeScript Classes</span></li><li data-list=\"ordered\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span style=\"background-color: oklch(1 0 0); color: oklch(0.2974 0.0362 281.74);\">Generics</span></li><li data-list=\"ordered\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span style=\"background-color: oklch(1 0 0); color: oklch(0.2974 0.0362 281.74);\">Type Narrowing</span></li><li data-list=\"ordered\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span style=\"background-color: oklch(1 0 0); color: oklch(0.2974 0.0362 281.74);\">Type Declarations</span></li><li data-list=\"ordered\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span style=\"background-color: oklch(1 0 0); color: oklch(0.2974 0.0362 281.74);\">Working with 3rd party libraries</span></li><li data-list=\"ordered\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span style=\"background-color: oklch(1 0 0); color: oklch(0.2974 0.0362 281.74);\">Webpack + TypeScript workflows</span></li><li data-list=\"ordered\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span style=\"background-color: oklch(1 0 0); color: oklch(0.2974 0.0362 281.74);\">Integrating React and TypeScript</span></li><li data-list=\"ordered\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span style=\"background-color: oklch(1 0 0); color: oklch(0.2974 0.0362 281.74);\">TypeScript’s Module System</span></li></ol><p><br></p>",
+  "coverImage": "http://localhost:3001/uploads/covers/1774711019008-351775351.jpg",
+  "faqs": [
+    {
+      "question": "Do you offer 1 on 1 calls",
+      "answer": "Yes I do",
+      "_id": {
+        "$oid": "69c34e703f405a41cc653080"
+      }
+    }
+  ],
+  "category": "Design",
+  "price": 0,
+  "teacher": {
+    "$oid": "69a72cd97d42c4ba2f2de032"
+  },
+  "level": "All levels",
+  "levelCheck": {
+    "questions": [],
+    "enabled": false
+  },
+  "isPublished": true,
+  "slug": "typescript",
+  "sections": [
+    {
+      "$oid": "69c34e893f405a41cc65308c"
+    }
+  ],
+  "reports": [],
+  "createdAt": {
+    "$date": "2026-03-25T02:54:40.695Z"
+  },
+  "updatedAt": {
+    "$date": "2026-03-28T15:31:24.273Z"
+  },
+  "__v": 2
+}]

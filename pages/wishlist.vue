@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-// Added Calendar icon to imports
-import { Clock, UsersRound, Heart, ArrowLeft, Calendar } from 'lucide-vue-next';
+import { ref, onMounted } from 'vue';
+import { Clock, UsersRound, Heart, ArrowRight } from 'lucide-vue-next';
+
 definePageMeta({
   layout: false,
   middleware: ['user-auth'],
 });
-// --- TYPE DEFINITIONS ---
+
+const Timer = Clock;
+
 interface Course {
   id: string;
   image: string;
@@ -19,267 +21,213 @@ interface Course {
   newPrice: number;
   free: boolean;
   description: string;
-  isWishlisted: boolean;
-}
-
-// Updated Article interface to match the new card structure
-interface Article {
-  id: string;
-  image: string;
-  date: string;
-  title: string;
-  description: string;
+  slug: string;
   isWishlisted: boolean;
 }
 
 type ActiveTab = 'courses' | 'articles';
 
-// Use Clock as Timer based on lucide-vue-next usage
-const Timer = Clock;
-
-// --- State Management (Explicitly Typed) ---
 const activeTab = ref<ActiveTab>('courses');
 
-const courses = ref<Course[]>([
-  {
-    id: 'webdev-master',
-    image: 'https://img-c.udemycdn.com/course/750x422/5463624_6dc8.jpg',
-    category: 'Photography',
-    title: 'Create an LMS website',
-    author: 'John Doe',
-    duration: '2 Weeks',
-    students: 156,
-    oldPrice: 20,
-    newPrice: 0,
-    free: true,
-    description: 'Learn the fundamentals and build a strong foundation in this field with easy-to-follow lessons and real-world examples.',
-    isWishlisted: true,
-  },
-  {
-    id: 'data-science-intro',
-    image: 'https://miro.medium.com/v2/resize:fit:1400/1*tDvPpTA8Jw5P_B5xV8gsjw.jpeg',
-    category: 'Data Analysis',
-    title: 'Introduction to Data Science',
-    author: 'Fatimah Zahra',
-    duration: '10 Hours',
-    students: '12K',
-    description: 'Learn Python and Pandas fundamentals for efficient data analysis and visualization.',
-    oldPrice: 0,
-    newPrice: 0,
-    free: true,
-    isWishlisted: true,
-  },
-  {
-    id: 'graphic-design-basics-1',
-    image: 'https://img-c.udemycdn.com/course/750x422/5266090_aba5.jpg',
-    category: 'Graphic Design',
-    title: 'Logo Design Basics (Part 1)',
-    author: 'Ahmed Mahmoud',
-    duration: '5 Hours',
-    students: '800',
-    description: 'A practical guide to creating professional logos using Adobe Illustrator.',
-    oldPrice: 99,
-    newPrice: 29,
-    free: false,
-    isWishlisted: true,
-  },
-]);
+const courses = ref<Course[]>([]);
 
-// Updated Placeholder content for articles to match the new structure and English text
-const articles = ref<Article[]>([
-  {
-    id: 'article-1',
-    image: 'https://miro.medium.com/v2/resize:fit:4800/format:webp/1*HDJxJoL-WIc6OokcBi8rXA.jpeg',
-    date: 'Jan 24, 2023',
-    title: 'Ugly websites sell better.',
-    description: 'Learn how design simplicity impacts conversion rates and customer trust.',
-    isWishlisted: true,
-  },
-  {
-    id: 'article-2',
-    image: 'https://www.michaelthemaven.com/images/content/no_netflix-e1570237551381.jpg',
-    date: 'Jan 24, 2023',
-    title: '10 Things To Do In The Evening Instead Of Watching Netflix',
-    description: 'Discover new hobbies and activities to invest your time in the evening instead of TV.',
-    isWishlisted: true,
-  },
-  {
-    id: 'article-3',
-    image: 'https://miro.medium.com/v2/resize:fit:2000/format:webp/1*ZAL4GUViMz2f-9anG_fJXg.png',
-    date: 'Jan 24, 2023',
-    title: 'Why No One Cares About Your Company Updates (And What To Do About It)',
-    description: 'Strategies for writing engaging business updates that appeal to your target audience.',
-    isWishlisted: true,
-  },
-]);
+const loading = ref(true);
 
-// --- Methods (Explicitly Typed) ---
-const toggleCourseWishlist = (courseId: string) => {
-  courses.value = courses.value.filter((c) => c.id !== courseId);
+const error = ref<string | null>(null);
+
+const fetchWishlist = async () => {
+  try {
+    const token = useCookie('token').value;
+
+    if (!token) {
+      error.value = 'You must login first';
+      return;
+    }
+
+    const res = await fetch('http://localhost:3001/api/user/wishlist', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) throw new Error('Failed to fetch wishlist');
+
+    const data = await res.json();
+
+    // console.log('WISHLIST DATA:', data); // ✅ debug
+
+    // ✅ DIRECT mapping (NO second fetch needed)
+    courses.value = data.map((course: any) => ({
+      id: course.id,
+      image: course.image,
+      category: course.category,
+      title: course.title,
+      author: course.author,
+      duration: course.duration || '—',
+      students: course.students || 0,
+      oldPrice: course.oldPrice || 0,
+      newPrice: course.price,
+      free: course.price === 0,
+      description: course.description || 'No description yet',
+      isWishlisted: true,
+      slug: course.slug,
+    }));
+  } catch (err: any) {
+    error.value = err.message;
+  } finally {
+    loading.value = false;
+  }
 };
 
-const toggleArticleWishlist = (articleId: string) => {
-  articles.value = articles.value.filter((a) => a.id !== articleId);
+const toggleCourseWishlist = async (courseId: string) => {
+  try {
+    const token = useCookie('token').value;
+
+    if (!token) {
+      alert('You must login first');
+      return;
+    }
+
+    // 🔥 call backend (same toggle route)
+    await fetch(`http://localhost:3001/api/user/wishlist/${courseId}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    // 🔥 update UI (remove from list)
+    courses.value = courses.value.filter((c) => c.id !== courseId);
+  } catch (err) {
+    console.error('Remove wishlist error:', err);
+  }
 };
+onMounted(() => {
+  fetchWishlist();
+});
 </script>
 
 <template>
-  <!-- Switched to dir="ltr" to match the English content and card design -->
-  <div class="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8 font-[Inter]" dir="ltr">
-    <div class="max-w-7xl mx-auto">
-      <h1 class="text-4xl font-extrabold text-gray-900 mb-8 text-left border-b pb-4">Wishlist</h1>
+  <div class="min-h-screen bg-[#0d0d0f] py-10 sm:py-14 px-4 sm:px-6 lg:px-8" dir="ltr">
+    <!-- Glow blob -->
+    <div class="pointer-events-none fixed top-0 left-0 w-[500px] h-[500px] rounded-full opacity-50" style="background: radial-gradient(circle, rgba(255, 120, 45, 0.07) 0%, transparent 70%)"></div>
 
-      <!-- Tab Navigation -->
-      <div class="border-b border-gray-200 mb-8">
-        <!-- space-x-4 is correct for LTR tabs -->
-        <nav class="flex space-x-4" aria-label="Tabs" role="tablist">
-          <button
-            class="cursor-pointer"
-            role="tab"
-            id="courses-tab"
-            :aria-selected="activeTab === 'courses'"
-            @click="activeTab = 'courses'"
-            :class="[
-              activeTab === 'courses' ? 'border-b-4 border-orange-500 text-orange-600 font-bold' : 'text-gray-500 hover:text-gray-700 hover:border-b-4 hover:border-gray-300',
-              'py-3 px-4 text-xl transition duration-200 rounded-t-lg',
-            ]"
-          >
-            Courses ({{ courses.length }})
-          </button>
-          <button
-            class="cursor-pointer"
-            role="tab"
-            id="articles-tab"
-            :aria-selected="activeTab === 'articles'"
-            @click="activeTab = 'articles'"
-            :class="[
-              activeTab === 'articles' ? 'border-b-4 border-orange-500 text-orange-600 font-bold' : 'text-gray-500 hover:text-gray-700 hover:border-b-4 hover:border-gray-300',
-              'py-3 px-4 text-xl transition duration-200 rounded-t-lg',
-            ]"
-          >
-            Articles ({{ articles.length }})
-          </button>
-        </nav>
+    <div class="max-w-6xl mx-auto relative z-10">
+      <!-- Page header -->
+      <div class="mb-8 sm:mb-10">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Wishlist</h1>
+        <p class="text-sm text-zinc-500 mt-1">Courses you've saved for later</p>
       </div>
 
-      <!-- Tab Content -->
-      <div>
-        <!-- Courses Wishlist Content (Updated to English) -->
-        <div v-if="activeTab === 'courses'" role="tabpanel" aria-labelledby="courses-tab">
-          <div v-if="courses.length === 0" class="text-center py-20 bg-white rounded-xl shadow-lg border border-dashed text-gray-500">
-            <Heart :size="48" class="mx-auto mb-4 text-red-300" />
-            <p class="text-2xl font-semibold">No courses currently in your wishlist.</p>
-            <p class="text-lg mt-2">Search for new courses to add!</p>
+      <!-- Tab nav -->
+      <div class="flex items-center gap-1 bg-white/[0.04] border border-white/[0.07] rounded-xl p-1 w-fit mb-8 sm:mb-10">
+        <button
+          role="tab"
+          :aria-selected="activeTab === 'courses'"
+          @click="activeTab = 'courses'"
+          class="px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer"
+          :class="activeTab === 'courses' ? 'bg-orange-500 text-white shadow-[0_2px_10px_rgba(255,120,45,0.4)]' : 'text-zinc-500 hover:text-white'"
+        >
+          Courses
+          <span class="ml-1.5 text-[11px] font-bold px-1.5 py-0.5 rounded-full" :class="activeTab === 'courses' ? 'bg-white/20 text-white' : 'bg-white/[0.06] text-zinc-500'">
+            {{ courses.length }}
+          </span>
+        </button>
+      </div>
+
+      <!-- Courses tab -->
+      <div v-if="activeTab === 'courses'">
+        <!-- Empty state -->
+        <div v-if="courses.length === 0" class="flex flex-col items-center justify-center py-24 gap-5 text-center">
+          <div class="w-16 h-16 rounded-2xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center">
+            <Heart :size="28" class="text-zinc-600" />
           </div>
-          <div v-else class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-            <div
-              v-for="course in courses"
-              :key="course.id"
-              class="bg-white group border border-gray-100 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 ease-in-out w-full flex flex-col"
-            >
-              <div class="relative">
-                <img :src="course.image" :alt="course.title" class="w-full h-[210px] object-cover" />
-                <button
-                  @click="toggleCourseWishlist(course.id)"
-                  class="absolute top-3 right-3 p-2 rounded-full bg-white/90 text-red-500 shadow-xl hover:scale-110 transition duration-300 transform ring-2 ring-red-500"
-                  aria-label="Remove from wishlist"
-                  title="Remove from Wishlist"
-                >
-                  <Heart :size="20" fill="currentColor" class="cursor-pointer" />
-                </button>
-              </div>
-
-              <div class="p-4 flex flex-col justify-between h-full text-left">
-                <div>
-                  <span class="bg-black text-white text-sm px-3 py-1 rounded-full inline-block mb-2">{{ course.category }}</span>
-                  <h4 class="text-lg font-semibold mb-1 text-gray-900">{{ course.title }}</h4>
-                  <p class="text-sm text-gray-500 mb-3">
-                    By <span class="font-medium">{{ course.author }}</span>
-                  </p>
-
-                  <div class="flex items-center text-sm text-gray-600 gap-4 mb-3 justify-start">
-                    <p class="flex items-center space-x-1">
-                      <Timer :size="16" class="text-orange-500" />
-                      <span class="ml-1">{{ course.duration }}</span>
-                    </p>
-                    <p class="flex items-center space-x-1">
-                      <UsersRound :size="16" class="text-orange-500" />
-                      <span class="ml-1">{{ course.students }} Students</span>
-                    </p>
-                  </div>
-
-                  <p class="text-gray-500 text-sm mt-1 line-clamp-2">
-                    {{ course.description }}
-                  </p>
-                </div>
-
-                <div class="border-t pt-4 mt-4 flex items-center justify-between text-sm">
-                  <a
-                    :href="`/courses/${course.id}`"
-                    class="flex items-center gap-1 bg-orange-500 hover:bg-orange-600 text-white px-5 py-2 rounded-lg font-semibold shadow-lg shadow-orange-200 transition duration-200 transform hover:scale-[1.02]"
-                  >
-                    View Course <ArrowLeft :size="16" class="rotate-180" />
-                  </a>
-                  <div class="flex items-center gap-2">
-                    <span class="line-through text-gray-400 text-base" v-if="!course.free && course.oldPrice > 0">${{ course.oldPrice }}</span>
-                    <span :class="course.free ? 'text-green-600' : 'text-red-500'" class="font-extrabold text-2xl">
-                      {{ course.free ? 'Free' : `$${course.newPrice}` }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div>
+            <p class="text-lg font-bold text-white">Your wishlist is empty</p>
+            <p class="text-sm text-zinc-500 mt-1">Browse courses and hit the heart icon to save them here.</p>
           </div>
+          <a
+            href="/courses"
+            class="mt-2 px-6 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold shadow-[0_4px_16px_rgba(255,120,45,0.3)] hover:shadow-[0_6px_22px_rgba(255,120,45,0.45)] hover:-translate-y-0.5 transition-all"
+          >
+            Browse Courses
+          </a>
         </div>
 
-        <!-- Articles Wishlist Content (Updated with new card design and English text) -->
-        <div v-else-if="activeTab === 'articles'" role="tabpanel" aria-labelledby="articles-tab">
-          <div v-if="articles.length === 0" class="text-center py-20 bg-white rounded-xl shadow-lg border border-dashed text-gray-500">
-            <Heart :size="48" class="mx-auto mb-4 text-red-300" />
-            <p class="text-2xl font-semibold">No articles currently in your wishlist.</p>
-            <p class="text-lg mt-2">Search for new articles to add!</p>
-          </div>
-          <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Article Card using the user's requested layout -->
-            <div
-              v-for="article in articles"
-              :key="article.id"
-              class="bg-white group rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col"
-            >
-              <!-- Image and Wishlist Icon -->
-              <div class="overflow-hidden relative">
-                <img :src="article.image" :alt="article.title" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" />
+        <!-- Course grid -->
+        <div v-else class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6">
+          <div
+            v-for="course in courses"
+            :key="course.id"
+            class="group relative bg-[#161618] border border-white/[0.08] rounded-2xl overflow-hidden hover:border-orange-500/25 hover:shadow-[0_8px_36px_rgba(0,0,0,0.45)] transition-all duration-300 flex flex-col"
+          >
+            <!-- Thumbnail -->
+            <div class="relative aspect-video overflow-hidden shrink-0">
+              <img :src="course.image" :alt="course.title" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              <!-- Overlay gradient -->
+              <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none"></div>
 
-                <!-- Heart Button (Wishlist/Remove Icon) -->
-                <button
-                  @click.stop="toggleArticleWishlist(article.id)"
-                  class="absolute top-3 right-3 p-2 rounded-full bg-white/90 text-red-500 shadow-xl hover:scale-110 transition duration-300 transform ring-2 ring-red-500"
-                  aria-label="Remove article from wishlist"
-                  title="Remove from Wishlist"
-                >
-                  <!-- Icon is filled because it's currently in the wishlist -->
-                  <Heart :size="20" fill="currentColor" class="cursor-pointer" />
-                </button>
+              <!-- Category badge -->
+              <span class="absolute top-3 left-3 bg-black/60 backdrop-blur-sm text-white text-xs font-bold tracking-wider uppercase px-3 py-1 rounded-lg border border-white/10">
+                {{ course.category }}
+              </span>
+
+              <!-- Remove from wishlist -->
+              <button
+                @click="toggleCourseWishlist(course.id)"
+                class="absolute top-3 right-3 w-9 h-9 rounded-full bg-red-500/20 border border-red-400/40 text-red-400 flex items-center justify-center hover:bg-red-500/35 hover:scale-110 transition-all duration-200 cursor-pointer"
+                aria-label="Remove from wishlist"
+              >
+                <Heart :size="15" fill="currentColor" />
+              </button>
+            </div>
+
+            <!-- Card body -->
+            <div class="flex flex-col flex-1 p-4 sm:p-5 gap-3">
+              <!-- Title + author -->
+              <div>
+                <h4 class="text-base font-bold text-white leading-snug group-hover:text-orange-300 transition-colors line-clamp-2">
+                  {{ course.title }}
+                </h4>
+                <p class="text-xs text-zinc-500 mt-1">
+                  By <span class="text-zinc-300 font-medium">{{ course.author }}</span>
+                </p>
               </div>
 
-              <!-- Content -->
-              <div class="p-4 flex-1 flex flex-col justify-between text-left">
-                <h3 class="text-lg font-semibold leading-snug mb-2 text-gray-900">
-                  {{ article.title }}
-                </h3>
-                <!-- Date/Calendar -->
-                <p class="text-base text-gray-500 flex items-center gap-1 mb-2">
-                  <Calendar :size="18" class="text-orange-500" />
-                  <span class="ml-1">{{ article.date }}</span>
-                </p>
-                <!-- Description -->
-                <p class="text-sm text-gray-700 line-clamp-2">
-                  {{ article.description }}
-                </p>
+              <!-- Meta stats -->
+              <div class="flex items-center gap-4 text-xs text-zinc-500">
+                <span class="flex items-center gap-1.5">
+                  <Timer :size="12" class="text-orange-400 shrink-0" />
+                  {{ course.duration }}
+                </span>
+                <span class="flex items-center gap-1.5">
+                  <UsersRound :size="12" class="text-orange-400 shrink-0" />
+                  {{ course.students }} Students
+                </span>
+              </div>
 
-                <!-- Link to Article -->
-                <a :href="`/articles/${article.id}`" class="mt-4 text-orange-500 font-semibold flex items-center gap-1 hover:underline transition duration-200 justify-end">
-                  Read Article <ArrowLeft :size="16" class="rotate-180" />
+              <!-- Description -->
+              <p class="text-xs text-zinc-500 leading-relaxed line-clamp-2 flex-1">
+                {{ course.description }}
+              </p>
+
+              <!-- Footer: price + CTA -->
+              <div class="flex items-center justify-between gap-3 pt-3 border-t border-white/[0.06]">
+                <!-- Price -->
+                <div class="flex items-baseline gap-1.5">
+                  <span v-if="!course.free && course.oldPrice > 0" class="text-sm text-zinc-600 line-through"> ${{ course.oldPrice }} </span>
+                  <span class="text-xl font-extrabold tracking-tight" :class="course.free ? 'text-emerald-400' : 'text-orange-400'">
+                    {{ course.free ? 'Free' : `$${course.newPrice}` }}
+                  </span>
+                </div>
+
+                <!-- View course -->
+                <a
+                  :href="`/courses/${course.slug}`"
+                  target="_blank"
+                  class="flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white shadow-[0_3px_12px_rgba(255,120,45,0.3)] hover:shadow-[0_5px_18px_rgba(255,120,45,0.45)] hover:-translate-y-0.5 active:translate-y-0 transition-all"
+                >
+                  View Course <ArrowRight :size="13" />
                 </a>
               </div>
             </div>

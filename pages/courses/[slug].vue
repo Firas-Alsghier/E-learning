@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { Heart, Clock, Users, BarChart2, BookOpen, FileText, Play } from 'lucide-vue-next';
 import type { Course } from '@/types/Course';
@@ -20,13 +20,69 @@ const tabs = [
   { id: 'contact', label: 'التواصل' },
 ];
 
+const toggleWishlist = async () => {
+  try {
+    const token = useCookie('token').value;
+
+    if (!token) {
+      alert('You must login first');
+      return;
+    }
+
+    if (!course.value?.id) return;
+
+    const res = await fetch(`http://localhost:3001/api/user/wishlist/${course.value.id}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+
+    // ✅ real update
+    isWishlisted.value = data.wishlist.includes(course.value.id);
+
+    console.log('UPDATED WISHLIST:', data.wishlist);
+  } catch (err) {
+    console.error('Wishlist error:', err);
+  }
+};
+
+const checkIfWishlisted = async () => {
+  try {
+    const token = useCookie('token').value;
+
+    if (!token || !course.value?.id) return;
+
+    const res = await fetch('http://localhost:3001/api/user/wishlist', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+
+    isWishlisted.value = data.some((c: any) => c.id === course.value!.id);
+  } catch (err) {
+    console.error('Wishlist check error:', err);
+  }
+};
 /* ----------------------------------
      DATA FETCH (SSR SAFE)
   ---------------------------------- */
 const { data, error } = await useAsyncData<Course>(`course-${slug.value}`, () => $fetch<any>(`http://localhost:3001/api/courses/${slug.value}` as string));
 
 const course = computed(() => data.value);
-console.log(course);
+watch(
+  () => course.value,
+  (val) => {
+    if (val) {
+      checkIfWishlisted();
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
@@ -69,7 +125,7 @@ console.log(course);
                   <strong class="text-white font-semibold mr-1">{{ course.author }}</strong>
                 </span>
                 <button
-                  @click="isWishlisted = !isWishlisted"
+                  @click="toggleWishlist"
                   :aria-label="isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'"
                   class="w-8 h-8 rounded-full border flex items-center justify-center cursor-pointer transition-all duration-200"
                   :class="isWishlisted ? 'border-red-400/40 bg-red-500/10 text-red-400' : 'border-white/10 bg-white/5 text-zinc-400 hover:text-red-400 hover:border-red-400/40 hover:bg-red-500/10'"

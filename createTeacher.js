@@ -10,7 +10,7 @@ const createAdmin = async () => {
     await mongoose.connect(process.env.MONGO_URI);
 
     const email = 'admin@example.com';
-    const password = 'Admin@123'; // change later
+    const password = '35715900f'; // change later
 
     const exists = await Admin.findOne({ email });
     if (exists) {

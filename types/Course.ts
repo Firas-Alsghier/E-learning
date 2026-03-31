@@ -18,8 +18,9 @@ export interface Course {
 }
 
 export interface Index {
+  // id(id: any): boolean;
   createdAt: any;
-  _id: string;
+  id: string;
   title: string;
   slug: string;
   author: string;

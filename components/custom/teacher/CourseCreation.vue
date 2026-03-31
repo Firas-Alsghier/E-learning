@@ -269,11 +269,11 @@ const stepLabels = ['Course Info & FAQ', 'Upload Materials', 'Pricing', 'Publish
         </nav>
 
         <!-- Preview button -->
-        <button
+        <!-- <button
           class="shrink-0 text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-xl border border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 cursor-pointer"
         >
           Preview
-        </button>
+        </button> -->
       </div>
     </header>
 
@@ -286,12 +286,12 @@ const stepLabels = ['Course Info & FAQ', 'Upload Materials', 'Pricing', 'Publish
         -->
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
           <!-- Card header -->
-          <div class="px-6 sm:px-8 py-5 border-b border-gray-100">
+          <div class="px-6 sm:px-8 text-center py-5 border-b border-gray-100">
             <h1 class="text-lg sm:text-xl font-bold text-gray-900">Course Information</h1>
             <p class="text-sm text-gray-500 mt-0.5">Fill in the basic details about your course.</p>
           </div>
 
-          <div class="px-6 sm:px-8 py-7 space-y-6">
+          <div class="px-6 sm:px-8 text-left py-7 space-y-6">
             <!-- Title -->
             <div class="flex flex-col gap-1.5">
               <label for="title" class="text-sm font-semibold text-gray-700"> Course Title <span class="text-red-400">*</span> </label>
@@ -459,12 +459,12 @@ const stepLabels = ['Course Info & FAQ', 'Upload Materials', 'Pricing', 'Publish
 
           <!-- Card footer: actions -->
           <div class="px-6 sm:px-8 py-5 border-t border-gray-100 bg-gray-50 flex flex-col sm:flex-row items-center justify-end gap-3">
-            <button
+            <!-- <button
               @click="handleSave('draft')"
               class="w-full sm:w-auto px-5 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-100 hover:border-gray-300 transition-all cursor-pointer"
             >
               Save as Draft
-            </button>
+            </button> -->
             <button
               @click="handleSave('continue')"
               :disabled="isSaving"

@@ -1,6 +1,80 @@
 <script setup lang="ts">
+import { ref, computed, onMounted } from 'vue';
+import axios from 'axios';
 import { CheckCircle, BookOpen, DollarSign, Layers, Rocket } from 'lucide-vue-next';
-/* Logic and publishing states removed */
+
+const props = defineProps<{
+  courseId: string;
+}>();
+
+// 🔥 state
+const course = ref<any>(null);
+const loading = ref(false);
+
+// ✅ checks
+const hasContent = computed(() => {
+  return course.value?.sections?.length > 0 && course.value.sections.some((s: any) => s.lessons?.length > 0);
+});
+
+const hasPricing = computed(() => {
+  return course.value && (course.value.price === 0 || course.value.price > 0);
+});
+
+const canPublish = computed(() => {
+  return hasContent.value && hasPricing.value;
+});
+
+// 🔥 fetch course
+const fetchCourse = async () => {
+  try {
+    const token = useCookie('teacher_token').value;
+
+    const res = await axios.get(`http://localhost:3001/api/teacher/courses/${props.courseId}/full`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    course.value = res.data;
+  } catch (err) {
+    console.error('Fetch course error:', err);
+  }
+};
+
+// 🚀 publish
+const publishCourse = async () => {
+  if (!canPublish.value) {
+    alert('Course is not ready to publish');
+    return;
+  }
+
+  try {
+    loading.value = true;
+
+    const token = useCookie('teacher_token').value;
+
+    await axios.patch(
+      `http://localhost:3001/api/teacher/courses/${props.courseId}/publish`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    alert('Course published successfully 🚀');
+  } catch (err) {
+    console.error(err);
+    alert('Failed to publish course');
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(() => {
+  fetchCourse();
+});
 </script>
 
 <template>
@@ -30,7 +104,8 @@ import { CheckCircle, BookOpen, DollarSign, Layers, Rocket } from 'lucide-vue-ne
           <Layers :size="15" class="text-orange-500" />
         </div>
         <span class="text-sm text-gray-700 font-medium">At least one section and lesson added</span>
-        <CheckCircle :size="16" class="text-emerald-400 ml-auto shrink-0" />
+        <CheckCircle v-if="hasContent" :size="16" class="text-emerald-400 ml-auto shrink-0" />
+        <div v-else class="ml-auto text-xs text-red-400">Missing</div>
       </div>
 
       <div class="flex items-center gap-3.5 px-4 py-3.5 rounded-xl bg-gray-50 border border-gray-200 text-left">
@@ -38,15 +113,22 @@ import { CheckCircle, BookOpen, DollarSign, Layers, Rocket } from 'lucide-vue-ne
           <DollarSign :size="15" class="text-orange-500" />
         </div>
         <span class="text-sm text-gray-700 font-medium">Pricing is set correctly</span>
-        <CheckCircle :size="16" class="text-emerald-400 ml-auto shrink-0" />
+        <CheckCircle v-if="hasPricing" :size="16" class="text-emerald-400 ml-auto shrink-0" />
+        <div v-else class="ml-auto text-xs text-red-400">Missing</div>
       </div>
     </div>
 
     <div class="w-full flex flex-col items-center gap-3">
       <button
-        class="w-full sm:w-auto px-10 py-3 text-sm font-bold text-white bg-orange-500 rounded-xl hover:bg-orange-600 shadow-[0_4px_20px_rgba(255,120,45,0.35)] hover:shadow-[0_8px_28px_rgba(255,120,45,0.45)] hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
+        @click="publishCourse"
+        :disabled="!canPublish || loading"
+        :class="!canPublish || loading ? 'opacity-50 cursor-not-allowed' : ''"
+        class="w-full sm:w-auto px-10 py-3 text-sm font-bold text-white bg-orange-500 rounded-xl hover:bg-orange-600 transition-all"
       >
-        <span class="flex items-center gap-2"> <Rocket :size="15" /> Publish Course </span>
+        <span class="flex items-center gap-2">
+          <Rocket :size="15" />
+          {{ loading ? 'Publishing...' : 'Update Course' }}
+        </span>
       </button>
 
       <p class="text-xs text-gray-400">You can unpublish or edit your course at any time.</p>

@@ -18,9 +18,9 @@ const goHome = () => {
       <h1 class="text-2xl font-bold text-green-600">✅ Request Sent Successfully</h1>
 
       <p class="text-gray-600">
-        Thank you for signing up as a teacher.
+        .Thank you for signing up as a teacher
         <br />
-        Your account is currently under review.
+        .Your account is currently under review
       </p>
 
       <p class="text-sm text-gray-500">Once approved by the admin, you’ll be able to log in and start creating courses.</p>
