@@ -9,6 +9,7 @@ import { useAuthStore } from '~/stores/auth';
 const router = useRouter();
 const { t } = useI18n();
 const auth = useAuthStore();
+const { isLoggedIn: isTeacherLoggedIn } = useTeacher(); // For teacher status
 
 const props = defineProps<{
   course: {
@@ -50,7 +51,11 @@ const goToCourse = () => {
         {{ props.course.category }}
       </span>
 
-      <button @click.stop.prevent="handleWishlistToggle" class="absolute cursor-pointer top-4 right-4 p-2 rounded-full bg-white/90 text-red-500 shadow-xl hover:scale-110 transition z-20">
+      <button
+        v-if="!isTeacherLoggedIn"
+        @click.stop.prevent="handleWishlistToggle"
+        class="absolute cursor-pointer top-4 right-4 p-2 rounded-full bg-white/90 text-red-500 shadow-xl hover:scale-110 transition z-20"
+      >
         <Heart :size="24" :fill="props.course.isWishlisted ? 'currentColor' : 'none'" :stroke="props.course.isWishlisted ? 'currentColor' : 'rgb(239, 68, 68)'" stroke-width="2.5" />
       </button>
 

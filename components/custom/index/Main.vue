@@ -1,7 +1,8 @@
 <script setup lang="ts">
-const { isLoggedIn } = useUser();
 import { useAuthStore } from '~/stores/auth';
 import { useI18n } from 'vue-i18n';
+const { isLoggedIn } = useUser();
+const { isLoggedIn: isTeacherLoggedIn } = useTeacher(); // For teacher status
 const auth = useAuthStore();
 const { t } = useI18n();
 </script>
@@ -33,7 +34,7 @@ const { t } = useI18n();
           <div :class="auth.isEnglish ? 'text-left' : 'text-right'">
             <NuxtLink to="signup">
               <ClientOnly>
-                <Button v-if="!isLoggedIn" class="btn-custom text-primary-custom border-custom text-base rounded-2xl cursor-pointer">{{ t('sign-up') }}</Button>
+                <Button v-if="!isLoggedIn && !isTeacherLoggedIn" class="btn-custom text-primary-custom border-custom text-base rounded-2xl cursor-pointer">{{ t('sign-up') }}</Button>
               </ClientOnly>
             </NuxtLink>
           </div>

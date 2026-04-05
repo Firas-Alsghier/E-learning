@@ -5,12 +5,13 @@ import { Heart, Clock, Users, BarChart2, BookOpen, FileText, Play } from 'lucide
 import type { Course } from '@/types/Course';
 import { useI18n } from 'vue-i18n';
 import CustomCoursesContactInstructorTab from '@/components/custom/courses/ContactInstructorTab.vue';
-
+import { useTeacher } from '~/composables/useTeacher';
 const selectedTab = ref('overview');
 const isWishlisted = ref(false);
 const route = useRoute();
 const { t } = useI18n();
 const slug = computed(() => route.params.slug as string);
+const { isLoggedIn: isTeacherLoggedIn } = useTeacher(); // For teacher status
 
 const tabs = [
   { id: 'overview', label: 'نظرة عامة' },
@@ -19,6 +20,16 @@ const tabs = [
   { id: 'faq', label: 'الأسئلة الشائعة' },
   { id: 'contact', label: 'التواصل' },
 ];
+
+// 2. Create the filtered list
+const visibleTabs = computed(() => {
+  if (isTeacherLoggedIn.value) {
+    // ❌ Hide 'instructor' if logged in as teacher
+    return tabs.filter((tab) => tab.id !== 'contact');
+  }
+  // ✅ Show everything otherwise
+  return tabs;
+});
 
 const toggleWishlist = async () => {
   try {
@@ -125,6 +136,7 @@ watch(
                   <strong class="text-white font-semibold mr-1">{{ course.author }}</strong>
                 </span>
                 <button
+                  v-if="!isTeacherLoggedIn"
                   @click="toggleWishlist"
                   :aria-label="isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'"
                   class="w-8 h-8 rounded-full border flex items-center justify-center cursor-pointer transition-all duration-200"
@@ -200,6 +212,13 @@ watch(
                 </div>
 
                 <button
+                  v-if="isTeacherLoggedIn"
+                  class="w-full py-2.5 sm:py-3 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold text-sm sm:text-base cursor-pointer shadow-[0_4px_20px_rgba(255,120,45,0.35)] hover:shadow-[0_8px_30px_rgba(255,120,45,0.5)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+                >
+                  Edit
+                </button>
+                <button
+                  v-else
                   class="w-full py-2.5 sm:py-3 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold text-sm sm:text-base cursor-pointer shadow-[0_4px_20px_rgba(255,120,45,0.35)] hover:shadow-[0_8px_30px_rgba(255,120,45,0.5)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
                 >
                   البدء الآن
@@ -219,7 +238,7 @@ watch(
             <!-- Tab nav -->
             <div class="flex overflow-x-auto bg-[#1c1c1f] border-b border-white/[0.08]" style="scrollbar-width: none; -webkit-overflow-scrolling: touch">
               <button
-                v-for="tab in tabs"
+                v-for="tab in visibleTabs"
                 :key="tab.id"
                 role="tab"
                 :aria-selected="selectedTab === tab.id"

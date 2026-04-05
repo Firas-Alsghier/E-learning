@@ -1,40 +1,38 @@
 import { defineStore } from 'pinia';
 import type { Teacher } from '@/types/teacher';
 
-// export interface Teacher {
-//   _id: string;
-//   firstName: string;
-//   lastName: string;
-//   email: string;
-// }
-
 export const useTeacherStore = defineStore('teacher', {
   state: () => ({
     teacher: null as Teacher | null,
     token: null as string | null,
-    loading: false,
   }),
+
+  getters: {
+    // ✅ Now this getter will work perfectly for your v-if buttons!
+    isLoggedIn: (state) => !!state.token,
+  },
 
   actions: {
     setTeacher(data: Teacher, token: string) {
       this.teacher = data;
       this.token = token;
 
-      if (import.meta.client) {
-        localStorage.setItem('teacher', JSON.stringify(data));
-        localStorage.setItem('teacher_token', token);
-      }
+      // ✅ Sync with Cookies (so middleware can see it)
+      const tToken = useCookie('teacher_token', { maxAge: 60 * 60 * 24 * 7 });
+      const tData = useCookie('teacher_data', { maxAge: 60 * 60 * 24 * 7 });
+
+      tToken.value = token;
+      tData.value = JSON.stringify(data);
     },
 
     loadTeacher() {
-      if (!import.meta.client) return;
+      // ✅ Pull from Cookies instead of LocalStorage
+      const token = useCookie('teacher_token').value;
+      const data = useCookie('teacher_data').value;
 
-      const teacher = localStorage.getItem('teacher');
-      const token = localStorage.getItem('teacher_token');
-
-      if (teacher && token) {
-        this.teacher = JSON.parse(teacher);
+      if (token && data) {
         this.token = token;
+        this.teacher = typeof data === 'string' ? JSON.parse(data) : data;
       }
     },
 
@@ -42,12 +40,13 @@ export const useTeacherStore = defineStore('teacher', {
       this.teacher = null;
       this.token = null;
 
-      if (import.meta.client) {
-        localStorage.removeItem('teacher');
-        localStorage.removeItem('teacher_token');
-      }
-
-      navigateTo('/teacher/login');
+      // ✅ Clear Cookies
+      useCookie('teacher_token').value = null;
+      useCookie('teacher_data').value = null;
+      localStorage.removeItem('teacher');
+      localStorage.removeItem('teacher_token');
+      location.reload();
+      navigateTo('/');
     },
   },
 });

@@ -3,8 +3,9 @@ import { useAuthStore } from '~/stores/auth';
 import { useI18n } from 'vue-i18n';
 import { Search, MenuIcon, Heart, ShoppingCart, Bell } from 'lucide-vue-next';
 import { useUser } from '~/composables/useUser'; // Retained for real-world functionality
-
+import { useTeacher } from '~/composables/useTeacher';
 const { user } = useUser();
+const { teacher } = useTeacher(); // 👈 Add this line
 const isMenuOpen = ref(false);
 const searchQuery = ref('');
 const isHydrated = ref(false);
@@ -84,7 +85,6 @@ const toggleMenu = (event: Event) => {
 
           <!-- icons after logging in (Updated with Badges) -->
           <template v-if="user">
-            <!-- Heart Icon with Badge -->
             <NuxtLink to="/wishlist" class="relative cursor-pointer text-text-secondary-custom hover:text-hover-rose-gold">
               <Heart class="size-6" />
               <span
@@ -95,7 +95,6 @@ const toggleMenu = (event: Event) => {
               </span>
             </NuxtLink>
 
-            <!-- ShoppingCart Icon with Badge -->
             <div class="relative cursor-pointer text-text-secondary-custom hover:text-hover-rose-gold">
               <ShoppingCart class="size-6" />
               <span v-if="cartCount > 0" class="absolute top-[-8px] right-[-8px] h-4 w-4 flex items-center justify-center rounded-full bg-red-600 text-white text-[10px] font-bold border border-white">
@@ -103,7 +102,13 @@ const toggleMenu = (event: Event) => {
               </span>
             </div>
 
-            <!-- Bell Icon with Badge -->
+            <div class="relative cursor-pointer text-text-secondary-custom hover:text-hover-rose-gold">
+              <Bell class="size-6" />
+            </div>
+            <CustomUserDropMenu />
+          </template>
+
+          <template v-else-if="teacher">
             <div class="relative cursor-pointer text-text-secondary-custom hover:text-hover-rose-gold">
               <Bell class="size-6" />
               <span
@@ -113,12 +118,12 @@ const toggleMenu = (event: Event) => {
                 {{ notificationCount > 9 ? '9+' : notificationCount }}
               </span>
             </div>
-            <CustomUserDropMenu />
+
+            <CustomTeacherDropMenu />
           </template>
 
-          <!-- Show login/signup when NOT logged in -->
           <template v-else>
-            <a href="/login" class="text-gray-700 hover:text-orange-500">
+            <a href="/login">
               <Button variant="outline" class="cursor-pointer rounded-2xl">{{ t('log-in') }}</Button>
             </a>
             <a href="/signup">

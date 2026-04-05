@@ -1,13 +1,14 @@
 <script setup lang="ts">
-const { isLoggedIn } = useUser();
 import { useI18n } from 'vue-i18n';
+const { isLoggedIn } = useUser();
+const { isLoggedIn: isTeacherLoggedIn } = useTeacher(); // For teacher status
 
 const { t } = useI18n();
 </script>
 
 <template>
   <ClientOnly>
-    <CustomContainer v-if="!isLoggedIn">
+    <CustomContainer v-if="!isLoggedIn && !isTeacherLoggedIn">
       <section
         class="relative -translate-y-6 rounded-2xl py-10 px-6 sm:px-12 flex flex-col sm:flex-row justify-between items-center gap-6 text-right overflow-hidden"
         style="background: linear-gradient(to right, #c7e6f9, #e8d1fe)"

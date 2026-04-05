@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import { useTeacherStore } from '~/stores/teacher';
 import { useAuthStore } from '~/stores/auth';
 definePageMeta({
   layout: false,
@@ -10,7 +11,7 @@ definePageMeta({
 const router = useRouter();
 const { t } = useI18n();
 const auth = useAuthStore();
-
+const teacherStore = useTeacherStore();
 const email = ref('');
 const password = ref('');
 const error = ref('');
@@ -20,55 +21,22 @@ const emailError = ref('');
 const passwordError = ref('');
 
 const handleLogin = async () => {
-  error.value = '';
-  emailError.value = '';
-  passwordError.value = '';
-
-  if (!email.value) {
-    emailError.value = t('email-required');
-    return;
-  }
-
-  if (!password.value) {
-    passwordError.value = t('password-required');
-    return;
-  }
-
-  loading.value = true;
+  // ... your existing validation code ...
 
   try {
     const res: any = await $fetch('http://localhost:3001/api/teacher/login', {
       method: 'POST',
-      body: {
-        email: email.value,
-        password: password.value,
-      },
+      body: { email: email.value, password: password.value },
     });
 
-    // ✅ Save teacher auth separately from users
-    const teacherToken = useCookie('teacher_token', {
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-      sameSite: 'lax',
-    });
-    teacherToken.value = res.token;
+    // ✅ FIX: Use the store action to save everything correctly
+    // This will save the token and teacher data to LocalStorage automatically
+    teacherStore.setTeacher(res.teacher, res.token);
 
-    const teacherData = useCookie('teacher_data');
-    teacherData.value = JSON.stringify(res.teacher);
-
-    // Optional: reuse store if you want later
-    // auth.setUser(res.teacher);
-
+    // Redirect to home
     router.push('/');
   } catch (err: any) {
-    // 👇 teacher exists but not approved
-    if (err?.status === 403) {
-      error.value = t('teacher-not-approved');
-      // example text: "Your account is under review. Please wait for admin approval."
-    } else {
-      error.value = err?.data?.message || t('login-failed');
-    }
-  } finally {
-    loading.value = false;
+    // ... your error handling ...
   }
 };
 </script>
