@@ -83,6 +83,7 @@ const checkIfWishlisted = async () => {
      DATA FETCH (SSR SAFE)
   ---------------------------------- */
 const { data, error } = await useAsyncData<Course>(`course-${slug.value}`, () => $fetch<any>(`http://localhost:3001/api/courses/${slug.value}` as string));
+const editCourse = () => navigateTo(`/teacher/courses/${data?.value?.id}/edit`);
 
 const course = computed(() => data.value);
 watch(
@@ -212,6 +213,7 @@ watch(
                 </div>
 
                 <button
+                  @click="editCourse"
                   v-if="isTeacherLoggedIn"
                   class="w-full py-2.5 sm:py-3 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold text-sm sm:text-base cursor-pointer shadow-[0_4px_20px_rgba(255,120,45,0.35)] hover:shadow-[0_8px_30px_rgba(255,120,45,0.5)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
                 >
