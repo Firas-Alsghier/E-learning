@@ -62,9 +62,21 @@ const getStatus = (course: Course) => {
 const blockCourse = async (id: string) => {
   try {
     await api.patch(`/courses/${id}/block`);
+
     courses.value = courses.value.map((course) => (course._id === id ? { ...course, isBlocked: true } : course));
   } catch (error) {
     console.error('Block course error:', error);
+  }
+};
+
+const unblockCourse = async (id: string) => {
+  try {
+    await api.patch(`/courses/${id}/unblock`);
+
+    // ✅ Update UI instantly
+    courses.value = courses.value.map((course) => (course._id === id ? { ...course, isBlocked: false } : course));
+  } catch (error) {
+    console.error('Unblock course error:', error);
   }
 };
 
@@ -121,7 +133,9 @@ const deleteCourse = async (id: string) => {
               </td>
 
               <td class="p-4 flex gap-2 justify-center">
-                <Button class="cursor-pointer" size="sm" variant="outline" @click="blockCourse(course._id)"> Block </Button>
+                <Button class="cursor-pointer" size="sm" :variant="course.isBlocked ? 'default' : 'outline'" @click="course.isBlocked ? unblockCourse(course._id) : blockCourse(course._id)">
+                  {{ course.isBlocked ? 'Unblock' : 'Block' }}
+                </Button>
 
                 <Button class="cursor-pointer" size="sm" variant="destructive" @click="deleteCourse(course._id)"> Delete </Button>
               </td>

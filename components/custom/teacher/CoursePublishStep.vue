@@ -62,8 +62,8 @@ const checklist = [
           <CheckCircle :size="40" class="text-emerald-500" />
         </div>
         <div>
-          <h2 class="text-xl font-extrabold text-gray-900">Course Published! 🎉</h2>
-          <p class="text-sm text-gray-400 mt-1">Redirecting you to courses...</p>
+          <h2 class="text-xl font-extrabold text-gray-900">Course Sent for Review ⏳</h2>
+          <p class="text-sm text-gray-400 mt-1">Your course is under review and will be published after admin approval.</p>
         </div>
         <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
           <div class="h-full bg-emerald-500 rounded-full animate-[grow_2s_linear_forwards]"></div>

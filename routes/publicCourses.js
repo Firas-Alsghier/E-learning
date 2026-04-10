@@ -11,7 +11,12 @@ const router = express.Router();
  */
 router.get('/', async (req, res) => {
   try {
-    const courses = await Course.find({ isPublished: true }).populate('teacher', 'firstName lastName').sort({ createdAt: -1 });
+    const courses = await Course.find({
+      isPublished: true,
+      status: 'approved',
+    })
+      .populate('teacher', 'firstName lastName')
+      .sort({ createdAt: -1 });
 
     // 🔁 Shape data for frontend
     const formattedCourses = courses.map((course) => ({
@@ -52,7 +57,8 @@ router.get('/id/:id', async (req, res) => {
         },
       });
 
-    if (!course) {
+    // ✅ Protection (VERY IMPORTANT)
+    if (!course || course.status !== 'approved' || !course.isPublished) {
       return res.status(404).json({ message: 'Course not found' });
     }
 
@@ -94,6 +100,7 @@ router.get('/:slug', async (req, res) => {
     const course = await Course.findOne({
       slug: req.params.slug,
       isPublished: true,
+      status: 'approved',
     })
       .populate('teacher', 'firstName lastName social bio')
       .populate({

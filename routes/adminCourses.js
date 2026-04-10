@@ -31,13 +31,18 @@ router.patch('/:id/block', async (req, res) => {
       return res.status(404).json({ message: 'Course not found' });
     }
 
+    // ✅ Block + hide from public
     course.isBlocked = true;
+    course.isPublished = false;
+    course.status = 'draft'; // optional but cleaner state
+
     await course.save();
 
     res.status(200).json({
       message: 'Course blocked successfully',
     });
   } catch (error) {
+    console.error('BLOCK ERROR:', error);
     res.status(500).json({ message: 'Failed to block course' });
   }
 });
@@ -63,8 +68,7 @@ router.delete('/:id', async (req, res) => {
 router.get('/pending', async (req, res) => {
   try {
     const courses = await Course.find({
-      isPublished: false,
-      isBlocked: false,
+      status: 'pending',
     })
       .populate('teacher', 'firstName lastName email')
       .sort({ createdAt: -1 });
@@ -82,6 +86,52 @@ router.get('/pending', async (req, res) => {
   }
 });
 
+router.patch('/:id/approve', async (req, res) => {
+  try {
+    const course = await Course.findById(req.params.id);
+
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    // ✅ Approve logic
+    course.status = 'approved';
+    course.isPublished = true;
+
+    await course.save();
+
+    res.status(200).json({
+      message: 'Course approved and published',
+    });
+  } catch (error) {
+    console.error('APPROVE ERROR:', error); // 👈 ADD THIS
+
+    res.status(500).json({ message: 'Failed to approve course' });
+  }
+});
+
+router.patch('/:id/reject', async (req, res) => {
+  try {
+    const course = await Course.findById(req.params.id);
+
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    // ❌ Reject logic
+    course.status = 'rejected';
+    course.isPublished = false;
+
+    await course.save();
+
+    res.status(200).json({
+      message: 'Course rejected',
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to reject course' });
+  }
+});
+
 // UNBLOCK COURSE
 router.patch('/:id/unblock', async (req, res) => {
   try {
@@ -92,6 +142,8 @@ router.patch('/:id/unblock', async (req, res) => {
     }
 
     course.isBlocked = false;
+    course.isPublished = true;
+    course.status = 'approved';
     await course.save();
 
     res.status(200).json({

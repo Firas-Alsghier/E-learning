@@ -66,6 +66,21 @@ const courseSchema = new mongoose.Schema(
       default: false,
     },
 
+    isBlocked: {
+      type: Boolean,
+      default: false,
+    },
+
+    status: {
+      type: String,
+      enum: ['draft', 'pending', 'approved', 'published'],
+      default: 'draft',
+    },
+
+    publishedAt: {
+      type: Date,
+    },
+
     slug: {
       type: String,
       required: true,

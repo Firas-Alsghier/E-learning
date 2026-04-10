@@ -22,7 +22,7 @@ interface Course {
 const courses = ref<Course[]>([]);
 const expandedId = ref<string | null>(null);
 const loading = ref(false);
-
+const actionLoading = ref<string | null>(null);
 const api = axios.create({
   baseURL: 'http://localhost:3001/api/admin',
 });
@@ -45,10 +45,15 @@ const toggleDetails = (id: string) => {
 
 const approveCourse = async (id: string) => {
   try {
-    await api.patch(`/courses/${id}/approve`);
+    actionLoading.value = id; // 🔥 start loading
+
+    await api.patch(`http://localhost:3001/api/admin/courses/${id}/approve`);
+
     courses.value = courses.value.filter((course) => course._id !== id);
   } catch (error) {
     console.error('Approve error:', error);
+  } finally {
+    actionLoading.value = null; // 🔥 stop loading
   }
 };
 
@@ -57,10 +62,15 @@ const rejectCourse = async (id: string) => {
   if (!confirmReject) return;
 
   try {
-    await api.delete(`/courses/${id}`);
+    actionLoading.value = id; // 🔥 start loading
+
+    await api.patch(`http://localhost:3001/api/admin/courses/${id}/reject`);
+
     courses.value = courses.value.filter((course) => course._id !== id);
   } catch (error) {
     console.error('Reject error:', error);
+  } finally {
+    actionLoading.value = null; // 🔥 stop loading
   }
 };
 
@@ -99,9 +109,13 @@ onMounted(() => {
               <td class="p-4">${{ course.price }}</td>
 
               <td class="p-4 flex gap-2 justify-center">
-                <Button class="cursor-pointer" size="sm" variant="default" @click="approveCourse(course._id)"> Approve </Button>
+                <Button class="cursor-pointer" size="sm" variant="default" :disabled="actionLoading === course._id" @click="approveCourse(course._id)">
+                  {{ actionLoading === course._id ? 'Processing...' : 'Approve' }}
+                </Button>
 
-                <Button class="cursor-pointer" size="sm" variant="destructive" @click="rejectCourse(course._id)"> Reject </Button>
+                <Button class="cursor-pointer" size="sm" variant="destructive" :disabled="actionLoading === course._id" @click="rejectCourse(course._id)">
+                  {{ actionLoading === course._id ? 'Processing...' : 'Reject' }}
+                </Button>
 
                 <Button class="cursor-pointer" size="sm" @click="toggleDetails(course._id)"> View </Button>
               </td>

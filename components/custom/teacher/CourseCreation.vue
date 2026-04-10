@@ -340,7 +340,9 @@ const stepLabels = ['Course Info & FAQ', 'Upload Materials', 'Pricing', 'Publish
                 placeholder="Describe what students will learn in this course..."
                 class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-400/40 focus:border-orange-400 resize-none placeholder:text-gray-400 transition-colors"
               ></textarea> -->
-              <CustomEditorQuillEditor v-model="courseData.description" />
+              <ClientOnly>
+                <CustomEditorQuillEditor v-model="courseData.description" />
+              </ClientOnly>
               <p class="text-xs text-gray-400 text-right">{{ descriptionCharCount }}/2000</p>
             </div>
 

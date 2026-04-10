@@ -107,14 +107,29 @@ router.patch('/:courseId/price', teacherAuth, async (req, res) => {
  */
 router.patch('/:courseId/publish', teacherAuth, async (req, res) => {
   try {
-    const course = await Course.findOne({ _id: req.params.courseId, teacher: req.teacher._id });
+    const course = await Course.findOne({
+      _id: req.params.courseId,
+      teacher: req.teacher._id,
+    });
+
     if (!course) return res.status(404).json({ message: 'Course not found' });
 
-    course.isPublished = !course.isPublished;
+    // ❌ If already published → prevent changes
+    if (course.status === 'approved') {
+      return res.status(400).json({ message: 'Course already approved' });
+    }
+
+    // ✅ Move to pending (NOT published)
+    course.status = 'pending';
+
     await course.save();
 
-    res.json({ message: 'Course status updated', isPublished: course.isPublished });
+    res.json({
+      message: 'Course sent for review',
+      status: course.status,
+    });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Failed to update course' });
   }
 });
