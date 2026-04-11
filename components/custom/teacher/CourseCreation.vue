@@ -1,11 +1,9 @@
 <!-- components\custom\teacher\CourseCreation.vue -->
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import axios from 'axios';
 import { ChevronRight, Upload, Plus, X, Check } from 'lucide-vue-next';
-// import Quill from 'quill';
-// import 'quill/dist/quill.snow.css';
 
 const courseId = ref<string | null>(null);
 const isSaving = ref(false);
@@ -29,7 +27,7 @@ interface CourseInfo {
 
 const courseData = ref<CourseInfo>({
   title: '',
-  category: 'Data Management',
+  category: '',
   level: 'All levels',
   description: '',
   faqs: [{ question: '', answer: '' }],
@@ -120,8 +118,17 @@ const createCourse = async () => {
 };
 
 // --- Dropdown Data ---
-const categories = ['Data Management', 'Web Development', 'Design', 'Marketing', 'Finance'];
+const categories = ref<string[]>([]);
 const levels = ['All levels', 'Basic', 'Intermediate', 'Advanced'];
+
+const fetchCategories = async () => {
+  try {
+    const res = await axios.get('http://localhost:3001/api/categories');
+    categories.value = res.data.map((cat: any) => cat.name);
+  } catch (err) {
+    console.error('Fetch categories error:', err);
+  }
+};
 
 // --- Helpers ---
 const isStepCompleted = (step: number) => step < currentStep.value;
@@ -205,27 +212,9 @@ const handleFileUpload = (type: 'cover' | 'video') => {
 
 const stepLabels = ['Course Info & FAQ', 'Upload Materials', 'Pricing', 'Publish'];
 
-// onMounted(() => {
-//   if (!quillContainer.value) return;
-
-//   quillEditor.value = new Quill(quillContainer.value, {
-//     theme: 'snow',
-//     placeholder: 'Describe your course...',
-//     modules: {
-//       toolbar: [[{ header: [1, 2, false] }], ['bold', 'italic', 'underline'], [{ list: 'ordered' }, { list: 'bullet' }], [{ align: [] }], ['link']],
-//     },
-//   });
-
-//   // 🔥 Sync Quill → Vue
-//   quillEditor.value.on('text-change', () => {
-//     courseData.value.description = quillEditor.value.root.innerHTML;
-//   });
-
-//   // ✅ IMPORTANT: load existing data (edit case)
-//   if (courseData.value.description) {
-//     quillEditor.value.root.innerHTML = courseData.value.description;
-//   }
-// });
+onMounted(() => {
+  fetchCategories();
+});
 </script>
 
 <template>
@@ -267,13 +256,6 @@ const stepLabels = ['Course Info & FAQ', 'Upload Materials', 'Pricing', 'Publish
             <ChevronRight v-if="step < 4" :size="14" class="text-gray-300 shrink-0" />
           </template>
         </nav>
-
-        <!-- Preview button -->
-        <!-- <button
-          class="shrink-0 text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-xl border border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 cursor-pointer"
-        >
-          Preview
-        </button> -->
       </div>
     </header>
 
@@ -314,7 +296,13 @@ const stepLabels = ['Course Info & FAQ', 'Upload Materials', 'Pricing', 'Publish
                   v-model="courseData.category"
                   class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-400/40 focus:border-orange-400 appearance-none transition-colors cursor-pointer"
                 >
-                  <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
+                  <!-- Placeholder -->
+                  <option disabled value="">Select a category</option>
+
+                  <!-- Categories -->
+                  <option v-for="cat in categories" :key="cat" :value="cat">
+                    {{ cat }}
+                  </option>
                 </select>
               </div>
               <div class="flex flex-col gap-1.5">

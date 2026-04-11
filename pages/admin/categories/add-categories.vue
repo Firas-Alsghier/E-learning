@@ -22,7 +22,7 @@ const submitCategory = async () => {
     successMessage.value = '';
 
     await axios.post('http://localhost:3001/api/admin/categories', {
-      name: name.value,
+      name: name.value.toUpperCase(),
       description: description.value,
     });
 
