@@ -63,7 +63,8 @@ const publishCourse = async () => {
       }
     );
 
-    alert('Course published successfully 🚀');
+    alert('The course was updated successfully and sent for review.');
+    navigateTo('/courses');
   } catch (err: any) {
     // console.error(err);
     console.log(err.response.data);

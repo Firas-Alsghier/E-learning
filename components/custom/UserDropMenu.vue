@@ -1,19 +1,20 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
-import { useTeacherStore } from '~/stores/teacher'; // 👈 Use the Teacher store
+import { useUser } from '~/composables/useUser';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 const router = useRouter();
-const teacherStore = useTeacherStore(); // 👈 Access teacher data
-
-// Get teacher info from store
-const teacher = computed(() => teacherStore.teacher);
+const { setUser, user } = useUser();
 
 const handleLogout = () => {
-  // ✅ This calls the logout in stores/teacher.ts
-  // It clears 'teacher_token' cookie and redirects to /teacher/login
-  teacherStore.logout();
+  localStorage.removeItem('token');
+  setUser(null); // ✅ This is enough
+  router.push('/');
+
+  setTimeout(() => {
+    location.reload();
+  }, 200);
 };
 </script>
 
@@ -21,42 +22,67 @@ const handleLogout = () => {
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
       <Avatar variant="outline" class="cursor-pointer">
-        <AvatarImage src="https://github.com/unovue.png" />
-        <AvatarFallback>{{ teacher?.firstName?.charAt(0) }}</AvatarFallback>
+        <AvatarImage src="https://github.com/unovue.png" alt="@unovue" />
+        <AvatarFallback>Fa</AvatarFallback>
       </Avatar>
     </DropdownMenuTrigger>
 
     <DropdownMenuContent class="w-56">
-      <div class="flex gap-2 py-2 px-2">
+      <div class="flex gap-2 py-2">
         <Avatar variant="outline" class="cursor-pointer">
-          <AvatarImage src="https://github.com/unovue.png" />
-          <AvatarFallback>{{ teacher?.firstName?.charAt(0) }}</AvatarFallback>
+          <AvatarImage src="https://github.com/unovue.png" alt="@unovue" />
+          <AvatarFallback>Fa</AvatarFallback>
         </Avatar>
-        <div class="info overflow-hidden">
-          <h1 class="user-name text-base truncate">{{ teacher?.firstName }} {{ teacher?.lastName }}</h1>
-          <p class="user-email text-xs text-zinc-500 truncate">{{ teacher?.email }}</p>
+        <div class="info">
+          <h1 class="user-name text-base">{{ user?.firstName }} {{ user?.lastName }}</h1>
+          <p class="user-email text-xs">{{ user?.email }}</p>
         </div>
       </div>
 
       <DropdownMenuSeparator />
 
       <DropdownMenuGroup>
-        <DropdownMenuItem class="cursor-pointer" as-child>
-          <NuxtLink to="/teacher/overview">Dashboard</NuxtLink>
+        <DropdownMenuItem class="cursor-pointer">
+          <a href="user/my-courses">My Courses</a>
+          <!-- <span>My Courses</span> -->
         </DropdownMenuItem>
-        <DropdownMenuItem class="cursor-pointer" as-child>
-          <NuxtLink to="/teacher/my-courses">My Courses</NuxtLink>
-        </DropdownMenuItem>
-        <DropdownMenuItem class="cursor-pointer" as-child>
-          <NuxtLink to="/teacher/create-course">Create a Course</NuxtLink>
+        <!-- <DropdownMenuItem class="cursor-pointer">
+          <a href="/cart">My cart</a>
+        </DropdownMenuItem> -->
+        <!-- <DropdownMenuItem class="cursor-pointer">
+          <a href="/wishlist">Wishlist</a>
+        </DropdownMenuItem> -->
+      </DropdownMenuGroup>
+      <DropdownMenuSeparator />
+      <DropdownMenuGroup>
+        <!-- <DropdownMenuItem class="cursor-pointer">
+          <span>Notifications</span>
+        </DropdownMenuItem> -->
+        <DropdownMenuItem class="cursor-pointer">
+          <a href="user/message">Message</a>
         </DropdownMenuItem>
       </DropdownMenuGroup>
 
       <DropdownMenuSeparator />
-
-      <DropdownMenuItem @click="handleLogout" class="cursor-pointer text-red-400">
+      <DropdownMenuItem class="cursor-pointer">
+        <span><a href="/user/edit-profile">Account setting</a></span>
+      </DropdownMenuItem>
+      <DropdownMenuItem class="cursor-pointer">
+        <span>Support</span>
+      </DropdownMenuItem>
+      <DropdownMenuItem @click="handleLogout" class="cursor-pointer">
         <span>Log out</span>
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
 </template>
+<style scoped>
+.no-selection {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+</style>

@@ -216,17 +216,6 @@ onMounted(async () => {
                 {{ lesson.title }}
               </span>
             </div>
-
-            <!-- Right -->
-            <!-- <div class="flex items-center gap-3 flex-shrink-0">
-              <button
-                v-if="!lesson.locked"
-                class="text-[11px] font-semibold px-3 py-1 rounded-md border border-[#FF782D] text-[#FF782D] bg-transparent hover:bg-[#FF782D] hover:text-white transition-colors duration-150 whitespace-nowrap"
-              >
-                Preview
-              </button>
-              <span class="text-xs text-gray-500 min-w-[36px] text-right">{{ lesson.time }}</span>
-            </div> -->
           </div>
         </div>
       </div>
