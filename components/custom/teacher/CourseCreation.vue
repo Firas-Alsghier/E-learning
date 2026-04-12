@@ -475,7 +475,7 @@ onMounted(() => {
 
       <!-- ════ STEP 2 ════ -->
       <div v-else-if="currentStep === 2" class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-        <div class="px-6 sm:px-8 py-5 border-b border-gray-100">
+        <div class="px-6 sm:px-8 py-5 border-b border-gray-100 text-center">
           <h1 class="text-lg sm:text-xl font-bold text-gray-900">Upload Course Materials</h1>
           <p class="text-sm text-gray-500 mt-0.5">Add your lessons, videos, and resources.</p>
         </div>

@@ -123,12 +123,12 @@ const toggleMenu = (event: Event) => {
           </template>
 
           <template v-else>
-            <a href="/login">
+            <NuxtLink href="/login">
               <Button variant="outline" class="cursor-pointer rounded-2xl">{{ t('log-in') }}</Button>
-            </a>
-            <a href="/signup">
+            </NuxtLink>
+            <NuxtLink href="/signup">
               <Button class="btn-custom text-primary-custom border-custom rounded-2xl cursor-pointer">{{ t('sign-up') }}</Button>
-            </a>
+            </NuxtLink>
           </template>
         </div>
       </div>

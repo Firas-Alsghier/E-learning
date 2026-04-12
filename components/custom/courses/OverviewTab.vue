@@ -7,13 +7,10 @@ defineProps<{
 <template>
   <div class="overview-tab">
     <ClientOnly>
-    <p class="font-normal text-lg leading-normal">
-      <div
-  class="prose max-w-none"
-  v-html="description"
-></div>
-    </p>
-  </ClientOnly>
+      <div class="font-normal text-lg leading-normal">
+        <div class="prose max-w-none" v-html="description"></div>
+      </div>
+    </ClientOnly>
   </div>
 </template>
 

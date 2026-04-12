@@ -112,15 +112,18 @@ router.patch('/:courseId/publish', teacherAuth, async (req, res) => {
       teacher: req.teacher._id,
     });
 
-    if (!course) return res.status(404).json({ message: 'Course not found' });
-
-    // ❌ If already published → prevent changes
-    if (course.status === 'approved') {
-      return res.status(400).json({ message: 'Course already approved' });
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
     }
 
-    // ✅ Move to pending (NOT published)
+    // 🚫 If blocked → prevent publishing
+    if (course.isBlocked) {
+      return res.status(400).json({ message: 'This course is blocked by admin' });
+    }
+
+    // ✅ Always send to pending (even if previously approved)
     course.status = 'pending';
+    course.isPublished = false;
 
     await course.save();
 
@@ -129,7 +132,7 @@ router.patch('/:courseId/publish', teacherAuth, async (req, res) => {
       status: course.status,
     });
   } catch (error) {
-    console.error(error);
+    console.error('Publish error:', error);
     res.status(500).json({ message: 'Failed to update course' });
   }
 });

@@ -64,8 +64,9 @@ const publishCourse = async () => {
     );
 
     alert('Course published successfully 🚀');
-  } catch (err) {
-    console.error(err);
+  } catch (err: any) {
+    // console.error(err);
+    console.log(err.response.data);
     alert('Failed to publish course');
   } finally {
     loading.value = false;
