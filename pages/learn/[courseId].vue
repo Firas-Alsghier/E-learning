@@ -2,10 +2,12 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ChevronLeft, ChevronRight, ChevronDown, Play, PanelRight, X, Check, Lock } from 'lucide-vue-next';
+import { useTeacher } from '~/composables/useTeacher';
 // import LessonPlayer from '~/components/custom/player/LessonPlayer.vue';
+
 definePageMeta({
   layout: false,
-  middleware: ['user-auth'],
+  middleware: ['learn-auth'],
 });
 // ── Props ──────────────────────────────────────────────
 interface Lesson {
@@ -26,6 +28,8 @@ interface Section {
   totalTime: string;
   lessons: Lesson[];
 }
+const { isLoggedIn: isTeacherLoggedIn, teacher } = useTeacher(); // For teacher status
+const courseTeacherId = ref<string | null>(null);
 
 const props = withDefaults(
   defineProps<{
@@ -78,7 +82,18 @@ function isActive(si: number, li: number) {
 
 function selectLesson(si: number, li: number) {
   const lesson = curriculum.value[si]?.lessons[li];
-  if (!lesson || lesson.locked) return;
+
+  if (!lesson) return;
+
+  // ❌ Block if not owner AND not user
+  const userToken = useCookie('token');
+
+  if (!userToken.value && !isCourseOwner.value) {
+    return navigateTo('/login');
+  }
+
+  // ❌ Block locked (only for users)
+  if (lesson.locked && !isCourseOwner.value) return;
 
   activeSectionIdx.value = si;
   activeLessonIdx.value = li;
@@ -251,6 +266,7 @@ onMounted(async () => {
   const course: any = await $fetch(`http://localhost:3001/api/courses/id/${courseId}`);
   curriculum.value = course.sections;
   courseSlug.value = course.slug;
+  courseTeacherId.value = course.teacherId; // ✅ ADD THIS
   const progress = await $fetch<{ completedLessons: string[] }>(`http://localhost:3001/api/progress/${courseId}`, {
     headers: {
       Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -267,6 +283,10 @@ onMounted(async () => {
   });
 
   // keep your existing code that activates lesson from URL
+});
+
+const isCourseOwner = computed(() => {
+  return teacher.value?._id === courseTeacherId.value;
 });
 </script>
 
@@ -286,7 +306,7 @@ onMounted(async () => {
 
       <div class="flex items-center gap-3">
         <!-- Progress -->
-        <div class="hidden md:flex items-center gap-2">
+        <div class="hidden md:flex items-center gap-2" v-if="!isTeacherLoggedIn">
           <div class="w-28 h-1.5 bg-white/10 rounded-full overflow-hidden">
             <div class="h-full bg-[#FF782D] rounded-full transition-all duration-500" :style="{ width: overallProgress + '%' }" />
           </div>
@@ -355,24 +375,6 @@ onMounted(async () => {
             </button>
           </div>
         </div>
-
-        <!-- Lesson description / tabs -->
-        <!-- <div class="px-6 py-5 flex-1">
-          <div class="flex gap-6 border-b border-white/10 mb-5">
-            <button
-              v-for="t in ['Overview', 'Resources']"
-              :key="t"
-              @click="infoTab = t"
-              class="text-sm pb-3 transition-colors"
-              :class="infoTab === t ? 'text-white font-semibold border-b-2 border-[#FF782D]' : 'text-gray-500 hover:text-gray-300'"
-            >
-              {{ t }}
-            </button>
-          </div>
-          <p class="text-sm text-gray-400 leading-relaxed max-w-2xl">
-            {{ activeLesson?.description ?? 'Select a lesson from the sidebar to get started.' }}
-          </p>
-        </div> -->
       </div>
 
       <!-- ── Sidebar ── -->
@@ -384,9 +386,6 @@ onMounted(async () => {
           <!-- Sidebar header -->
           <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 flex-shrink-0 bg-white">
             <span class="text-sm font-semibold text-gray-900">Course content</span>
-            <!-- <button @click="sidebarOpen = false" class="text-gray-400 hover:text-gray-600 transition-colors">
-              <X class="w-4 h-4" />
-            </button> -->
           </div>
 
           <!-- Sections -->
@@ -420,6 +419,7 @@ onMounted(async () => {
                   <!-- Completion dot -->
                   <div class="flex-shrink-0 mt-0.5" @click.stop="toggleLessonComplete(lesson, section, li)">
                     <div
+                      v-if="!isTeacherLoggedIn"
                       class="w-4 h-4 rounded-full border flex items-center justify-center"
                       :class="{
                         'bg-[#FF782D] border-[#FF782D]': lesson.completed,

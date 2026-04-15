@@ -1,18 +1,25 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue';
 import { ChevronDown, Lock, Check } from 'lucide-vue-next';
-
+import { useTeacher } from '~/composables/useTeacher';
+import { useTeacherStore } from '~/stores/teacher';
 const currentLesson = ref<any>(null);
 const showPlayer = ref(false);
-const token = useCookie<string | null>('token');
-const isLoggedIn = computed(() => !!token.value);
+const teacherToken = useCookie<string | null>('teacher_token');
+const userToken = useCookie<string | null>('token');
+const isLoggedIn = computed(() => !!userToken.value || !!teacherToken.value);
+const { teacher, isLoggedIn: isTeacherLoggedIn } = useTeacher();
 const props = defineProps<{
   sections: any[];
   courseId: string;
+  courseTeacherId: string;
 }>();
 
 const courseId = props.courseId;
 console.log('courseId:', props.courseId);
+const isCourseOwner = computed(() => {
+  return teacher.value?._id === props.courseTeacherId;
+});
 const curriculum = ref(
   props.sections.map((s: any) => ({
     ...s,
@@ -20,20 +27,28 @@ const curriculum = ref(
     lessons: s.lessons.map((l: any, i: number) => ({
       ...l,
       active: i === 0,
-      locked: i !== 0,
+      locked: i !== 0 || (teacherToken.value && !isCourseOwner.value), // ✅ important
       completed: false,
     })),
   }))
 );
 
 function openLesson(section: any, lesson: any) {
-  // ❌ Guest user → block access
-  if (!token.value) {
+  const isUser = !!userToken.value;
+  const isTeacher = !!teacherToken.value;
+
+  // ❌ Guest
+  if (!isUser && !isTeacher) {
     return navigateTo('/login');
   }
 
-  // ❌ Locked lesson → block
-  if (lesson.locked) return;
+  // ❌ Teacher but NOT owner
+  if (isTeacher && !isCourseOwner.value) {
+    return; // block click completely
+  }
+
+  // ❌ Locked lesson (only applies to users)
+  if (lesson.locked && !isCourseOwner.value) return;
 
   // ✅ Allowed
   window.open(`/learn/${props.courseId}?lesson=${lesson._id}`, '_blank');
@@ -74,7 +89,6 @@ function unlockNextLesson() {
     });
   });
 }
-
 async function completeLesson() {
   if (!currentLesson.value) return;
 
@@ -146,12 +160,20 @@ async function fetchProgress() {
 }
 
 onMounted(async () => {
-  await nextTick();
-  curriculum.value.forEach((_: any, i: number) => measureHeight(i));
+  const teacherStore = useTeacherStore();
 
-  if (token.value) {
-    await fetchProgress();
+  if (!teacher.value) {
+    teacherStore.loadTeacher();
   }
+
+  await nextTick();
+
+  // ✅ NOW values are correct
+  console.log('Teacher ID:', teacher.value?._id);
+  console.log('Course Teacher ID:', props.courseTeacherId);
+  console.log('Is Owner:', isCourseOwner.value);
+
+  curriculum.value.forEach((_: any, i: number) => measureHeight(i));
 });
 </script>
 
@@ -186,7 +208,10 @@ onMounted(async () => {
           <div
             v-for="(lesson, i) in section.lessons"
             @click="openLesson(section, lesson)"
-            :class="['flex items-center justify-between px-4 py-2 gap-3 transition-colors duration-150', isLoggedIn ? 'cursor-pointer hover:bg-white' : 'cursor-not-allowed opacity-70']"
+            :class="[
+              'flex items-center justify-between px-4 py-2 gap-3 transition-colors duration-150',
+              isLoggedIn && (!teacherToken || isCourseOwner) ? 'cursor-pointer hover:bg-white' : 'cursor-not-allowed opacity-70',
+            ]"
           >
             <!-- Left -->
             <div class="flex items-center gap-3 flex-1 min-w-0">
@@ -200,7 +225,7 @@ onMounted(async () => {
                 }"
               >
                 <span v-if="lesson.active">▶</span>
-                <Lock v-else-if="lesson.locked" class="w-3 h-3" />
+                <Lock v-else-if="lesson.locked && !isCourseOwner" class="w-3 h-3" />
                 <Check v-else class="w-3 h-3" />
               </div>
 
@@ -209,7 +234,7 @@ onMounted(async () => {
                 class="text-sm truncate"
                 :class="{
                   'text-[#FF782D] font-semibold': lesson.active,
-                  'text-gray-400': lesson.locked && !lesson.active,
+                  'text-gray-400': lesson.locked && !lesson.active && !isCourseOwner,
                   'text-gray-900': !lesson.active && !lesson.locked,
                 }"
               >

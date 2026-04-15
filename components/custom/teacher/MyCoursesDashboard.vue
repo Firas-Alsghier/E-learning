@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
-import { Search, Plus, MoreVertical, Pencil, Trash2, Globe, BookOpen, Users, ChevronLeft, ChevronRight, LayoutGrid, List, TrendingUp } from 'lucide-vue-next';
+import { Search, Plus, Eye, MoreVertical, Pencil, Trash2, Globe, BookOpen, Users, ChevronLeft, ChevronRight, LayoutGrid, List, TrendingUp } from 'lucide-vue-next';
 
 interface Course {
   _id: string;
@@ -94,6 +94,10 @@ const testCourses: Course[] = [
     level: 'Intermediate',
   },
 ];
+
+const goToPreview = (id: string) => {
+  navigateTo(`/teacher/courses/${id}/preview`);
+};
 
 /* ── Fetch courses (swap test data with this when API is ready) ── */
 const fetchCourses = async () => {
@@ -406,16 +410,15 @@ const tabs = [
                     >
                       <Globe :size="13" class="text-emerald-400" /> Publish
                     </button>
-                    <!-- <button
-                      v-if="course.status === 'published'"
+                    <button
                       @click="
-                        publishCourse(course._id);
+                        goToPreview(course._id);
                         closeMenus();
                       "
                       class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-zinc-300 hover:bg-white/[0.05] hover:text-white transition-colors cursor-pointer"
                     >
-                      <Globe :size="13" class="text-yellow-400" /> Unpublish
-                    </button> -->
+                      <Eye :size="13" class="text-emerald-400" /> Preview
+                    </button>
                     <div class="h-px bg-white/[0.06] mx-2"></div>
                     <button
                       @click="

@@ -86,6 +86,7 @@ const { data, error } = await useAsyncData<Course>(`course-${slug.value}`, () =>
 const editCourse = () => navigateTo(`/teacher/courses/${data?.value?.id}/edit`);
 
 const course = computed(() => data.value);
+console.log(course);
 watch(
   () => course.value,
   (val) => {
@@ -258,7 +259,7 @@ watch(
               <Transition name="fade" mode="out-in">
                 <div :key="selectedTab" class="px-4 sm:px-6 lg:px-8 py-5 sm:py-7 text-right leading-loose text-zinc-300 text-sm" dir="rtl">
                   <CustomCoursesOverviewTab :description="course.description" v-if="selectedTab === 'overview'" />
-                  <CustomCoursesCurriculumTab v-if="selectedTab === 'curriculum' && course?.id" :sections="course.sections" :courseId="course.id" />
+                  <CustomCoursesCurriculumTab v-if="selectedTab === 'curriculum' && course?.id" :sections="course.sections" :courseId="course.id" :courseTeacherId="course.teacherId" />
                   <CustomCoursesInstructorTab
                     :facebook="course.social.facebook"
                     :instagram="course.social.instagram"
