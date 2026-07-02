@@ -121,23 +121,21 @@ const saveChanges = async () => {
       </div>
     </div>
 
-    <hr />
+    <!-- <hr />
 
     <div class="space-y-2">
       <div class="w-[95%]" :class="auth.isEnglish ? 'text-left' : 'text-right'">
         <label class="font-medium">{{ t('headline') }}</label>
       </div>
       <Input v-model="form.headline" class="w-[95%] bg-white" :class="auth.isEnglish ? 'text-left' : 'text-right'" />
-    </div>
+    </div> -->
 
-    <hr />
-
-    <div class="space-y-2">
+    <!-- <div class="space-y-2">
       <div class="w-[95%]" :class="auth.isEnglish ? 'text-left' : 'text-right'">
         <label class="font-medium">{{ t('cv-label') }}</label>
       </div>
       <Textarea v-model="form.bio" class="w-[95%] bg-white" :class="auth.isEnglish ? 'text-left' : 'text-right'" />
-    </div>
+    </div> -->
 
     <hr />
 
@@ -284,7 +282,7 @@ const saveChanges = async () => {
 
     <hr />
 
-    <CustomUserEditProfileImageUpload />
+    <!-- <CustomUserEditProfileImageUpload /> -->
 
     <Button class="mt-6 cursor-pointer" type="submit">{{ t('save-btn') }}</Button>
   </form>

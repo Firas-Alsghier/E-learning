@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Facebook, Instagram, Earth, Linkedin } from 'lucide-vue-next';
+import { Facebook, Users, Instagram, Earth, Linkedin, Video } from 'lucide-vue-next';
 
 defineProps<{
   facebook?: any;
@@ -30,12 +30,12 @@ defineProps<{
         <!-- Stats -->
         <div class="flex items-center justify-center sm:justify-start gap-4 mt-1">
           <div class="flex items-center gap-1.5 text-xs text-zinc-400 bg-white/5 border border-white/[0.08] rounded-full px-3 py-1.5">
-            <span class="text-orange-400">🎥</span>
-            <span><slot name="students" /> Student(s)</span>
+            <span class="text-orange-400"><Users /></span>
+            <span class="text-sm"><slot name="students" /> Student(s)</span>
           </div>
           <div class="flex items-center gap-1.5 text-xs text-zinc-400 bg-white/5 border border-white/[0.08] rounded-full px-3 py-1.5">
-            <span class="text-orange-400">📚</span>
-            <span><slot name="lessons" /> Course(s)</span>
+            <span class="text-orange-400"><Video /></span>
+            <span class="text-sm"><slot name="lessons" /> Course(s)</span>
           </div>
         </div>
       </div>
@@ -46,7 +46,7 @@ defineProps<{
 
     <!-- Social links -->
     <div class="flex items-center justify-center sm:justify-start gap-3 flex-wrap">
-      <span class="text-xs font-semibold text-zinc-500 uppercase tracking-widest mr-1">Follow</span>
+      <!-- <span class="text-xs font-semibold text-zinc-500 uppercase tracking-widest mr-1">Follow</span> -->
 
       <a
         v-if="facebook"

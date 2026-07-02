@@ -14,7 +14,7 @@ const courseId = route.params.id as string;
 const course = ref<any>(null);
 const curriculum = ref<any[]>([]);
 const isLoading = ref(true);
-
+const sidebarOpen = ref(true);
 // Active lesson
 const activeSectionIdx = ref(0);
 const activeLessonIdx = ref(0);
@@ -23,6 +23,7 @@ const openSections = ref<number[]>([0]); // first section open by default
 const activeLesson = computed(() => {
   return curriculum.value[activeSectionIdx.value]?.lessons?.[activeLessonIdx.value] || null;
 });
+
 function toggleSection(index: number) {
   if (openSections.value.includes(index)) {
     openSections.value = openSections.value.filter((i) => i !== index);
@@ -30,24 +31,30 @@ function toggleSection(index: number) {
     openSections.value.push(index);
   }
 }
+
 function nextLesson() {
   const section = curriculum.value[activeSectionIdx.value];
   if (!section) return;
 
   const nextLesson = section.lessons?.[activeLessonIdx.value + 1];
 
-  // ✅ Case 1: next lesson in same section
+  // ✅ Case 1: same section
   if (nextLesson) {
     activeLessonIdx.value++;
     return;
   }
 
-  // ✅ Case 2: go to next section
+  // ✅ Case 2: next section
   const nextSection = curriculum.value[activeSectionIdx.value + 1];
 
   if (nextSection && nextSection.lessons?.length) {
     activeSectionIdx.value++;
     activeLessonIdx.value = 0;
+
+    // ✅ FIX: auto open new section
+    if (!openSections.value.includes(activeSectionIdx.value)) {
+      openSections.value.push(activeSectionIdx.value);
+    }
   }
 }
 
@@ -57,19 +64,28 @@ function prevLesson() {
 
   const prevLesson = section.lessons?.[activeLessonIdx.value - 1];
 
-  // ✅ Case 1: previous lesson in same section
+  // ✅ Case 1: same section
   if (prevLesson) {
     activeLessonIdx.value--;
     return;
   }
 
-  // ✅ Case 2: go to previous section (last lesson)
+  // ✅ Case 2: previous section
   const prevSection = curriculum.value[activeSectionIdx.value - 1];
 
   if (prevSection && prevSection.lessons?.length) {
     activeSectionIdx.value--;
     activeLessonIdx.value = prevSection.lessons.length - 1;
+
+    // ✅ FIX: auto open previous section
+    if (!openSections.value.includes(activeSectionIdx.value)) {
+      openSections.value.push(activeSectionIdx.value);
+    }
   }
+}
+
+function toggleSidebar() {
+  sidebarOpen.value = !sidebarOpen.value;
 }
 
 function onVideoEnded() {
@@ -111,7 +127,7 @@ onMounted(async () => {
       <div class="flex items-center gap-4">
         <button class="flex items-center gap-1.5 text-sm text-gray-300 hover:text-white transition-colors">
           <ChevronLeft class="w-4 h-4" />
-          <a href="#" class="hidden sm:inline">Back to course</a>
+          <a href="/teacher/my-courses" class="hidden sm:inline">Back to course</a>
         </button>
         <div class="w-px h-5 bg-white/10" />
         <span class="text-sm font-medium text-white truncate max-w-[340px]"> {{ course?.title || 'Loading...' }} </span>
@@ -119,7 +135,7 @@ onMounted(async () => {
 
       <div class="flex items-center gap-3">
         <div class="w-px h-5 bg-white/10 hidden md:block" />
-        <button class="flex cursor-pointer items-center gap-1.5 text-sm text-gray-300 hover:text-white transition-colors" title="Toggle sidebar">
+        <button @click="toggleSidebar" class="flex cursor-pointer items-center gap-1.5 text-sm text-gray-300 hover:text-white transition-colors" title="Toggle sidebar">
           <PanelRight class="w-4 h-4" />
           <span class="hidden sm:inline text-xs">Course content</span>
         </button>
@@ -165,7 +181,12 @@ onMounted(async () => {
         </div>
       </div>
 
-      <aside class="flex-shrink-0 flex flex-col bg-[#f7f8fa] text-gray-900 border-l border-white/10 overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] w-[360px]">
+      <aside
+        :class="[
+          'flex-shrink-0 flex flex-col bg-[#f7f8fa] text-gray-900 border-l border-white/10 overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]',
+          sidebarOpen ? 'w-[360px]' : 'w-0',
+        ]"
+      >
         <div class="w-[360px] flex flex-col h-full overflow-hidden">
           <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 flex-shrink-0 bg-white">
             <span class="text-sm font-semibold text-gray-900">Course content</span>

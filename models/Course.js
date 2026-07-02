@@ -32,6 +32,12 @@ const courseSchema = new mongoose.Schema(
       default: 0,
     },
 
+    // ✅ Course access duration
+    accessDuration: {
+      type: Number,
+      default: 0, // 0 = Lifetime
+    },
+
     teacher: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Teacher',

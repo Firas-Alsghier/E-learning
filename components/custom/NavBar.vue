@@ -12,15 +12,36 @@ const isHydrated = ref(false);
 const { t } = useI18n();
 // --- Notification/Count State (New) ---
 // Initialize your mock counts here. In a real app, these would come from a store or API.
-const wishlistCount = ref(5); // Items in wishlist
+const wishlistCount = ref(0); // Items in wishlist
 const cartCount = ref(1); // Items in cart
 const notificationCount = ref(9); // Unread notifications
 const auth = useAuthStore();
 
-// Wait for client-side rehydration
-onMounted(() => {
-  isHydrated.value = true;
+const fetchWishlistCount = async () => {
+  try {
+    const token = useCookie('token').value;
 
+    if (!token) {
+      wishlistCount.value = 0;
+      return;
+    }
+
+    const wishlist = await $fetch<any[]>('http://localhost:3001/api/user/wishlist', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    wishlistCount.value = wishlist.length;
+  } catch (err) {
+    console.error('Wishlist count error:', err);
+    wishlistCount.value = 0;
+  }
+};
+// Wait for client-side rehydration
+onMounted(async () => {
+  isHydrated.value = true;
+  await fetchWishlistCount();
   // Click outside to close menu
   window.addEventListener('click', (event: any) => {
     if (!event.target.closest('.mobile-menu') && !event.target.closest('button')) {
@@ -123,12 +144,33 @@ const toggleMenu = (event: Event) => {
           </template>
 
           <template v-else>
-            <NuxtLink href="/login">
-              <Button variant="outline" class="cursor-pointer rounded-2xl">{{ t('log-in') }}</Button>
-            </NuxtLink>
-            <NuxtLink href="/signup">
-              <Button class="btn-custom text-primary-custom border-custom rounded-2xl cursor-pointer">{{ t('sign-up') }}</Button>
-            </NuxtLink>
+            <DropdownMenu>
+              <DropdownMenuTrigger as-child>
+                <Button variant="outline" class="cursor-pointer rounded-2xl">{{ t('log-in') }}</Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem as-child>
+                  <NuxtLink class="cursor-pointer" to="/login">Login as Student</NuxtLink>
+                </DropdownMenuItem>
+                <DropdownMenuItem as-child>
+                  <NuxtLink class="cursor-pointer" to="/teacher/login">Login as Teacher</NuxtLink>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger as-child>
+                <Button class="btn-custom text-primary-custom border-custom rounded-2xl cursor-pointer">{{ t('sign-up') }}</Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem as-child>
+                  <NuxtLink class="cursor-pointer" to="/signup">Register as Student</NuxtLink>
+                </DropdownMenuItem>
+                <DropdownMenuItem as-child>
+                  <NuxtLink class="cursor-pointer" to="/teacher/signup">Register as Teacher</NuxtLink>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </template>
         </div>
       </div>

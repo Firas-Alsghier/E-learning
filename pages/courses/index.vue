@@ -61,6 +61,7 @@ const fetchCourses = async () => {
     if (!res.ok) throw new Error('Failed to fetch courses');
 
     const data: Index[] = await res.json();
+    console.log(data);
     const wishlistIds = await getUserWishlist();
 
     courses.value = data.map((course) => ({
@@ -72,7 +73,7 @@ const fetchCourses = async () => {
       author: course.author,
       students: course.studentsCount ?? 0,
       level: course.level ?? 'All levels',
-      lessons: course.lessonsCount ?? 0,
+      lessons: course.lessons ?? 0,
       price: course.price,
       oldPrice: course.oldPrice ?? 0,
       category: course.category ?? 'General',

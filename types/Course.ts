@@ -18,6 +18,7 @@ export interface Course {
 }
 
 export interface Index {
+  lessons: number;
   // id(id: any): boolean;
   createdAt: any;
   id: string;

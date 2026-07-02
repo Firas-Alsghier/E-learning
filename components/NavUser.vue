@@ -20,7 +20,7 @@ const { isMobile } = useSidebar();
           <DropdownMenuTrigger as-child>
             <SidebarMenuButton size="lg" class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
               <Avatar class="h-8 w-8 rounded-lg">
-                <AvatarImage :src="user?.avatarUrl || 'https://randomuser.me/api/portraits/med/men/75.jpg'" :alt="user?.firstName" />
+                <AvatarImage src="" :alt="user?.firstName" />
                 <AvatarFallback class="rounded-lg"> {{ user?.firstName?.slice(0, 1) }}{{ user?.lastName?.slice(0, 1) }} </AvatarFallback>
               </Avatar>
               <div class="grid flex-1 text-left text-sm leading-tight">
