@@ -6,17 +6,27 @@ const cartSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
-      unique: true, // 👈 one cart per user
+      unique: true,
     },
 
-    courses: [
+    items: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Course',
+        course: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Course',
+          required: true,
+        },
+
+        addedAt: {
+          type: Date,
+          default: Date.now,
+        },
       },
     ],
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
 export default mongoose.model('Cart', cartSchema);

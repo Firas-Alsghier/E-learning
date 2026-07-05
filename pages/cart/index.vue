@@ -18,40 +18,34 @@ interface CartItem {
   price: number;
 }
 
-// ── Hardcoded test data ──────────────────────────────────────────────────────
-// Replace this with your real API/store cart data when ready
-const cartItems = ref<CartItem[]>([
-  {
-    id: '1',
-    title: 'Complete Web Development Bootcamp 2024',
-    author: 'John Doe',
-    image: 'https://img-c.udemycdn.com/course/750x422/5463624_6dc8.jpg',
-    category: 'Development',
-    duration: '42 hours',
-    originalPrice: 99,
-    price: 29,
-  },
-  {
-    id: '2',
-    title: 'UI/UX Design Fundamentals with Figma',
-    author: 'Sarah Ahmed',
-    image: 'https://img-c.udemycdn.com/course/750x422/5266090_aba5.jpg',
-    category: 'Design',
-    duration: '18 hours',
-    originalPrice: 79,
-    price: 19,
-  },
-  {
-    id: '3',
-    title: 'Introduction to Data Science with Python',
-    author: 'Fatimah Zahra',
-    image: 'https://miro.medium.com/v2/resize:fit:1400/1*tDvPpTA8Jw5P_B5xV8gsjw.jpeg',
-    category: 'Data Science',
-    duration: '28 hours',
-    originalPrice: 89,
-    price: 24,
-  },
-]);
+const token = useCookie('token');
+
+const cartItems = ref<CartItem[]>([]);
+
+const loadCart = async () => {
+  try {
+    const data: any = await $fetch('http://localhost:3001/api/cart', {
+      headers: {
+        Authorization: `Bearer ${token.value}`,
+      },
+    });
+
+    cartItems.value = data.items.map((item: any) => ({
+      id: item.course._id,
+      title: item.course.title,
+      author: `${item.course.teacher.firstName} ${item.course.teacher.lastName}`,
+      image: item.course.coverImage,
+      category: item.course.category,
+      duration: '2 Weeks', // we'll replace this later with real duration
+      originalPrice: item.course.price,
+      price: item.course.price,
+    }));
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+onMounted(loadCart);
 
 const couponCode = ref('');
 const couponApplied = ref(false);

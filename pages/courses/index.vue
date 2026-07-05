@@ -61,7 +61,6 @@ const fetchCourses = async () => {
     if (!res.ok) throw new Error('Failed to fetch courses');
 
     const data: Index[] = await res.json();
-    console.log(data);
     const wishlistIds = await getUserWishlist();
 
     courses.value = data.map((course) => ({

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
+import { toast } from 'vue-sonner';
 import { useRoute } from 'vue-router';
 import { Heart, Clock, Users, BarChart2, BookOpen, FileText, Play } from 'lucide-vue-next';
 import type { Course } from '@/types/Course';
@@ -57,6 +58,44 @@ const toggleWishlist = async () => {
     console.log('UPDATED WISHLIST:', data.wishlist);
   } catch (err) {
     console.error('Wishlist error:', err);
+  }
+};
+
+const addToCart = async () => {
+  try {
+    const token = useCookie('token').value;
+
+    if (!token) {
+      toast.error('Login required', {
+        description: 'Please login before adding courses to your cart.',
+      });
+      return;
+    }
+
+    if (!course.value?.id) return;
+
+    const res = await fetch(`http://localhost:3001/api/cart/${course.value.id}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.message || 'Failed to add course.');
+      return;
+    }
+
+    toast.success('Course added to cart!', {
+      description: `"${course.value?.title}" has been added successfully.`,
+    });
+  } catch (err) {
+    console.error(err);
+    toast.error('Something went wrong', {
+      description: 'Please try again later.',
+    });
   }
 };
 
@@ -222,9 +261,10 @@ watch(
                 </button>
                 <button
                   v-else
+                  @click="addToCart"
                   class="w-full py-2.5 sm:py-3 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold text-sm sm:text-base cursor-pointer shadow-[0_4px_20px_rgba(255,120,45,0.35)] hover:shadow-[0_8px_30px_rgba(255,120,45,0.5)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
                 >
-                  البدء الآن
+                  Enroll Now
                 </button>
 
                 <p class="text-xs text-zinc-500 tracking-wide">30-day money-back guarantee</p>
