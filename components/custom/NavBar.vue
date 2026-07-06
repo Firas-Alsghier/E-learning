@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth';
+import { useCartStore } from '~/stores/cart';
 import { useI18n } from 'vue-i18n';
 import { Search, MenuIcon, Heart, ShoppingCart, Bell } from 'lucide-vue-next';
 import { useUser } from '~/composables/useUser'; // Retained for real-world functionality
 import { useTeacher } from '~/composables/useTeacher';
 const { user } = useUser();
 const { teacher } = useTeacher(); // 👈 Add this line
+const cartStore = useCartStore();
 const isMenuOpen = ref(false);
 const searchQuery = ref('');
 const isHydrated = ref(false);
@@ -13,7 +15,7 @@ const { t } = useI18n();
 // --- Notification/Count State (New) ---
 // Initialize your mock counts here. In a real app, these would come from a store or API.
 const wishlistCount = ref(0); // Items in wishlist
-const cartCount = ref(1); // Items in cart
+const cartCount = computed(() => cartStore.count);
 const notificationCount = ref(9); // Unread notifications
 const auth = useAuthStore();
 
@@ -38,11 +40,32 @@ const fetchWishlistCount = async () => {
     wishlistCount.value = 0;
   }
 };
+
+const fetchCartCount = async () => {
+  try {
+    const token = useCookie('token').value;
+
+    if (!token) {
+      cartStore.setCount(0);
+      return;
+    }
+
+    const cart: any = await $fetch('http://localhost:3001/api/cart', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    cartStore.setCount(cart.items.length);
+  } catch (err) {
+    console.error('Cart count error:', err);
+    cartStore.setCount(0);
+  }
+};
 // Wait for client-side rehydration
 onMounted(async () => {
   isHydrated.value = true;
-  await fetchWishlistCount();
-  // Click outside to close menu
+  await Promise.all([fetchWishlistCount(), fetchCartCount()]); // Click outside to close menu
   window.addEventListener('click', (event: any) => {
     if (!event.target.closest('.mobile-menu') && !event.target.closest('button')) {
       isMenuOpen.value = false;
@@ -116,12 +139,12 @@ const toggleMenu = (event: Event) => {
               </span>
             </NuxtLink>
 
-            <div class="relative cursor-pointer text-text-secondary-custom hover:text-hover-rose-gold">
+            <NuxtLink to="/cart" class="relative cursor-pointer text-text-secondary-custom hover:text-hover-rose-gold">
               <ShoppingCart class="size-6" />
               <span v-if="cartCount > 0" class="absolute top-[-8px] right-[-8px] h-4 w-4 flex items-center justify-center rounded-full bg-red-600 text-white text-[10px] font-bold border border-white">
                 {{ cartCount > 9 ? '9+' : cartCount }}
               </span>
-            </div>
+            </NuxtLink>
 
             <div class="relative cursor-pointer text-text-secondary-custom hover:text-hover-rose-gold">
               <Bell class="size-6" />

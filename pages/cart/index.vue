@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { Trash2, Tag, ShoppingCart, ArrowRight, BookOpen, Clock, Shield, RotateCcw } from 'lucide-vue-next';
+import { toast } from 'vue-sonner';
 
 definePageMeta({
   layout: false,
@@ -64,8 +65,21 @@ const discountAmount = computed(() => (couponApplied.value ? Math.round(subtotal
 const total = computed(() => subtotal.value - discountAmount.value);
 
 // ── Actions ──────────────────────────────────────────────────────────────────
-const removeItem = (id: string) => {
-  cartItems.value = cartItems.value.filter((item) => item.id !== id);
+const removeItem = async (courseId: string) => {
+  try {
+    await $fetch(`http://localhost:3001/api/cart/${courseId}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token.value}`,
+      },
+    });
+
+    // Remove instantly from UI
+    cartItems.value = cartItems.value.filter((item) => item.id !== courseId);
+    toast.success('Course removed from cart');
+  } catch (err) {
+    console.error(err);
+  }
 };
 
 const applyCoupon = () => {
@@ -245,10 +259,9 @@ const checkout = () => {
           </div>
 
           <!-- Coupon code -->
-          <div class="bg-[#161618] border border-white/[0.08] rounded-2xl px-5 py-4">
+          <!-- <div class="bg-[#161618] border border-white/[0.08] rounded-2xl px-5 py-4">
             <p class="text-xs font-bold text-zinc-400 uppercase tracking-wide mb-3">Have a coupon?</p>
 
-            <!-- Applied state -->
             <div v-if="couponApplied" class="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-2.5">
               <div class="flex items-center gap-2">
                 <Tag :size="13" class="text-emerald-400" />
@@ -257,7 +270,6 @@ const checkout = () => {
               <button @click="removeCoupon" class="text-xs text-zinc-500 hover:text-red-400 transition-colors cursor-pointer font-semibold">Remove</button>
             </div>
 
-            <!-- Input state -->
             <div v-else class="flex gap-2">
               <input
                 v-model="couponCode"
@@ -275,7 +287,7 @@ const checkout = () => {
             </div>
 
             <p v-if="couponError" class="text-xs text-red-400 mt-2">{{ couponError }}</p>
-          </div>
+          </div> -->
 
           <!-- Trust badges -->
           <div class="bg-[#161618] border border-white/[0.08] rounded-2xl px-5 py-4 flex flex-col gap-3">

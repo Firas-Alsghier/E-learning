@@ -103,7 +103,15 @@ router.delete('/:courseId', userAuth, async (req, res) => {
       });
     }
 
+    const before = cart.items.length;
+
     cart.items = cart.items.filter((item) => item.course.toString() !== courseId);
+
+    if (before === cart.items.length) {
+      return res.status(404).json({
+        message: 'Course not found in cart',
+      });
+    }
 
     await cart.save();
 
