@@ -1,8 +1,8 @@
 import express from 'express';
 import Cart from '../models/Cart.js';
 import Course from '../models/Course.js';
+import Purchase from '../models/Purchase.js';
 import userAuth from '../middleware/authMiddleware.js';
-
 const router = express.Router();
 
 router.post('/:courseId', userAuth, async (req, res) => {
@@ -128,4 +128,31 @@ router.delete('/:courseId', userAuth, async (req, res) => {
   }
 });
 
+router.post('/checkout', userAuth, async (req, res) => {
+  try {
+    // We'll implement this in the next step.
+    // Get user's cart
+    const cart = await Cart.findOne({
+      user: req.user._id,
+    }).populate({
+      path: 'items.course',
+      populate: {
+        path: 'teacher',
+      },
+    });
+
+    // Cart is empty
+    if (!cart || cart.items.length === 0) {
+      return res.status(400).json({
+        message: 'Your cart is empty',
+      });
+    }
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      message: 'Server error',
+    });
+  }
+});
 export default router;

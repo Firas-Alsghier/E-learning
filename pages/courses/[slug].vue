@@ -7,6 +7,8 @@ import type { Course } from '@/types/Course';
 import { useI18n } from 'vue-i18n';
 import CustomCoursesContactInstructorTab from '@/components/custom/courses/ContactInstructorTab.vue';
 import { useTeacher } from '~/composables/useTeacher';
+import { useCartStore } from '~/stores/cart';
+const cartStore = useCartStore();
 const selectedTab = ref('overview');
 const isWishlisted = ref(false);
 const route = useRoute();
@@ -84,13 +86,18 @@ const addToCart = async () => {
     const data = await res.json();
 
     if (!res.ok) {
-      alert(data.message || 'Failed to add course.');
+      toast.error('Unable to add course', {
+        description: data.message || 'Failed to add course.',
+      });
+
       return;
     }
 
     toast.success('Course added to cart!', {
       description: `"${course.value?.title}" has been added successfully.`,
     });
+
+    await cartStore.refresh();
   } catch (err) {
     console.error(err);
     toast.error('Something went wrong', {
