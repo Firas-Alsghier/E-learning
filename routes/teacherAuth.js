@@ -131,7 +131,6 @@ router.put('/edit-profile', teacherAuth, async (req, res) => {
   const teacherId = req.teacher.id;
 
   const { firstName, lastName, headline, phone, bio, language, avatar, website, facebook, instagram, linkedin } = req.body;
-  console.log(req.body);
   try {
     const updateData = {};
 

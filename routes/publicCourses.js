@@ -115,7 +115,6 @@ router.get('/:slug', async (req, res) => {
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
     }
-    console.log(course);
     res.json({
       id: course._id,
       teacherId: course.teacher?._id,

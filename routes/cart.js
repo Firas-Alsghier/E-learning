@@ -43,7 +43,9 @@ router.post('/checkout', userAuth, async (req, res) => {
       // Calculate expiration date
       const expiresAt = new Date();
 
-      expiresAt.setDate(expiresAt.getDate() + (course.accessDuration || 0));
+      const accessDays = course.accessDuration > 0 ? course.accessDuration : 30;
+
+      expiresAt.setDate(expiresAt.getDate() + accessDays);
 
       await Purchase.create({
         user: req.user._id,

@@ -7,7 +7,6 @@ const router = express.Router();
 
 router.post('/courses/:courseId/enroll', userAuth, async (req, res) => {
   try {
-    console.log('REQ.USER:', req.user);
     const { courseId } = req.params;
 
     const course = await Course.findById(courseId);

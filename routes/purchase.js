@@ -9,6 +9,9 @@ router.get('/my-courses', userAuth, async (req, res) => {
     const purchases = await Purchase.find({
       user: req.user._id,
       paymentStatus: 'paid',
+      expiresAt: {
+        $gt: new Date(),
+      },
     })
       .populate({
         path: 'course',
@@ -20,7 +23,7 @@ router.get('/my-courses', userAuth, async (req, res) => {
       .sort({
         purchaseDate: -1,
       });
-
+    console.log(JSON.stringify(purchases, null, 2));
     res.json(purchases);
   } catch (err) {
     console.error(err);

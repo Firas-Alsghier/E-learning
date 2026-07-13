@@ -10,25 +10,16 @@ router.post('/wishlist/:courseId', userAuth, async (req, res) => {
     const user = req.user;
     const { courseId } = req.params;
 
-    console.log('👉 USER ID:', user._id);
-    console.log('👉 COURSE ID:', courseId);
-    console.log('👉 CURRENT WISHLIST:', user.wishlist);
-
     const index = user.wishlist.findIndex((id) => id.equals(courseId));
-
-    console.log('👉 FOUND INDEX:', index);
 
     if (index !== -1) {
       console.log('❌ REMOVING COURSE');
       user.wishlist.splice(index, 1);
     } else {
-      console.log('❤️ ADDING COURSE');
       user.wishlist.push(courseId);
     }
 
     await user.save();
-
-    console.log('✅ SAVED WISHLIST:', user.wishlist);
 
     res.json({
       message: 'Wishlist updated',

@@ -50,7 +50,6 @@ router.get('/:courseId', userAuth, async (req, res) => {
 // ❌ REMOVE lesson progress
 router.post('/remove-lesson', userAuth, async (req, res) => {
   try {
-    console.log(req.user);
     const userId = req.user._id; // from auth middleware
     const { courseId, lessonId } = req.body;
 

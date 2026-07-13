@@ -37,7 +37,7 @@ const loadCourses = async () => {
     courses.value = data.map((purchase: any) => ({
       id: purchase.course._id,
       title: purchase.course.title,
-      author: `${purchase.teacher.firstName} ${purchase.teacher.lastName}`,
+      author: `${purchase.course.teacher.firstName} ${purchase.course.teacher.lastName}`,
       image: purchase.course.coverImage,
       category: purchase.course.category,
       totalLessons: purchase.course.totalLessons || 0,
