@@ -35,7 +35,7 @@ const courseSchema = new mongoose.Schema(
     // ✅ Course access duration
     accessDuration: {
       type: Number,
-      default: 0, // 0 = Lifetime
+      default: 90, // 90 = 3 Months
     },
 
     teacher: {

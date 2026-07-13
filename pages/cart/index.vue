@@ -107,9 +107,31 @@ const removeCoupon = () => {
   couponError.value = '';
 };
 
-const checkout = () => {
-  // Replace with your checkout logic / navigateTo('/checkout')
-  alert('Proceeding to checkout...');
+const checkout = async () => {
+  try {
+    const res: any = await $fetch('http://localhost:3001/api/cart/checkout', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token.value}`,
+      },
+    });
+
+    toast.success('Purchase completed!', {
+      description: 'Your courses have been added to My Courses.',
+    });
+
+    // Empty cart instantly
+    cartItems.value = [];
+
+    // We'll replace this later with cartStore.refresh()
+    // and navigate to My Courses.
+  } catch (err: any) {
+    console.error(err);
+
+    toast.error('Checkout failed', {
+      description: err?.data?.message || 'Something went wrong.',
+    });
+  }
 };
 </script>
 

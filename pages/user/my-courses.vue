@@ -18,84 +18,40 @@ interface EnrolledCourse {
   duration: string;
   lastAccessed: string;
   slug: string;
+  expiresAt: string;
 }
 
+const token = useCookie('token');
 // ── Hardcoded test data ──────────────────────────────────────────────────────
 // Replace with your real API call when ready
-const courses = ref<EnrolledCourse[]>([
-  {
-    id: '1',
-    title: 'Complete Web Development Bootcamp 2024',
-    author: 'John Doe',
-    image: 'https://img-c.udemycdn.com/course/750x422/5463624_6dc8.jpg',
-    category: 'Development',
-    totalLessons: 42,
-    completedLessons: 38,
-    duration: '42 hours',
-    lastAccessed: '2024-04-10',
-    slug: 'complete-web-dev',
-  },
-  {
-    id: '2',
-    title: 'UI/UX Design Fundamentals with Figma',
-    author: 'Sarah Ahmed',
-    image: 'https://img-c.udemycdn.com/course/750x422/5266090_aba5.jpg',
-    category: 'Design',
-    totalLessons: 30,
-    completedLessons: 14,
-    duration: '18 hours',
-    lastAccessed: '2024-04-08',
-    slug: 'uiux-design-figma',
-  },
-  {
-    id: '3',
-    title: 'Introduction to Data Science with Python',
-    author: 'Fatimah Zahra',
-    image: 'https://miro.medium.com/v2/resize:fit:1400/1*tDvPpTA8Jw5P_B5xV8gsjw.jpeg',
-    category: 'Data Science',
-    totalLessons: 55,
-    completedLessons: 0,
-    duration: '28 hours',
-    lastAccessed: '2024-03-30',
-    slug: 'data-science-python',
-  },
-  {
-    id: '4',
-    title: 'Advanced React & TypeScript Patterns',
-    author: 'Mohammed Ali',
-    image: 'https://img-c.udemycdn.com/course/750x422/5266090_aba5.jpg',
-    category: 'Development',
-    totalLessons: 38,
-    completedLessons: 38,
-    duration: '22 hours',
-    lastAccessed: '2024-04-01',
-    slug: 'react-typescript',
-  },
-  {
-    id: '5',
-    title: 'Digital Marketing Fundamentals',
-    author: 'Layla Hassan',
-    image: 'https://img-c.udemycdn.com/course/750x422/5463624_6dc8.jpg',
-    category: 'Marketing',
-    totalLessons: 25,
-    completedLessons: 8,
-    duration: '12 hours',
-    lastAccessed: '2024-04-05',
-    slug: 'digital-marketing',
-  },
-  {
-    id: '6',
-    title: 'Logo Design Basics with Adobe Illustrator',
-    author: 'Ahmed Mahmoud',
-    image: 'https://miro.medium.com/v2/resize:fit:1400/1*tDvPpTA8Jw5P_B5xV8gsjw.jpeg',
-    category: 'Design',
-    totalLessons: 20,
-    completedLessons: 20,
-    duration: '10 hours',
-    lastAccessed: '2024-03-20',
-    slug: 'logo-design',
-  },
-]);
+const courses = ref<EnrolledCourse[]>([]);
+
+const loadCourses = async () => {
+  try {
+    const data: any = await $fetch('http://localhost:3001/api/purchases/my-courses', {
+      headers: {
+        Authorization: `Bearer ${token.value}`,
+      },
+    });
+
+    courses.value = data.map((purchase: any) => ({
+      id: purchase.course._id,
+      title: purchase.course.title,
+      author: `${purchase.teacher.firstName} ${purchase.teacher.lastName}`,
+      image: purchase.course.coverImage,
+      category: purchase.course.category,
+      totalLessons: purchase.course.totalLessons || 0,
+      completedLessons: 0,
+      duration: purchase.course.accessDuration ? `${purchase.course.accessDuration} days` : 'N/A',
+      lastAccessed: purchase.purchaseDate,
+      slug: purchase.course.slug,
+      expiresAt: purchase.expiresAt,
+    }));
+    console.log(courses.value);
+  } catch (err) {
+    console.error(err);
+  }
+};
 
 // ── State ────────────────────────────────────────────────────────────────────
 const searchQuery = ref('');
@@ -113,6 +69,9 @@ const getStatus = (course: EnrolledCourse) => {
 };
 
 const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+const hasExpired = (course: EnrolledCourse) => {
+  return new Date(course.expiresAt) < new Date();
+};
 
 // ── Stats ────────────────────────────────────────────────────────────────────
 const stats = computed(() => ({
@@ -152,6 +111,10 @@ const progressColor = (course: EnrolledCourse) => {
   if (p >= 50) return 'bg-orange-500';
   return 'bg-orange-500/70';
 };
+
+onMounted(() => {
+  loadCourses();
+});
 </script>
 
 <template>

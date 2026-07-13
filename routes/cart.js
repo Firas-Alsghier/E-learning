@@ -5,6 +5,74 @@ import Purchase from '../models/Purchase.js';
 import userAuth from '../middleware/authMiddleware.js';
 const router = express.Router();
 
+router.post('/checkout', userAuth, async (req, res) => {
+  try {
+    // We'll implement this in the next step.
+    // Get user's cart
+    const cart = await Cart.findOne({
+      user: req.user._id,
+    }).populate({
+      path: 'items.course',
+      populate: {
+        path: 'teacher',
+      },
+    });
+
+    // Cart is empty
+    if (!cart || cart.items.length === 0) {
+      return res.status(400).json({
+        message: 'Your cart is empty',
+      });
+    }
+
+    // Create purchases
+    for (const item of cart.items) {
+      const course = item.course;
+
+      // Already purchased?
+      const alreadyPurchased = await Purchase.findOne({
+        user: req.user._id,
+        course: course._id,
+        paymentStatus: 'paid',
+      });
+
+      if (alreadyPurchased) {
+        continue;
+      }
+
+      // Calculate expiration date
+      const expiresAt = new Date();
+
+      expiresAt.setDate(expiresAt.getDate() + (course.accessDuration || 0));
+
+      await Purchase.create({
+        user: req.user._id,
+        course: course._id,
+        teacher: course.teacher._id,
+        pricePaid: course.price,
+        paymentStatus: 'paid',
+        purchaseDate: new Date(),
+        expiresAt,
+      });
+    }
+
+    // Empty the cart
+    cart.items = [];
+
+    await cart.save();
+
+    res.json({
+      message: 'Checkout completed successfully.',
+    });
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      message: 'Server error',
+    });
+  }
+});
+
 router.post('/:courseId', userAuth, async (req, res) => {
   try {
     const { courseId } = req.params;
@@ -128,31 +196,4 @@ router.delete('/:courseId', userAuth, async (req, res) => {
   }
 });
 
-router.post('/checkout', userAuth, async (req, res) => {
-  try {
-    // We'll implement this in the next step.
-    // Get user's cart
-    const cart = await Cart.findOne({
-      user: req.user._id,
-    }).populate({
-      path: 'items.course',
-      populate: {
-        path: 'teacher',
-      },
-    });
-
-    // Cart is empty
-    if (!cart || cart.items.length === 0) {
-      return res.status(400).json({
-        message: 'Your cart is empty',
-      });
-    }
-  } catch (err) {
-    console.error(err);
-
-    res.status(500).json({
-      message: 'Server error',
-    });
-  }
-});
 export default router;

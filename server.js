@@ -25,7 +25,7 @@ import messageRoutes from './routes/messages.js';
 import progressRoutes from './routes/progress.js';
 import userRoutes from './routes/user.js';
 import cartRoutes from './routes/cart.js';
-
+import purchaseRoutes from './routes/purchase.js';
 // import verifyEmailRoute from './routes/verifyEmail.js';
 
 const app = express();
@@ -54,6 +54,7 @@ app.use('/api/admin', adminTeachersRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/purchases', purchaseRoutes);
 // app.use('/api', verifyEmailRoute);
 
 mongoose
