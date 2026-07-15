@@ -56,6 +56,8 @@ router.post('/checkout', userAuth, async (req, res) => {
         purchaseDate: new Date(),
         expiresAt,
       });
+      course.studentsCount += 1;
+      await course.save();
     }
 
     // Empty the cart

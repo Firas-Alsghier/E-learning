@@ -44,6 +44,11 @@ const courseSchema = new mongoose.Schema(
       required: true,
     },
 
+    studentsCount: {
+      type: Number,
+      default: 0,
+    },
+
     level: {
       type: String,
       enum: ['All levels', 'Basic', 'Intermediate', 'Advanced', 'Expert'],

@@ -34,4 +34,26 @@ router.get('/my-courses', userAuth, async (req, res) => {
   }
 });
 
+router.get('/check/:courseId', userAuth, async (req, res) => {
+  try {
+    const purchase = await Purchase.findOne({
+      user: req.user._id,
+      course: req.params.courseId,
+      paymentStatus: 'paid',
+      expiresAt: {
+        $gt: new Date(),
+      },
+    });
+
+    res.json({
+      purchased: !!purchase,
+    });
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      message: 'Server error',
+    });
+  }
+});
 export default router;

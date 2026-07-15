@@ -11,6 +11,7 @@ import { useCartStore } from '~/stores/cart';
 const cartStore = useCartStore();
 const selectedTab = ref('overview');
 const isWishlisted = ref(false);
+const purchased = ref(false);
 const route = useRoute();
 const { t } = useI18n();
 const slug = computed(() => route.params.slug as string);
@@ -125,6 +126,29 @@ const checkIfWishlisted = async () => {
     console.error('Wishlist check error:', err);
   }
 };
+
+const checkIfPurchased = async () => {
+  try {
+    const token = useCookie('token').value;
+
+    if (!token || !course.value?.id) {
+      purchased.value = false;
+      return;
+    }
+
+    const data: any = await $fetch(`http://localhost:3001/api/purchases/check/${course.value.id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    purchased.value = data.purchased;
+  } catch (err) {
+    console.error(err);
+    purchased.value = false;
+  }
+  console.log(purchased.value);
+};
 /* ----------------------------------
      DATA FETCH (SSR SAFE)
   ---------------------------------- */
@@ -138,6 +162,7 @@ watch(
   (val) => {
     if (val) {
       checkIfWishlisted();
+      checkIfPurchased();
     }
   },
   { immediate: true }
@@ -266,13 +291,23 @@ watch(
                 >
                   Edit
                 </button>
-                <button
-                  v-else
-                  @click="addToCart"
-                  class="w-full py-2.5 sm:py-3 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold text-sm sm:text-base cursor-pointer shadow-[0_4px_20px_rgba(255,120,45,0.35)] hover:shadow-[0_8px_30px_rgba(255,120,45,0.5)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
-                >
-                  Enroll Now
-                </button>
+                <template v-else>
+                  <button
+                    v-if="!purchased"
+                    @click="addToCart"
+                    class="w-full py-2.5 sm:py-3 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold text-sm sm:text-base cursor-pointer shadow-[0_4px_20px_rgba(255,120,45,0.35)] hover:shadow-[0_8px_30px_rgba(255,120,45,0.5)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+                  >
+                    Enroll Now
+                  </button>
+
+                  <button
+                    v-else
+                    @click="navigateTo(`/learn/${course.id}`)"
+                    class="w-full py-2.5 sm:py-3 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm sm:text-base cursor-pointer transition-all duration-200"
+                  >
+                    Continue Learning
+                  </button>
+                </template>
 
                 <p class="text-xs text-zinc-500 tracking-wide">30-day money-back guarantee</p>
               </div>
