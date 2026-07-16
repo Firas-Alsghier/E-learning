@@ -24,6 +24,8 @@ export interface Index {
   id: string;
   title: string;
   slug: string;
+  students: number;
+
   author: string;
   // ✅ ADD THIS
   image?: string;

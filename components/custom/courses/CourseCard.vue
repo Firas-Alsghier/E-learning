@@ -19,7 +19,7 @@ const props = defineProps<{
     slug: string;
     image: string;
     author?: string;
-    students: number;
+    studentsCount: number;
     duration: string;
     level: string;
     lessons: number;
@@ -82,7 +82,7 @@ const goToCourse = () => {
           </div>
           <div class="flex items-center gap-1">
             <GraduationCap :size="20" color="#ff782d" />
-            {{ props.course.students }} Students
+            {{ props.course.studentsCount }} Students
           </div>
           <div class="flex items-center gap-1">
             <Gauge :size="20" color="#ff782d" />

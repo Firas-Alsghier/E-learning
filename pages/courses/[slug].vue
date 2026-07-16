@@ -236,7 +236,7 @@ watch(
                   class="flex items-center gap-1.5 sm:gap-2 bg-white/5 border border-white/[0.08] rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-xs text-zinc-400 transition-colors duration-200 hover:border-orange-500/40 hover:text-orange-300"
                 >
                   <Users :size="12" class="shrink-0" />
-                  <span>{{ course.studentsCount }} Students</span>
+                  <span>{{ course.students }} Students</span>
                 </div>
                 <div
                   class="flex items-center gap-1.5 sm:gap-2 bg-white/5 border border-white/[0.08] rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-xs text-zinc-400 transition-colors duration-200 hover:border-orange-500/40 hover:text-orange-300"
