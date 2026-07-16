@@ -224,6 +224,51 @@ watch(
                 {{ course.title }}
               </h1>
 
+              <!-- ★ STAR RATING — replace course.rating and course.ratingCount with real fields when ready -->
+              <div class="flex items-center gap-2.5">
+                <!-- 5 stars -->
+                <div class="flex items-center gap-0.5">
+                  <template v-for="star in 5" :key="star">
+                    <!-- Full star -->
+                    <svg v-if="star <= Math.floor(course.rating ?? 0)" class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path
+                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                      />
+                    </svg>
+                    <!-- Half star -->
+                    <svg v-else-if="star === Math.ceil(course.rating ?? 0) && (course.rating ?? 0) % 1 >= 0.5" class="w-4 h-4 text-yellow-400" viewBox="0 0 20 20">
+                      <defs>
+                        <linearGradient :id="`half-${star}`">
+                          <stop offset="50%" stop-color="currentColor" />
+                          <stop offset="50%" stop-color="transparent" />
+                        </linearGradient>
+                      </defs>
+                      <path
+                        :fill="`url(#half-${star})`"
+                        stroke="currentColor"
+                        stroke-width="0.5"
+                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                      />
+                    </svg>
+                    <!-- Empty star -->
+                    <svg v-else class="w-4 h-4 text-zinc-700" fill="currentColor" viewBox="0 0 20 20">
+                      <path
+                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                      />
+                    </svg>
+                  </template>
+                </div>
+
+                <!-- Numeric rating -->
+                <span class="text-sm font-bold text-yellow-400 tabular-nums">
+                  {{ course.rating ? course.rating.toFixed(1) : '—' }}
+                </span>
+
+                <!-- Rating count -->
+                <span class="text-xs text-zinc-500"> ({{ course.ratingCount ?? 0 }} {{ (course.ratingCount ?? 0) === 1 ? 'rating' : 'ratings' }}) </span>
+              </div>
+              <!-- ★ END STAR RATING -->
+
               <!-- Stats pills -->
               <div class="flex flex-wrap gap-2 sm:gap-2.5">
                 <div
@@ -260,7 +305,6 @@ watch(
             </div>
 
             <!-- Right: Course card -->
-            <!-- Mobile: full width centered. sm: constrained + centered. lg: fixed sidebar -->
             <div
               class="w-full sm:max-w-sm sm:mx-auto lg:mx-0 lg:w-[340px] shrink-0 lg:self-start rounded-2xl overflow-hidden bg-[#161618] border border-white/[0.08] shadow-[0_24px_60px_rgba(0,0,0,0.5)] group"
             >

@@ -49,6 +49,16 @@ const courseSchema = new mongoose.Schema(
       default: 0,
     },
 
+    averageRating: {
+      type: Number,
+      default: 0,
+    },
+
+    ratingsCount: {
+      type: Number,
+      default: 0,
+    },
+
     level: {
       type: String,
       enum: ['All levels', 'Basic', 'Intermediate', 'Advanced', 'Expert'],
