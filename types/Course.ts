@@ -9,6 +9,8 @@ export interface Course {
   author: string;
   duration: string;
   studentsCount: number;
+  averageRating: number;
+  ratingsCount: number;
   level: string;
   lessons: number;
   quizzesCount: number;
