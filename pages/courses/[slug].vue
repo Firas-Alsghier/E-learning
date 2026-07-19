@@ -159,6 +159,7 @@ const submitRating = async (rating: number) => {
 
     if (!token || !course.value?.id) return;
     ratingSaving.value = true;
+    console.log('Saving started', ratingSaving.value);
     const res = await fetch(`http://localhost:3001/api/course-ratings/${course.value.id}`, {
       method: 'POST',
       headers: {
@@ -180,14 +181,12 @@ const submitRating = async (rating: number) => {
     userRating.value = rating;
 
     toast.success('Rating saved!');
-    setTimeout(() => {
-      location.reload();
-    }, 3000);
   } catch (err) {
     console.error(err);
 
     toast.error('Something went wrong');
   } finally {
+    console.log('Saving finished');
     ratingSaving.value = false;
   }
 };
