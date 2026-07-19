@@ -12,6 +12,9 @@ const cartStore = useCartStore();
 const selectedTab = ref('overview');
 const isWishlisted = ref(false);
 const purchased = ref(false);
+const userRating = ref(0);
+const hoverRating = ref(0);
+const ratingSaving = ref(false);
 const route = useRoute();
 const { t } = useI18n();
 const slug = computed(() => route.params.slug as string);
@@ -148,6 +151,45 @@ const checkIfPurchased = async () => {
     purchased.value = false;
   }
   console.log(purchased.value);
+};
+
+const submitRating = async (rating: number) => {
+  try {
+    const token = useCookie('token').value;
+
+    if (!token || !course.value?.id) return;
+    ratingSaving.value = true;
+    const res = await fetch(`http://localhost:3001/api/course-ratings/${course.value.id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        rating,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      toast.error(data.message || 'Unable to save rating');
+      return;
+    }
+
+    userRating.value = rating;
+
+    toast.success('Rating saved!');
+    setTimeout(() => {
+      location.reload();
+    }, 3000);
+  } catch (err) {
+    console.error(err);
+
+    toast.error('Something went wrong');
+  } finally {
+    ratingSaving.value = false;
+  }
 };
 /* ----------------------------------
      DATA FETCH (SSR SAFE)
@@ -352,6 +394,23 @@ watch(
                   >
                     Continue Learning
                   </button>
+                  <div v-if="purchased && !isTeacherLoggedIn" class="flex flex-col items-center gap-2 mt-4">
+                    <p class="text-sm text-zinc-400">Rate this course</p>
+
+                    <div class="flex gap-1">
+                      <Star
+                        v-for="star in 5"
+                        :key="star"
+                        :size="22"
+                        class="transition-colors"
+                        :class="[star <= (hoverRating || userRating) ? 'text-yellow-400 fill-yellow-400' : 'text-zinc-600', ratingSaving ? 'cursor-not-allowed opacity-50' : 'cursor-pointer']"
+                        @mouseenter="!ratingSaving && (hoverRating = star)"
+                        @mouseleave="!ratingSaving && (hoverRating = 0)"
+                        @click="!ratingSaving && submitRating(star)"
+                      />
+                    </div>
+                    <p v-if="ratingSaving" class="text-xs text-zinc-500">Saving your rating...</p>
+                  </div>
                 </template>
 
                 <p class="text-xs text-zinc-500 tracking-wide">30-day money-back guarantee</p>
