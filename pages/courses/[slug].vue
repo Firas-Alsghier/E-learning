@@ -150,7 +150,6 @@ const checkIfPurchased = async () => {
     console.error(err);
     purchased.value = false;
   }
-  console.log(purchased.value);
 };
 
 const submitRating = async (rating: number) => {
@@ -159,7 +158,6 @@ const submitRating = async (rating: number) => {
 
     if (!token || !course.value?.id) return;
     ratingSaving.value = true;
-    console.log('Saving started', ratingSaving.value);
     const res = await fetch(`http://localhost:3001/api/course-ratings/${course.value.id}`, {
       method: 'POST',
       headers: {
@@ -186,7 +184,6 @@ const submitRating = async (rating: number) => {
 
     toast.error('Something went wrong');
   } finally {
-    console.log('Saving finished');
     ratingSaving.value = false;
   }
 };
@@ -201,8 +198,6 @@ watch(
   () => course.value,
   (val) => {
     if (val) {
-      console.log(val); // 👈 Add this line
-
       checkIfWishlisted();
       checkIfPurchased();
     }

@@ -3,13 +3,15 @@ import Course from '../models/Course.js';
 import CourseRating from '../models/CourseRating.js';
 import Purchase from '../models/Purchase.js';
 import userAuth from '../middleware/authMiddleware.js';
-
+import { getCourseCompletion } from '../utils/courseCompletion.js';
 const router = express.Router();
 
 router.post('/:courseId', userAuth, async (req, res) => {
   try {
     const { courseId } = req.params;
+    const completion = await getCourseCompletion(req.user._id, courseId);
 
+    console.log('Course Completion:', completion);
     // Check that the course exists
     const course = await Course.findById(courseId);
 
@@ -27,7 +29,6 @@ router.post('/:courseId', userAuth, async (req, res) => {
       course: courseId,
       paymentStatus: 'paid',
     });
-    console.log('Purchase:', purchase);
     if (!purchase) {
       return res.status(403).json({
         message: 'You must purchase this course before rating it.',
