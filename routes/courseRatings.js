@@ -9,9 +9,7 @@ const router = express.Router();
 router.post('/:courseId', userAuth, async (req, res) => {
   try {
     const { courseId } = req.params;
-    const completion = await getCourseCompletion(req.user._id, courseId);
 
-    console.log('Course Completion:', completion);
     // Check that the course exists
     const course = await Course.findById(courseId);
 
@@ -22,8 +20,6 @@ router.post('/:courseId', userAuth, async (req, res) => {
     }
 
     // Check that the user purchased the course
-    console.log('User:', req.user._id);
-    console.log('Course:', courseId);
     const purchase = await Purchase.findOne({
       user: req.user._id,
       course: courseId,
