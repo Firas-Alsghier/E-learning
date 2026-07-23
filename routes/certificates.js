@@ -3,6 +3,7 @@ import Certificate from '../models/Certificate.js';
 import Course from '../models/Course.js';
 import { getCourseCompletion } from '../utils/courseCompletion.js';
 import userAuth from '../middleware/authMiddleware.js';
+import { generateCertificate } from '../utils/generateCertificate.js';
 
 const router = express.Router();
 
@@ -32,13 +33,10 @@ router.post('/:courseId', userAuth, async (req, res) => {
     const existingCertificate = await Certificate.findOne({
       user: req.user._id,
       course: courseId,
-    });
+    }).populate('user');
 
     if (existingCertificate) {
-      return res.json({
-        message: 'Certificate already exists.',
-        certificate: existingCertificate,
-      });
+      return generateCertificate(res, existingCertificate, `${existingCertificate.user.firstName} ${existingCertificate.user.lastName}`, course.title);
     }
 
     // Generate a unique certificate number
@@ -51,11 +49,10 @@ router.post('/:courseId', userAuth, async (req, res) => {
       certificateNumber,
     });
 
+    await certificate.populate('user');
+
     // Return it
-    return res.json({
-      message: 'Certificate created successfully.',
-      certificate,
-    });
+    return generateCertificate(res, certificate, `${certificate.user.firstName} ${certificate.user.lastName}`, course.title);
   } catch (err) {
     console.error(err);
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { BookOpen, Clock, Play, CheckCircle, Search, LayoutGrid, List, Trophy, TrendingUp, Filter } from 'lucide-vue-next';
+import { toast } from 'vue-sonner';
 
 definePageMeta({
   middleware: ['user-auth'],
@@ -40,8 +41,8 @@ const loadCourses = async () => {
       author: `${purchase.course.teacher.firstName} ${purchase.course.teacher.lastName}`,
       image: purchase.course.coverImage,
       category: purchase.course.category,
-      totalLessons: purchase.course.totalLessons || 0,
-      completedLessons: 0,
+      totalLessons: purchase.totalLessons,
+      completedLessons: purchase.completedLessons,
       duration: purchase.course.accessDuration ? `${purchase.course.accessDuration} days` : 'N/A',
       lastAccessed: purchase.purchaseDate,
       slug: purchase.course.slug,
@@ -50,6 +51,42 @@ const loadCourses = async () => {
     console.log(courses.value);
   } catch (err) {
     console.error(err);
+  }
+};
+
+const downloadCertificate = async (courseId: string) => {
+  try {
+    const response = await fetch(`http://localhost:3001/api/certificates/${courseId}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token.value}`,
+      },
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      toast.error(data.message || 'Unable to download certificate');
+      return;
+    }
+
+    // Convert response to PDF
+    const blob = await response.blob();
+
+    // Create temporary download link
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'certificate.pdf';
+
+    document.body.appendChild(a);
+    a.click();
+
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error('Download certificate error:', err);
+    toast.error('Something went wrong');
   }
 };
 
@@ -279,6 +316,13 @@ onMounted(() => {
               <template v-else-if="getStatus(course) === 'not-started'"> <Play :size="14" fill="currentColor" /> Start Learning </template>
               <template v-else> <Play :size="14" fill="currentColor" /> Continue </template>
             </a>
+            <button
+              v-if="getStatus(course) === 'completed'"
+              @click="downloadCertificate(course.id)"
+              class="mt-2 flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-orange-500/30 bg-orange-500/10 text-orange-400 text-sm font-bold hover:bg-orange-500/20 transition-all duration-200 cursor-pointer"
+            >
+              🏆 Download Certificate
+            </button>
           </div>
         </div>
       </div>
