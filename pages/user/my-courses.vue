@@ -86,7 +86,7 @@ const downloadCertificate = async (courseId: string) => {
     window.URL.revokeObjectURL(url);
   } catch (err) {
     console.error('Download certificate error:', err);
-    toast.error('Something went wrong');
+    // toast.error('Something went wrong');
   }
 };
 
