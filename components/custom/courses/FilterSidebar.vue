@@ -163,7 +163,7 @@ const activeCount = computed(() => props.filters.categories.length + props.filte
       </div>
 
       <!-- ── Hours ── -->
-      <div>
+      <!-- <div>
         <button @click="toggleSection('hours')" class="w-full flex items-center justify-between px-5 py-3.5 text-sm font-semibold text-gray-700 hover:text-gray-900 cursor-pointer transition-colors">
           <span>Hours</span>
           <ChevronDown :size="15" class="text-gray-400 transition-transform duration-200 shrink-0" :class="{ 'rotate-180': isOpen('hours') }" />
@@ -186,7 +186,7 @@ const activeCount = computed(() => props.filters.categories.length + props.filte
             </label>
           </div>
         </Transition>
-      </div>
+      </div> -->
 
       <!-- ── Price ── -->
       <div>

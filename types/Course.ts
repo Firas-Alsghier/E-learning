@@ -20,6 +20,7 @@ export interface Course {
 }
 
 export interface Index {
+  [x: string]: number;
   lessons: number;
   // id(id: any): boolean;
   createdAt: any;

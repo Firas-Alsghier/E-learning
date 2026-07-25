@@ -75,6 +75,7 @@ const fetchCourses = async () => {
       level: course.level ?? 'All levels',
       lessons: course.lessons ?? 0,
       price: course.price,
+      rating: course.averageRating ?? 0,
       oldPrice: course.oldPrice ?? 0,
       category: course.category ?? 'General',
       isWishlisted: wishlistIds.includes(course.id),
@@ -129,6 +130,9 @@ const filteredCourses = computed(() => {
   }
   if (activeFilters.value.levels.length) {
     result = result.filter((course) => activeFilters.value.levels.includes(course.level));
+  }
+  if (activeFilters.value.ratings.length) {
+    result = result.filter((course) => activeFilters.value.ratings.some((rating) => course.rating >= rating));
   }
   if (activeFilters.value.price.length) {
     result = result.filter((course) => {
