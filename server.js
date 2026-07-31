@@ -28,6 +28,7 @@ import cartRoutes from './routes/cart.js';
 import purchaseRoutes from './routes/purchase.js';
 import courseRatingsRoutes from './routes/courseRatings.js';
 import certificateRoutes from './routes/certificates.js';
+import learnRoutes from './routes/learn.js';
 // import verifyEmailRoute from './routes/verifyEmail.js';
 
 const app = express();
@@ -44,6 +45,7 @@ app.use('/api/teacher/articles', teacherArticlesRoutes);
 // app.use('/api/teacher', teacherCoursesRoutes);
 app.use('/api/teacher/courses', teacherCoursesRoutes);
 app.use('/api/courses', publicCoursesRoutes);
+app.use('/api/learn', learnRoutes);
 app.use('/api/categories', categoriesRoutes);
 app.use('/api', enrollmentRoutes);
 app.use('/api/admin/auth', adminAuthRoutes);
@@ -59,6 +61,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/purchases', purchaseRoutes);
 app.use('/api/course-ratings', courseRatingsRoutes);
 app.use('/api/certificates', certificateRoutes);
+
 // app.use('/api', verifyEmailRoute);
 
 mongoose

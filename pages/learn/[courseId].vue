@@ -1,3 +1,4 @@
+<!-- pages\learn\[courseId].vue -->
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -263,7 +264,11 @@ function goBackToCourse() {
 }
 
 onMounted(async () => {
-  const course: any = await $fetch(`http://localhost:3001/api/courses/id/${courseId}`);
+  const course: any = await $fetch(`http://localhost:3001/api/learn/${courseId}`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
+  });
   curriculum.value = course.sections;
   courseSlug.value = course.slug;
   courseTeacherId.value = course.teacherId; // ✅ ADD THIS
