@@ -2,7 +2,7 @@
 import { ref, computed, watch } from 'vue';
 import { toast } from 'vue-sonner';
 import { useRoute } from 'vue-router';
-import { Heart, Clock, Users, BarChart2, BookOpen, FileText, Play, Star } from 'lucide-vue-next';
+import { Heart, Clock, Users, BarChart2, BookOpen, FileText, Play, Star, Lock } from 'lucide-vue-next';
 import type { Course } from '@/types/Course';
 import { useI18n } from 'vue-i18n';
 import CustomCoursesContactInstructorTab from '@/components/custom/courses/ContactInstructorTab.vue';
@@ -439,7 +439,13 @@ watch(
               <Transition name="fade" mode="out-in">
                 <div :key="selectedTab" class="px-4 sm:px-6 lg:px-8 py-5 sm:py-7 text-right leading-loose text-zinc-300 text-sm" dir="rtl">
                   <CustomCoursesOverviewTab :description="course.description" v-if="selectedTab === 'overview'" />
-                  <CustomCoursesCurriculumTab v-if="selectedTab === 'curriculum' && course?.id" :sections="course.sections" :courseId="course.id" :courseTeacherId="course.teacherId" />
+                  <CustomCoursesCurriculumTab
+                    v-if="selectedTab === 'curriculum' && course?.id"
+                    :sections="course.sections"
+                    :courseId="course.id"
+                    :courseTeacherId="course.teacherId"
+                    :purchased="purchased"
+                  />
                   <CustomCoursesInstructorTab
                     :facebook="course.social.facebook"
                     :instagram="course.social.instagram"

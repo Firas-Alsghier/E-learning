@@ -3,6 +3,7 @@ import { ref, onMounted, nextTick } from 'vue';
 import { ChevronDown, Lock, Check } from 'lucide-vue-next';
 import { useTeacher } from '~/composables/useTeacher';
 import { useTeacherStore } from '~/stores/teacher';
+import { toast } from 'vue-sonner';
 const currentLesson = ref<any>(null);
 const showPlayer = ref(false);
 const teacherToken = useCookie<string | null>('teacher_token');
@@ -13,7 +14,10 @@ const props = defineProps<{
   sections: any[];
   courseId: string;
   courseTeacherId: string;
+  purchased: boolean;
 }>();
+
+console.log('Purchased:', props.purchased);
 
 const courseId = props.courseId;
 console.log('courseId:', props.courseId);
@@ -27,7 +31,7 @@ const curriculum = ref(
     lessons: s.lessons.map((l: any, i: number) => ({
       ...l,
       active: i === 0,
-      locked: i !== 0 || (teacherToken.value && !isCourseOwner.value), // ✅ important
+      locked: !props.purchased ? true : i !== 0 || (teacherToken.value && !isCourseOwner.value),
       completed: false,
     })),
   }))
@@ -48,6 +52,13 @@ function openLesson(section: any, lesson: any) {
   }
 
   // ❌ Locked lesson (only applies to users)
+  // ❌ User hasn't purchased the course
+  if (!props.purchased && !isCourseOwner.value) {
+    toast.info('Purchase this course to unlock all lessons.');
+    return;
+  }
+
+  // ❌ Locked lesson (progression)
   if (lesson.locked && !isCourseOwner.value) return;
 
   // ✅ Allowed
@@ -210,7 +221,7 @@ onMounted(async () => {
             @click="openLesson(section, lesson)"
             :class="[
               'flex items-center justify-between px-4 py-2 gap-3 transition-colors duration-150',
-              isLoggedIn && (!teacherToken || isCourseOwner) ? 'cursor-pointer hover:bg-white' : 'cursor-not-allowed opacity-70',
+              !props.purchased && !isCourseOwner ? 'cursor-not-allowed opacity-60' : isLoggedIn && (!teacherToken || isCourseOwner) ? 'cursor-pointer hover:bg-white' : 'cursor-not-allowed opacity-70',
             ]"
           >
             <!-- Left -->
