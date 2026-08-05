@@ -43,7 +43,7 @@ const handleLogout = () => {
 
       <DropdownMenuGroup>
         <DropdownMenuItem class="cursor-pointer">
-          <a href="user/my-courses">My Courses</a>
+          <NuxtLink to="/user/my-courses"> My Courses </NuxtLink>
           <!-- <span>My Courses</span> -->
         </DropdownMenuItem>
         <!-- <DropdownMenuItem class="cursor-pointer">
@@ -59,7 +59,7 @@ const handleLogout = () => {
           <span>Notifications</span>
         </DropdownMenuItem> -->
         <DropdownMenuItem class="cursor-pointer">
-          <a href="user/message">Message</a>
+          <NuxtLink to="/user/message"> Message </NuxtLink>
         </DropdownMenuItem>
       </DropdownMenuGroup>
 

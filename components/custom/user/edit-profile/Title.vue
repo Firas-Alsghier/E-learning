@@ -11,7 +11,6 @@ const { t } = useI18n();
       <h1 class="text-2xl font-bold">{{ t('profile-title') }}</h1>
       <p class="text-base">{{ t('profile-sub-title') }}</p>
     </div>
-    <hr />
   </div>
 </template>
 
