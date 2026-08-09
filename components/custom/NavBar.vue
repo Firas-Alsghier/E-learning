@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth';
 import { useCartStore } from '~/stores/cart';
+import { useWishlistStore } from '~/stores/wishlist';
 import { useI18n } from 'vue-i18n';
 import { Search, MenuIcon, Heart, ShoppingCart, Bell } from 'lucide-vue-next';
 import { useUser } from '~/composables/useUser'; // Retained for real-world functionality
@@ -8,38 +9,39 @@ import { useTeacher } from '~/composables/useTeacher';
 const { user } = useUser();
 const { teacher } = useTeacher(); // 👈 Add this line
 const cartStore = useCartStore();
+const wishlistStore = useWishlistStore();
 const isMenuOpen = ref(false);
 const searchQuery = ref('');
 const isHydrated = ref(false);
 const { t } = useI18n();
 // --- Notification/Count State (New) ---
 // Initialize your mock counts here. In a real app, these would come from a store or API.
-const wishlistCount = ref(0); // Items in wishlist
+const wishlistCount = computed(() => wishlistStore.count); // Items in wishlist
 const cartCount = computed(() => cartStore.count);
 const notificationCount = ref(9); // Unread notifications
 const auth = useAuthStore();
 
-const fetchWishlistCount = async () => {
-  try {
-    const token = useCookie('token').value;
+// const fetchWishlistCount = async () => {
+//   try {
+//     const token = useCookie('token').value;
 
-    if (!token) {
-      wishlistCount.value = 0;
-      return;
-    }
+//     if (!token) {
+//       wishlistStore.setCount(0);
+//       return;
+//     }
 
-    const wishlist = await $fetch<any[]>('http://localhost:3001/api/user/wishlist', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+//     const wishlist = await $fetch<any[]>('http://localhost:3001/api/user/wishlist', {
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//       },
+//     });
 
-    wishlistCount.value = wishlist.length;
-  } catch (err) {
-    console.error('Wishlist count error:', err);
-    wishlistCount.value = 0;
-  }
-};
+//     wishlistStore.setCount(wishlist.length);
+//   } catch (err) {
+//     console.error('Wishlist count error:', err);
+//     wishlistStore.setCount(0);
+//   }
+// };
 
 const fetchCartCount = async () => {
   try {
@@ -65,7 +67,7 @@ const fetchCartCount = async () => {
 // Wait for client-side rehydration
 onMounted(async () => {
   isHydrated.value = true;
-  await Promise.all([fetchWishlistCount(), fetchCartCount()]); // Click outside to close menu
+  await Promise.all([wishlistStore.refresh(), fetchCartCount()]); // Click outside to close menu
   window.addEventListener('click', (event: any) => {
     if (!event.target.closest('.mobile-menu') && !event.target.closest('button')) {
       isMenuOpen.value = false;

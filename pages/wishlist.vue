@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { Clock, UsersRound, Heart, ArrowRight } from 'lucide-vue-next';
+import { useWishlistStore } from '~/stores/wishlist';
 
 definePageMeta({
   layout: false,
@@ -32,6 +33,8 @@ const activeTab = ref<ActiveTab>('courses');
 const courses = ref<Course[]>([]);
 
 const loading = ref(true);
+
+const wishlistStore = useWishlistStore();
 
 const error = ref<string | null>(null);
 
@@ -88,15 +91,23 @@ const toggleCourseWishlist = async (courseId: string) => {
       return;
     }
 
-    // 🔥 call backend (same toggle route)
-    await fetch(`http://localhost:3001/api/user/wishlist/${courseId}`, {
+    const res = await fetch(`http://localhost:3001/api/user/wishlist/${courseId}`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
-    // 🔥 update UI (remove from list)
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || 'Failed to update wishlist');
+    }
+
+    // Update Pinia with the REAL backend count
+    wishlistStore.setCount(data.wishlist.length);
+
+    // Remove from this page
     courses.value = courses.value.filter((c) => c.id !== courseId);
   } catch (err) {
     console.error('Remove wishlist error:', err);

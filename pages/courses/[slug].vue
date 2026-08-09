@@ -8,7 +8,9 @@ import { useI18n } from 'vue-i18n';
 import CustomCoursesContactInstructorTab from '@/components/custom/courses/ContactInstructorTab.vue';
 import { useTeacher } from '~/composables/useTeacher';
 import { useCartStore } from '~/stores/cart';
+import { useWishlistStore } from '~/stores/wishlist';
 const cartStore = useCartStore();
+const wishlistStore = useWishlistStore();
 const selectedTab = ref('overview');
 const isWishlisted = ref(false);
 const purchased = ref(false);
@@ -57,9 +59,11 @@ const toggleWishlist = async () => {
     });
 
     const data = await res.json();
+    console.log('Wishlist response:', data);
 
     // ✅ real update
     isWishlisted.value = data.wishlist.includes(course.value.id);
+    wishlistStore.setCount(data.wishlist.length);
 
     console.log('UPDATED WISHLIST:', data.wishlist);
   } catch (err) {
