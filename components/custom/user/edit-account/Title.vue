@@ -9,6 +9,5 @@ const { t } = useI18n(); // 💡 Destructured locale to check current language
       <h1 class="text-2xl font-bold">{{ t('account-title') }}</h1>
       <p class="text-base">{{ t('edit-account') }}</p>
     </div>
-    <hr />
   </div>
 </template>

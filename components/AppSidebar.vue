@@ -40,11 +40,7 @@ const data = computed(() => ({
       url: 'edit-notification-preferences',
       icon: Settings2,
     }, // { //   title: 'المساعدة والدعم', //   url: '#', //   icon: Settings2, // },
-    {
-      title: t('close-account'),
-      url: 'close-account',
-      icon: Settings2,
-    },
+
     {
       title: 'Messages',
       url: 'message',
@@ -53,6 +49,11 @@ const data = computed(() => ({
     {
       title: 'My Courses',
       url: 'my-courses',
+      icon: Settings2,
+    },
+    {
+      title: t('close-account'),
+      url: 'close-account',
       icon: Settings2,
     },
   ],

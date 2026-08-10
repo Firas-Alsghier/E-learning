@@ -3,14 +3,40 @@ import revenueImage from '@/assets/svgs/money-bag.svg';
 import studentImage from '@/assets/svgs/student.svg';
 import coursesImage from '@/assets/svgs/video.svg';
 import { useAuthStore } from '~/stores/auth';
-
+definePageMeta({
+  middleware: ['require-teacher-auth'],
+  layout: false,
+});
 const route = useRoute();
 const x = false;
 const auth = useAuthStore();
 
-definePageMeta({
-  middleware: ['require-teacher-auth'],
-  layout: false,
+const coursesCount = ref(0);
+
+const fetchCoursesCount = async () => {
+  try {
+    const token = useCookie('teacher_token').value;
+
+    if (!token) {
+      coursesCount.value = 0;
+      return;
+    }
+
+    const courses = await $fetch<any[]>('http://localhost:3001/api/teacher/courses', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    coursesCount.value = courses.length;
+  } catch (error) {
+    console.error('Failed to fetch teacher courses:', error);
+    coursesCount.value = 0;
+  }
+};
+
+onMounted(() => {
+  fetchCoursesCount();
 });
 
 // Dummy data for demonstration
@@ -105,7 +131,7 @@ const courseData = [
         <div class="grid auto-rows-min gap-4 md:grid-cols-3">
           <CustomTeacherDashboardCard :title="auth.isEnglish ? 'Total Revenue' : 'إجمالي الإيرادات'" number="$26545" :link="revenueImage" />
           <CustomTeacherDashboardCard :title="auth.isEnglish ? 'Total Students' : 'إجمالي الطلاب'" number="26545" :link="studentImage" />
-          <CustomTeacherDashboardCard :title="auth.isEnglish ? 'Total Courses' : 'إجمالي الدورات'" number="26545" :link="coursesImage" />
+          <CustomTeacherDashboardCard :title="auth.isEnglish ? 'Total Courses' : 'إجمالي الدورات'" :number="coursesCount" :link="coursesImage" />
           <!-- <div class="aspect-video rounded-xl bg-muted/50 ratings flex justify-center items-center text-5xl">20</div> -->
         </div>
         <div class="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min grid grid-cols-1 lg:grid-cols-3 gap-6">
