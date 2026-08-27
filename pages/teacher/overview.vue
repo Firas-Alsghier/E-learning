@@ -12,7 +12,8 @@ const x = false;
 const auth = useAuthStore();
 
 const coursesCount = ref(0);
-
+const studentsCount = ref(0);
+const revenue = ref(0);
 const fetchCoursesCount = async () => {
   try {
     const token = useCookie('teacher_token').value;
@@ -35,8 +36,54 @@ const fetchCoursesCount = async () => {
   }
 };
 
+const fetchStudentsCount = async () => {
+  try {
+    const token = useCookie('teacher_token').value;
+
+    if (!token) {
+      studentsCount.value = 0;
+      return;
+    }
+
+    const response = await $fetch<{ totalStudents: number }>('http://localhost:3001/api/teacher/courses/stats/students', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    studentsCount.value = response.totalStudents;
+  } catch (error) {
+    console.error('Failed to fetch total students:', error);
+    studentsCount.value = 0;
+  }
+};
+
+const fetchRevenue = async () => {
+  try {
+    const token = useCookie('teacher_token').value;
+
+    if (!token) {
+      revenue.value = 0;
+      return;
+    }
+
+    const response = await $fetch<{ totalRevenue: number }>('http://localhost:3001/api/teacher/courses/stats/revenue', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    revenue.value = response.totalRevenue;
+  } catch (error) {
+    console.error('Failed to fetch total revenue:', error);
+    revenue.value = 0;
+  }
+};
+
 onMounted(() => {
   fetchCoursesCount();
+  fetchStudentsCount();
+  fetchRevenue();
 });
 
 // Dummy data for demonstration
@@ -129,8 +176,8 @@ const courseData = [
       </header>
       <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
         <div class="grid auto-rows-min gap-4 md:grid-cols-3">
-          <CustomTeacherDashboardCard :title="auth.isEnglish ? 'Total Revenue' : 'إجمالي الإيرادات'" number="$26545" :link="revenueImage" />
-          <CustomTeacherDashboardCard :title="auth.isEnglish ? 'Total Students' : 'إجمالي الطلاب'" number="26545" :link="studentImage" />
+          <CustomTeacherDashboardCard :title="auth.isEnglish ? 'Total Revenue' : 'إجمالي الإيرادات'" :number="revenue" :link="revenueImage" />
+          <CustomTeacherDashboardCard :title="auth.isEnglish ? 'Total Students' : 'إجمالي الطلاب'" :number="studentsCount" :link="studentImage" />
           <CustomTeacherDashboardCard :title="auth.isEnglish ? 'Total Courses' : 'إجمالي الدورات'" :number="coursesCount" :link="coursesImage" />
           <!-- <div class="aspect-video rounded-xl bg-muted/50 ratings flex justify-center items-center text-5xl">20</div> -->
         </div>

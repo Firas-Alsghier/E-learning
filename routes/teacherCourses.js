@@ -8,6 +8,7 @@ import Course from '../models/Course.js';
 import Section from '../models/Section.js';
 import Lesson from '../models/Lesson.js';
 import LevelCheck from '../models/LevelCheck.js';
+import Purchase from '../models/Purchase.js';
 import { teacherAuth } from '../middleware/teacherAuth.js';
 import { uploadCover } from '../middleware/upload.js';
 // import { videoUpload } from '../middleware/videoUpload.js';
@@ -166,6 +167,36 @@ router.get('/', teacherAuth, async (req, res) => {
     res.json(courses);
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch courses' });
+  }
+});
+
+/**
+ * GET TOTAL STUDENTS
+ * GET /api/teacher/courses/stats/students
+ */
+/**
+ * GET TOTAL STUDENTS
+ * GET /api/teacher/courses/stats/students
+ */
+router.get('/stats/students', teacherAuth, async (req, res) => {
+  try {
+    const students = await Purchase.distinct('user', {
+      teacher: req.teacher._id,
+      paymentStatus: 'paid',
+      expiresAt: {
+        $gt: new Date(),
+      },
+    });
+
+    res.json({
+      totalStudents: students.length,
+    });
+  } catch (err) {
+    console.error('Get total students error:', err);
+
+    res.status(500).json({
+      message: 'Failed to get total students',
+    });
   }
 });
 
@@ -467,6 +498,41 @@ router.delete('/lessons/:lessonId', teacherAuth, async (req, res) => {
   }
 });
 
+/**
+ * GET TOTAL REVENUE
+ * GET /api/teacher/courses/stats/revenue
+ */
+router.get('/stats/revenue', teacherAuth, async (req, res) => {
+  try {
+    const result = await Purchase.aggregate([
+      {
+        $match: {
+          teacher: req.teacher._id,
+          paymentStatus: 'paid',
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: '$pricePaid' },
+        },
+      },
+    ]);
+
+    const totalRevenue = result.length > 0 ? result[0].totalRevenue : 0;
+
+    res.json({
+      totalRevenue,
+    });
+  } catch (err) {
+    console.error('Get total revenue error:', err);
+
+    res.status(500).json({
+      message: 'Failed to get total revenue',
+    });
+  }
+});
+
 // --- Helper function to get Cloudinary Public ID from a URL ---
 const getCloudinaryId = (url) => {
   if (!url || !url.includes('cloudinary')) return null;
@@ -480,56 +546,5 @@ const getCloudinaryId = (url) => {
   const publicIdWithExt = pathAfterUpload.join('/');
   return publicIdWithExt.split('.')[0]; // Remove extension like .mp4
 };
-
-/**
- * DELETE FULL COURSE
- * DELETE /api/teacher/courses/:courseId
- */
-router.delete('/:courseId', teacherAuth, async (req, res) => {
-  try {
-    const { courseId } = req.params;
-
-    // 1. Find the course and check if it belongs to this teacher
-    const course = await Course.findOne({ _id: courseId, teacher: req.teacher._id });
-    if (!course) return res.status(404).json({ message: 'Course not found' });
-
-    // 2. Get all lessons to find video URLs
-    const lessons = await Lesson.find({ course: courseId });
-
-    // 3. Delete Videos from Cloudinary
-    for (const lesson of lessons) {
-      if (lesson.videoUrl) {
-        const publicId = getCloudinaryId(lesson.videoUrl);
-        if (publicId) {
-          await cloudinary.uploader.destroy(publicId, { resource_type: 'video' });
-        }
-      }
-    }
-
-    // 4. Delete Cover Image
-    if (course.coverImage) {
-      if (course.coverImage.includes('cloudinary')) {
-        // If stored on Cloudinary
-        const coverId = getCloudinaryId(course.coverImage);
-        if (coverId) await cloudinary.uploader.destroy(coverId);
-      } else {
-        // If stored locally on your server
-        const filename = course.coverImage.split('/').pop();
-        const localPath = path.join('uploads/covers', filename); // Adjust path to your folder
-        if (fs.existsSync(localPath)) fs.unlinkSync(localPath);
-      }
-    }
-
-    // 5. Delete from MongoDB (Order matters!)
-    await Lesson.deleteMany({ course: courseId }); // Delete lessons
-    await Section.deleteMany({ course: courseId }); // Delete sections
-    await course.deleteOne(); // Delete the main course
-
-    res.json({ message: 'Course and all assets deleted successfully! 🗑️' });
-  } catch (error) {
-    console.error('Delete error:', error);
-    res.status(500).json({ message: 'Failed to delete everything' });
-  }
-});
 
 export default router;
