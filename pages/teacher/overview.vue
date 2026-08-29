@@ -80,81 +80,36 @@ const fetchRevenue = async () => {
   }
 };
 
+const courseData = ref<any[]>([]);
+
+const fetchCourseStatus = async (period = 'this-month') => {
+  try {
+    const token = useCookie('teacher_token').value;
+
+    if (!token) {
+      courseData.value = [];
+      return;
+    }
+
+    const response = await $fetch<any[]>(`http://localhost:3001/api/teacher/courses/status?period=${period}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    courseData.value = response;
+  } catch (error) {
+    console.error('Failed to fetch course status:', error);
+    courseData.value = [];
+  }
+};
+
 onMounted(() => {
   fetchCoursesCount();
   fetchStudentsCount();
   fetchRevenue();
+  fetchCourseStatus();
 });
-
-// Dummy data for demonstration
-const courseData = [
-  {
-    id: 1,
-    image: 'https://via.placeholder.com/40/800080/FFFFFF?text=P', // Example image
-    name: 'Complete Python Bootcamp in Python',
-    description: 'Development',
-    category: 'Design',
-    sale: 150,
-    rating: 4.5,
-    earning: 610.5,
-    visitor: 24512,
-  },
-  {
-    id: 2,
-    image: 'https://via.placeholder.com/40/0000FF/FFFFFF?text=E', // Example image
-    name: 'Advanced Excel Formulas & Functions',
-    description: 'Learn backend',
-    category: 'Development',
-    sale: 20,
-    rating: 5.0,
-    earning: 55.5,
-    visitor: 6200,
-  },
-  {
-    id: 3,
-    image: 'https://via.placeholder.com/40/FF0000/FFFFFF?text=V', // Example image
-    name: 'Video Editor in Filmora9',
-    description: 'Video-Creation',
-    category: 'Photography',
-    sale: 56,
-    rating: 4.5,
-    earning: 610.5,
-    visitor: 24512,
-  },
-  {
-    id: 4,
-    image: 'https://via.placeholder.com/40/00FF00/FFFFFF?text=O', // Example image
-    name: 'Online Meeting Facilitation: The 4 Secret Keys',
-    description: 'Marketing Courses',
-    category: 'Marketing',
-    sale: 150,
-    rating: 4.5,
-    earning: 610.5,
-    visitor: 24512,
-  },
-  {
-    id: 5,
-    image: 'https://via.placeholder.com/40/FFA500/FFFFFF?text=I', // Example image
-    name: 'Intermediate Blues Rhythm Guitar',
-    description: 'Music Fundamentals',
-    category: 'Music',
-    sale: 30,
-    rating: 5.0,
-    earning: 110.5,
-    visitor: 6512,
-  },
-  {
-    id: 6,
-    image: 'https://via.placeholder.com/40/FFFF00/000000?text=B', // Example image
-    name: 'B2B Sales Masterclass: People-Focused Selling',
-    description: 'Business Courses',
-    category: 'Business',
-    sale: 90,
-    rating: 4.5,
-    earning: 240.5,
-    visitor: 512,
-  },
-];
 </script>
 <template>
   <LanguageBanner />
@@ -184,7 +139,7 @@ const courseData = [
         <div class="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min grid grid-cols-1 lg:grid-cols-3 gap-6">
           <CustomTeacherChartOverview />
           <CustomTeacherTopStudentlocations />
-          <CustomTeacherCourseStatusTable :courses="courseData" />
+          <CustomTeacherCourseStatusTable :courses="courseData" @period-change="fetchCourseStatus" />
           <CustomTeacherRecentPurchasesTable />
           <!-- <CustomTeacherDashboardCharts /> -->
         </div>

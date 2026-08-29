@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { Star, TrendingUp, Users, DollarSign, ShoppingCart, ArrowUpDown } from 'lucide-vue-next';
+import { ref, computed, watch } from 'vue';
+import { Star, ShoppingCart, ArrowUpDown } from 'lucide-vue-next';
 
 interface Course {
-  id: number;
+  id: string;
   image: string;
   name: string;
   description: string;
@@ -11,7 +11,6 @@ interface Course {
   sale: number;
   rating: number;
   earning: number;
-  visitor: number;
 }
 
 interface Props {
@@ -19,9 +18,12 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const emit = defineEmits<{
+  periodChange: [period: string];
+}>();
 
 /* ── Sorting ── */
-type SortKey = keyof Pick<Course, 'sale' | 'rating' | 'earning' | 'visitor'>;
+type SortKey = keyof Pick<Course, 'sale' | 'rating' | 'earning'>;
 const sortKey = ref<SortKey | null>(null);
 const sortDir = ref<'asc' | 'desc'>('desc');
 
@@ -51,6 +53,10 @@ const starFill = (rating: number, star: number) => {
   if (rating >= star - 0.5) return 'half';
   return 'empty';
 };
+
+watch(period, (newPeriod) => {
+  emit('periodChange', newPeriod);
+});
 </script>
 
 <template>
@@ -112,12 +118,13 @@ const starFill = (rating: number, star: number) => {
             >
               <span class="flex items-center gap-1"> Earning <ArrowUpDown :size="10" /> </span>
             </th>
-            <th
+            <!-- <th
               class="text-left text-[11px] font-bold text-zinc-600 uppercase tracking-widest px-3 pr-5 sm:pr-6 py-3.5 cursor-pointer hover:text-zinc-400 transition-colors select-none"
               @click="toggleSort('visitor')"
             >
               <span class="flex items-center gap-1"> Visitors <ArrowUpDown :size="10" /> </span>
             </th>
+          </tr> -->
           </tr>
         </thead>
 
@@ -131,13 +138,13 @@ const starFill = (rating: number, star: number) => {
                   <p class="text-sm font-semibold text-white truncate group-hover:text-orange-300 transition-colors">
                     {{ course.name }}
                   </p>
-                  <p class="text-xs text-zinc-600 truncate mt-0.5">{{ course.description }}</p>
+                  <!-- <p class="text-xs text-zinc-600 truncate mt-0.5">{{ course.description }}</p> -->
                 </div>
               </div>
             </td>
 
             <!-- Category -->
-            <td class="px-3 py-4">
+            <td class="px-3 py-4 text-left">
               <span class="text-xs font-semibold text-zinc-400 bg-white/[0.05] border border-white/[0.07] rounded-lg px-2.5 py-1 whitespace-nowrap">
                 {{ course.category }}
               </span>
@@ -167,12 +174,12 @@ const starFill = (rating: number, star: number) => {
             </td>
 
             <!-- Visitor -->
-            <td class="px-3 pr-5 sm:pr-6 py-4">
+            <!-- <td class="px-3 pr-5 sm:pr-6 py-4">
               <div class="flex items-center gap-1.5">
                 <Users :size="12" class="text-indigo-400 shrink-0" />
                 <span class="text-sm font-semibold text-white tabular-nums">{{ course.visitor.toLocaleString() }}</span>
               </div>
-            </td>
+            </td> -->
           </tr>
         </tbody>
       </table>

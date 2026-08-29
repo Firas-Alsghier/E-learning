@@ -1,70 +1,67 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import axios from 'axios';
 import { ShoppingBag, TrendingUp } from 'lucide-vue-next';
 
-const purchases = ref([
-  {
-    id: '1',
-    user: {
-      name: 'Olivia Martin',
-      email: 'olivia.martin@email.com',
-      avatar: 'https://images.unsplash.com/photo-1534528736653-c7c4c114ad40?q=80&w=256&h=256&auto=format&fit=crop',
-    },
-    purchaseDate: '2024-09-15',
-    course: 'The Complete Full-Stack Web Development Course',
-    amount: 1999,
-  },
-  {
-    id: '2',
-    user: {
-      name: 'Jackson Lee',
-      email: 'jackson.lee@email.com',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a811804f631?q=80&w=256&h=256&auto=format&fit=crop',
-    },
-    purchaseDate: '2024-09-14',
-    course: 'Introduction to Data Science with Python',
-    amount: 39,
-  },
-  {
-    id: '3',
-    user: {
-      name: 'Isabella Nguyen',
-      email: 'isabella.nguyen@email.com',
-      avatar: 'https://images.unsplash.com/photo-1544725176-7c405a811e54?q=80&w=256&h=256&auto=format&fit=crop',
-    },
-    purchaseDate: '2024-09-13',
-    course: 'Mastering AI and Machine Learning',
-    amount: 299,
-  },
-  {
-    id: '4',
-    user: {
-      name: 'William Kim',
-      email: 'will@email.com',
-      avatar: 'https://images.unsplash.com/photo-1504593816503-4f932f94b1a4?q=80&w=256&h=256&auto=format&fit=crop',
-    },
-    purchaseDate: '2024-09-12',
-    course: 'Graphic Design for Beginners',
-    amount: 99,
-  },
-  {
-    id: '5',
-    user: {
-      name: 'Sofia Davis',
-      email: 'sofia.davis@email.com',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=256&h=256&auto=format&fit=crop',
-    },
-    purchaseDate: '2024-09-11',
-    course: 'Digital Marketing Fundamentals',
-    amount: 39,
-  },
-]);
+interface Purchase {
+  id: string;
+  user: {
+    name: string;
+    email: string;
+    avatar: string;
+  };
+  purchaseDate: string;
+  course: string;
+  amount: number;
+}
 
-const formatCurrency = (amount: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+interface RecentSalesResponse {
+  purchases: Purchase[];
+  salesThisMonth: number;
+  total: number;
+}
+
+const purchases = ref<Purchase[]>([]);
+const salesThisMonth = ref(0);
+const total = ref(0);
+
+const isLoading = ref(true);
+const error = ref('');
+
+const fetchRecentSales = async () => {
+  try {
+    isLoading.value = true;
+    error.value = '';
+
+    const token = useCookie('teacher_token').value;
+
+    const response = await axios.get<RecentSalesResponse>('http://localhost:3001/api/teacher/courses/stats/recent-sales', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    purchases.value = response.data.purchases;
+    salesThisMonth.value = response.data.salesThisMonth;
+    total.value = response.data.total;
+  } catch (err) {
+    console.error('Failed to fetch recent sales:', err);
+    error.value = 'Failed to load recent sales';
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const formatCurrency = (amount: number) =>
+  new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(amount);
 
 const getInitials = (name: string) =>
   name
     .split(' ')
+    .filter(Boolean)
     .map((n) => n[0])
     .join('');
 
@@ -75,12 +72,16 @@ const formatDate = (dateString: string) =>
     year: 'numeric',
   });
 
-// Color per initials for avatar fallback
 const avatarColor = (name: string) => {
   const colors = ['bg-indigo-500/20 text-indigo-300', 'bg-orange-500/20 text-orange-300', 'bg-emerald-500/20 text-emerald-300', 'bg-pink-500/20 text-pink-300', 'bg-violet-500/20 text-violet-300'];
+
   const index = name.charCodeAt(0) % colors.length;
   return colors[index];
 };
+
+onMounted(() => {
+  fetchRecentSales();
+});
 </script>
 
 <template>
@@ -95,7 +96,7 @@ const avatarColor = (name: string) => {
           <h2 class="text-sm font-bold text-white leading-tight">Recent Sales</h2>
           <p class="text-[11px] text-zinc-600 flex items-center gap-1">
             <TrendingUp :size="10" class="text-emerald-500" />
-            265 sales this month
+            {{ salesThisMonth }} sales this month
           </p>
         </div>
       </div>
@@ -104,7 +105,7 @@ const avatarColor = (name: string) => {
       <div class="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3 py-1.5 self-start sm:self-auto">
         <span class="text-xs text-zinc-500">Total</span>
         <span class="text-sm font-extrabold text-emerald-400">
-          {{ formatCurrency(purchases.reduce((s, p) => s + p.amount, 0)) }}
+          {{ formatCurrency(total) }}
         </span>
       </div>
     </div>
@@ -141,7 +142,7 @@ const avatarColor = (name: string) => {
                   </div>
                 </div>
                 <div class="min-w-0">
-                  <p class="text-sm font-semibold text-white truncate group-hover:text-orange-300 transition-colors">
+                  <p class="text-sm text-left font-semibold text-white truncate group-hover:text-orange-300 transition-colors">
                     {{ purchase.user.name }}
                   </p>
                   <p class="text-[11px] text-zinc-600 truncate">{{ purchase.user.email }}</p>

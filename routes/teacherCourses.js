@@ -170,6 +170,128 @@ router.get('/', teacherAuth, async (req, res) => {
   }
 });
 
+router.get('/stats/recent-sales', teacherAuth, async (req, res) => {
+  try {
+    const now = new Date();
+
+    // Start of the current month
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    // Get the 5 most recent paid purchases for this teacher
+    const purchases = await Purchase.find({
+      teacher: req.teacher._id,
+      paymentStatus: 'paid',
+    })
+      .populate('user', 'firstName lastName email avatarUrl')
+      .populate('course', 'title')
+      .sort({ purchaseDate: -1 })
+      .limit(5)
+      .lean();
+
+    // Count all paid sales this month
+    const salesThisMonth = await Purchase.countDocuments({
+      teacher: req.teacher._id,
+      paymentStatus: 'paid',
+      purchaseDate: {
+        $gte: startOfMonth,
+        $lte: now,
+      },
+    });
+
+    // Transform database data into exactly what the frontend needs
+    const formattedPurchases = purchases.map((purchase) => ({
+      id: purchase._id,
+      user: {
+        name: `${purchase.user?.firstName || ''} ${purchase.user?.lastName || ''}`.trim(),
+        email: purchase.user?.email || '',
+        avatar: purchase.user?.avatarUrl || '',
+      },
+      purchaseDate: purchase.purchaseDate,
+      course: purchase.course?.title || 'Unknown Course',
+      amount: purchase.pricePaid,
+    }));
+
+    // Total of the 5 displayed recent sales
+    const total = formattedPurchases.reduce((sum, purchase) => sum + purchase.amount, 0);
+
+    res.json({
+      purchases: formattedPurchases,
+      salesThisMonth,
+      total,
+    });
+  } catch (err) {
+    console.error('Get recent sales error:', err);
+
+    res.status(500).json({
+      message: 'Failed to get recent sales',
+    });
+  }
+});
+/**
+ * GET COURSE STATUS FOR TEACHER DASHBOARD
+ * GET /api/teacher/courses/status?period=this-month
+ */
+router.get('/status', teacherAuth, async (req, res) => {
+  try {
+    const { period = 'this-month' } = req.query;
+
+    const now = new Date();
+    let startDate;
+
+    if (period === 'last-month') {
+      startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    } else if (period === 'this-year') {
+      startDate = new Date(now.getFullYear(), 0, 1);
+    } else {
+      // this-month
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    }
+
+    // Get all courses belonging to this teacher
+    const courses = await Course.find({
+      teacher: req.teacher._id,
+    }).lean();
+
+    // Get paid purchases for this teacher's courses
+    const purchases = await Purchase.find({
+      teacher: req.teacher._id,
+      paymentStatus: 'paid',
+      purchaseDate: {
+        $gte: startDate,
+        $lte: now,
+      },
+    }).lean();
+
+    const formattedCourses = courses.map((course) => {
+      // Purchases for this specific course
+      const coursePurchases = purchases.filter((purchase) => purchase.course.toString() === course._id.toString());
+
+      const sales = coursePurchases.length;
+
+      const earning = coursePurchases.reduce((total, purchase) => total + purchase.pricePaid, 0);
+
+      return {
+        id: course._id,
+        image: course.coverImage,
+        name: course.title,
+        description: course.description,
+        category: course.category,
+        sale: sales,
+        rating: course.averageRating || 0,
+        earning,
+      };
+    });
+
+    res.json(formattedCourses);
+  } catch (err) {
+    console.error('Course status error:', err);
+
+    res.status(500).json({
+      message: 'Failed to fetch course status',
+    });
+  }
+});
+
 /**
  * GET TOTAL STUDENTS
  * GET /api/teacher/courses/stats/students
