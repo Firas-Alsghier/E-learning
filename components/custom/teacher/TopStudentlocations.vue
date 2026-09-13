@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { MoreVertical, MapPin } from 'lucide-vue-next';
+import axios from 'axios';
 
 interface LocationData {
   country: string;
@@ -9,22 +10,18 @@ interface LocationData {
 }
 
 const isMenuOpen = ref(false);
+
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
 };
 
-const locationData = ref<LocationData[]>([
-  { country: 'Mexico', students: 3200, flag: '🇲🇽' },
-  { country: 'Dominican Republic', students: 2500, flag: '🇩🇴' },
-  { country: 'El Salvador', students: 1500, flag: '🇸🇻' },
-  { country: 'Chile', students: 1000, flag: '🇨🇱' },
-  { country: 'Argentina', students: 800, flag: '🇦🇷' },
-]);
+const locationData = ref<LocationData[]>([]);
 
 const totalStudents = computed(() => locationData.value.reduce((sum, item) => sum + item.students, 0));
 
 function getSharePercent(students: number): number {
   if (totalStudents.value === 0) return 0;
+
   return parseFloat(((students / totalStudents.value) * 100).toFixed(1));
 }
 
@@ -32,8 +29,57 @@ function getShareLabel(students: number): string {
   return `${getSharePercent(students)}%`;
 }
 
+// Convert country name to flag emoji
+function getCountryFlag(country: string): string {
+  const countryFlags: Record<string, string> = {
+    Libya: '🇱🇾',
+    Egypt: '🇪🇬',
+    Morocco: '🇲🇦',
+    Tunisia: '🇹🇳',
+    Algeria: '🇩🇿',
+    Sudan: '🇸🇩',
+    'Saudi Arabia': '🇸🇦',
+    UAE: '🇦🇪',
+    Qatar: '🇶🇦',
+    Kuwait: '🇰🇼',
+    Bahrain: '🇧🇭',
+    Oman: '🇴🇲',
+    Jordan: '🇯🇴',
+    Lebanon: '🇱🇧',
+    Syria: '🇸🇾',
+    Iraq: '🇮🇶',
+    Yemen: '🇾🇪',
+  };
+
+  return countryFlags[country] || '🌍';
+}
+
+async function fetchStudentLocations() {
+  try {
+    const token = useCookie('teacher_token').value;
+
+    const response = await axios.get('http://localhost:3001/api/teacher/courses/stats/student-locations', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    locationData.value = response.data.locations.map((item: { country: string; students: number }) => ({
+      country: item.country,
+      students: item.students,
+      flag: getCountryFlag(item.country),
+    }));
+  } catch (error) {
+    console.error('Failed to fetch student locations:', error);
+  }
+}
+
 // Sort so the biggest bar is always first
 const sorted = computed(() => [...locationData.value].sort((a, b) => b.students - a.students));
+
+onMounted(() => {
+  fetchStudentLocations();
+});
 </script>
 
 <template>
@@ -46,7 +92,7 @@ const sorted = computed(() => [...locationData.value].sort((a, b) => b.students 
         </div>
         <div>
           <h3 class="text-sm font-bold text-white leading-tight">Top Student Locations</h3>
-          <p class="text-[11px] text-zinc-600">{{ totalStudents.toLocaleString() }} total students</p>
+          <p class="text-[11px] text-zinc-600 text-left">{{ totalStudents.toLocaleString() }} total students</p>
         </div>
       </div>
 

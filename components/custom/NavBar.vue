@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '~/stores/auth';
 import { useCartStore } from '~/stores/cart';
 import { useWishlistStore } from '~/stores/wishlist';
 import { useI18n } from 'vue-i18n';
-import { Search, MenuIcon, Heart, ShoppingCart, Bell } from 'lucide-vue-next';
+import { Search, MenuIcon, Heart, ShoppingCart, Bell, Facebook, Instagram } from 'lucide-vue-next';
 import { useUser } from '~/composables/useUser'; // Retained for real-world functionality
 import { useTeacher } from '~/composables/useTeacher';
 const { user } = useUser();
@@ -11,7 +12,6 @@ const { teacher } = useTeacher(); // 👈 Add this line
 const cartStore = useCartStore();
 const wishlistStore = useWishlistStore();
 const isMenuOpen = ref(false);
-const searchQuery = ref('');
 const isHydrated = ref(false);
 const { t } = useI18n();
 // --- Notification/Count State (New) ---
@@ -20,28 +20,22 @@ const wishlistCount = computed(() => wishlistStore.count); // Items in wishlist
 const cartCount = computed(() => cartStore.count);
 const notificationCount = ref(9); // Unread notifications
 const auth = useAuthStore();
+const searchQuery = ref('');
 
-// const fetchWishlistCount = async () => {
-//   try {
-//     const token = useCookie('token').value;
+const router = useRouter();
 
-//     if (!token) {
-//       wishlistStore.setCount(0);
-//       return;
-//     }
+const handleSearch = () => {
+  const query = searchQuery.value.trim();
 
-//     const wishlist = await $fetch<any[]>('http://localhost:3001/api/user/wishlist', {
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//       },
-//     });
+  if (!query) return;
 
-//     wishlistStore.setCount(wishlist.length);
-//   } catch (err) {
-//     console.error('Wishlist count error:', err);
-//     wishlistStore.setCount(0);
-//   }
-// };
+  router.push({
+    path: '/courses',
+    query: {
+      search: query,
+    },
+  });
+};
 
 const fetchCartCount = async () => {
   try {
@@ -102,6 +96,17 @@ const toggleMenu = (event: Event) => {
         <!-- Logo & Hamburger -->
         <div class="flex items-center gap-4">
           <img src="/logo.png" alt="Logo" class="h-16 w-16" />
+          <div class="flex items-center gap-2">
+            <!-- Example icons: -->
+            <a href="#" class="text-[#1877F2] hover:opacity-75 transition-opacity duration-200">
+              <Facebook class="w-5 h-5" />
+            </a>
+
+            <!-- Instagram (Brand Pink/Magenta) -->
+            <a href="#" class="text-[#E1306C] hover:opacity-75 transition-opacity duration-200">
+              <Instagram class="w-5 h-5" />
+            </a>
+          </div>
           <button @click="toggleMenu" class="lg:hidden">
             <MenuIcon class="w-6 h-6" />
           </button>
@@ -123,7 +128,7 @@ const toggleMenu = (event: Event) => {
 
           <!-- Search Input -->
           <div class="relative w-full max-md:w-full lg:w-72 mx-auto">
-            <Input id="search" type="text" v-model="searchQuery" placeholder="Search" class="w-full text-center bg-[#F0F0F0] text-base rounded-2xl py-2 pr-10" />
+            <Input id="search" type="text" v-model="searchQuery" @keyup.enter="handleSearch" placeholder="Search" class="w-full text-center bg-[#F0F0F0] text-base rounded-2xl py-2 pr-10" />
             <span class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
               <Search class="size-5 text-gray-500" />
             </span>

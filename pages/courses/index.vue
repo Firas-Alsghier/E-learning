@@ -22,7 +22,7 @@ const coursesPerPage = 5;
 const courses = ref<any[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
-const searchQuery = ref('');
+const searchQuery = ref(typeof route.query.search === 'string' ? route.query.search : '');
 
 // ✅ FIX: Added missing mobile filter state
 const showMobileFilter = ref(false);

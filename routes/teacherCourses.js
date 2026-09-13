@@ -655,6 +655,95 @@ router.get('/stats/revenue', teacherAuth, async (req, res) => {
   }
 });
 
+router.get('/stats/student-locations', teacherAuth, async (req, res) => {
+  try {
+    const locations = await Purchase.aggregate([
+      {
+        $match: {
+          teacher: req.teacher._id,
+          paymentStatus: 'paid',
+          expiresAt: {
+            $gt: new Date(),
+          },
+        },
+      },
+
+      // Count each student only once,
+      // even if they purchased multiple courses.
+      {
+        $group: {
+          _id: '$user',
+        },
+      },
+
+      // Get the student's country from the User collection.
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+
+      {
+        $unwind: '$user',
+      },
+
+      // Only include students who have a country.
+      {
+        $match: {
+          'user.country': {
+            $exists: true,
+            $ne: '',
+          },
+          'user.role': 'student',
+        },
+      },
+
+      // Group students by country.
+      {
+        $group: {
+          _id: '$user.country',
+          students: {
+            $sum: 1,
+          },
+        },
+      },
+
+      // Highest number of students first.
+      {
+        $sort: {
+          students: -1,
+          _id: 1,
+        },
+      },
+
+      // Shape the response.
+      {
+        $project: {
+          _id: 0,
+          country: '$_id',
+          students: 1,
+        },
+      },
+    ]);
+
+    const totalStudents = locations.reduce((sum, item) => sum + item.students, 0);
+
+    res.json({
+      locations,
+      totalStudents,
+    });
+  } catch (err) {
+    console.error('Get student locations error:', err);
+
+    res.status(500).json({
+      message: 'Failed to get student locations',
+    });
+  }
+});
+
 // --- Helper function to get Cloudinary Public ID from a URL ---
 const getCloudinaryId = (url) => {
   if (!url || !url.includes('cloudinary')) return null;

@@ -32,11 +32,26 @@ const { t } = useI18n();
           <h1 class="text-primary-custom max-xl:text-[40px] text-[48px] font-semibold max-md:text-4xl max-sm:text-4xl" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('invest') }}</h1>
           <p class="text-[16px] max-sm:text-lg font-normal text-secondary-custom my-3" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('develop') }}</p>
           <div :class="auth.isEnglish ? 'text-left' : 'text-right'">
-            <NuxtLink to="signup">
-              <ClientOnly>
-                <Button v-if="!isLoggedIn && !isTeacherLoggedIn" class="btn-custom text-primary-custom border-custom text-base rounded-2xl cursor-pointer">{{ t('sign-up') }}</Button>
-              </ClientOnly>
-            </NuxtLink>
+            <ClientOnly>
+              <DropdownMenu v-if="!isLoggedIn && !isTeacherLoggedIn">
+                <!-- The Button acts as the trigger to open the menu -->
+                <DropdownMenuTrigger as-child>
+                  <Button class="btn-custom text-primary-custom border-custom text-base rounded-2xl cursor-pointer">
+                    {{ t('sign-up') }}
+                  </Button>
+                </DropdownMenuTrigger>
+
+                <!-- The Dropdown content with your two options -->
+                <DropdownMenuContent>
+                  <DropdownMenuItem as-child>
+                    <NuxtLink class="cursor-pointer" to="/signup">Register as Student</NuxtLink>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem as-child>
+                    <NuxtLink class="cursor-pointer" to="/teacher/signup">Register as Teacher</NuxtLink>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </ClientOnly>
           </div>
         </div>
       </div>
