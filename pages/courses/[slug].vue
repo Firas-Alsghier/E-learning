@@ -196,7 +196,6 @@ const submitRating = async (rating: number) => {
   ---------------------------------- */
 const { data, error } = await useAsyncData<Course>(`course-${slug.value}`, () => $fetch<any>(`http://localhost:3001/api/courses/${slug.value}` as string));
 const editCourse = () => navigateTo(`/teacher/courses/${data?.value?.id}/edit`);
-
 const course = computed(() => data.value);
 watch(
   () => course.value,
@@ -246,7 +245,7 @@ watch(
                 </span>
                 <span class="w-1 h-1 rounded-full bg-zinc-600 hidden sm:inline-block"></span>
                 <span class="text-sm text-zinc-400">
-                  {{ t('by') }}
+                  {{ t('by') }}:
                   <strong class="text-white font-semibold mr-1">{{ course.author }}</strong>
                 </span>
                 <button
@@ -351,11 +350,11 @@ watch(
             >
               <!-- Thumbnail -->
               <div class="relative aspect-video overflow-hidden">
-                <img :src="course.coverImage" alt="Course cover" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <img :src="data?.image" alt="Course cover" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 <!-- Play overlay -->
                 <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <div
-                    class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-orange-500 flex items-center justify-center text-white shadow-[0_0_0_12px_rgba(255,120,45,0.2)] scale-90 group-hover:scale-100 transition-transform duration-300"
+                    class="w-12 h-12 sm:w-14 sm:h-14 rounded-full cursor-pointer bg-orange-500 flex items-center justify-center text-white shadow-[0_0_0_12px_rgba(255,120,45,0.2)] scale-90 group-hover:scale-100 transition-transform duration-300"
                   >
                     <Play :size="18" fill="currentColor" />
                   </div>

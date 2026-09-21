@@ -214,7 +214,7 @@ const activeCount = computed(() => props.filters.categories.length + props.filte
     </div>
 
     <!-- Footer: Save button -->
-    <div class="px-5 py-4 border-t border-gray-100">
+    <!-- <div class="px-5 py-4 border-t border-gray-100">
       <button
         @click="
           emit('apply-filters', {
@@ -229,7 +229,7 @@ const activeCount = computed(() => props.filters.categories.length + props.filte
       >
         Apply Filters
       </button>
-    </div>
+    </div> -->
   </div>
 </template>
 

@@ -65,7 +65,7 @@ const goToCourse = () => {
     <div class="w-full sm:w-[55%] px-4 py-5 flex flex-col justify-between">
       <div class="space-y-2">
         <p class="text-sm text-gray-500" :class="auth.isEnglish ? 'text-left' : 'text-right'">
-          by
+          {{ t('by') }}:
           <span class="font-medium text-black">
             {{ props.course.author || 'Unknown Instructor' }}
           </span>
