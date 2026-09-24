@@ -70,9 +70,13 @@ const toggleWishlist = async () => {
     console.error('Wishlist error:', err);
   }
 };
-
+const isAddingToCart = ref(false);
+const addedToCart = ref(false);
 const addToCart = async () => {
+  let loadingStartedAt = 0;
   try {
+    isAddingToCart.value = true;
+    loadingStartedAt = Date.now();
     const token = useCookie('token').value;
 
     if (!token) {
@@ -104,13 +108,22 @@ const addToCart = async () => {
     toast.success('Course added to cart!', {
       description: `"${course.value?.title}" has been added successfully.`,
     });
-
+    addedToCart.value = true;
     await cartStore.refresh();
   } catch (err) {
     console.error(err);
     toast.error('Something went wrong', {
       description: 'Please try again later.',
     });
+  } finally {
+    const elapsed = Date.now() - loadingStartedAt;
+    const remaining = Math.max(0, 3000 - elapsed);
+
+    if (remaining > 0) {
+      await new Promise((resolve) => setTimeout(resolve, remaining));
+    }
+
+    isAddingToCart.value = false;
   }
 };
 
@@ -379,9 +392,16 @@ watch(
                   <button
                     v-if="!purchased"
                     @click="addToCart"
+                    :disabled="isAddingToCart"
                     class="w-full py-2.5 sm:py-3 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold text-sm sm:text-base cursor-pointer shadow-[0_4px_20px_rgba(255,120,45,0.35)] hover:shadow-[0_8px_30px_rgba(255,120,45,0.5)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
                   >
-                    Enroll Now
+                    <template v-if="isAddingToCart">
+                      <span class="inline-block h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
+                    </template>
+
+                    <template v-else-if="addedToCart"> Go to Cart </template>
+
+                    <template v-else> Enroll Now </template>
                   </button>
 
                   <button
