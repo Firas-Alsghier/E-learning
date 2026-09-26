@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { toast } from 'vue-sonner';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { Heart, Clock, Users, BarChart2, BookOpen, FileText, Play, Star, Lock } from 'lucide-vue-next';
 import type { Course } from '@/types/Course';
 import { useI18n } from 'vue-i18n';
@@ -18,6 +18,7 @@ const userRating = ref(0);
 const hoverRating = ref(0);
 const ratingSaving = ref(false);
 const route = useRoute();
+const router = useRouter();
 const { t } = useI18n();
 const slug = computed(() => route.params.slug as string);
 const { isLoggedIn: isTeacherLoggedIn } = useTeacher(); // For teacher status
@@ -399,7 +400,7 @@ watch(
                       <span class="inline-block h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
                     </template>
 
-                    <template v-else-if="addedToCart"> Go to Cart </template>
+                    <template v-else-if="addedToCart"> <a href="/cart">Go to Cart</a> </template>
 
                     <template v-else> Enroll Now </template>
                   </button>
