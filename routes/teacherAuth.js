@@ -78,7 +78,7 @@ router.post('/login', async (req, res) => {
         tokenVersion: teacher.tokenVersion, // ✅ ADD THIS
       },
       process.env.JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: '7d' },
     );
 
     res.json({
@@ -87,6 +87,8 @@ router.post('/login', async (req, res) => {
         id: teacher._id,
         email: teacher.email,
         role: 'teacher',
+        firstName: teacher.firstName,
+        lastName: teacher.lastName,
       },
     });
   } catch (err) {

@@ -124,9 +124,10 @@ const saveChanges = async () => {
       <Input id="phone" v-model="form.phone" class="w-[95%] bg-white" />
       <p class="text-sm text-muted-foreground">مثال: 218xxxxxx+</p>
     </div>
-    <hr />
 
     <!-- اللغة -->
+    <!-- <hr />
+
     <div class="space-y-2">
       <label class="font-medium">اللغة</label>
       <Select v-model="form.language">
@@ -138,7 +139,7 @@ const saveChanges = async () => {
           <SelectItem value="en">English</SelectItem>
         </SelectContent>
       </Select>
-    </div>
+    </div> -->
     <hr />
 
     <!-- روابط التواصل -->

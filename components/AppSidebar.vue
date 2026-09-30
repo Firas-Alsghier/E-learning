@@ -30,11 +30,11 @@ const data = computed(() => ({
       url: 'edit-account',
       icon: BookOpen,
     },
-    {
-      title: t('privacy'),
-      url: 'edit-privacy',
-      icon: Settings2,
-    },
+    // {
+    //   title: t('privacy'),
+    //   url: 'edit-privacy',
+    //   icon: Settings2,
+    // },
     {
       title: t('notification-preferences'),
       url: 'edit-notification-preferences',

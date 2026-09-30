@@ -44,7 +44,7 @@ const props = withDefaults(
     initialSection: 0,
     initialLesson: 0,
     sections: () => [],
-  }
+  },
 );
 
 // ── State ──────────────────────────────────────────────
@@ -252,7 +252,7 @@ watch(
       }
     });
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 function goBackToCourse() {
@@ -389,7 +389,7 @@ const isCourseOwner = computed(() => {
       >
         <div class="w-[360px] flex flex-col h-full overflow-hidden">
           <!-- Sidebar header -->
-          <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 flex-shrink-0 bg-white">
+          <div class="flex items-center justify-end px-4 py-3 border-b border-gray-200 flex-shrink-0 bg-white">
             <span class="text-sm font-semibold text-gray-900">Course content</span>
           </div>
 

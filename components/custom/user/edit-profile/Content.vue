@@ -2,6 +2,7 @@
 import type { Profile } from '@/types/edit-profile';
 import { useAuthStore } from '~/stores/auth';
 import { useI18n } from 'vue-i18n';
+import { Facebook, Instagram, Twitter, Linkedin, Earth } from 'lucide-vue-next';
 
 const auth = useAuthStore();
 const { t } = useI18n();
@@ -277,7 +278,7 @@ const saveChanges = async () => {
       <div class="flex flex-col gap-4">
         <!-- Website -->
         <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide"> 🌐 Website </label>
+          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide"> <Earth /> </label>
           <div class="flex items-stretch rounded-xl overflow-hidden border border-gray-200 focus-within:border-orange-400 focus-within:ring-2 focus-within:ring-orange-400/20 transition-all">
             <div class="flex items-center px-3.5 bg-gray-50 border-r border-gray-200 shrink-0">
               <span class="text-xs font-semibold text-gray-400 whitespace-nowrap">https://</span>
@@ -288,7 +289,7 @@ const saveChanges = async () => {
 
         <!-- Facebook -->
         <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide"> 📘 Facebook </label>
+          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide"> <Facebook /> </label>
           <div class="flex items-stretch rounded-xl overflow-hidden border border-gray-200 focus-within:border-orange-400 focus-within:ring-2 focus-within:ring-orange-400/20 transition-all">
             <div class="flex items-center px-3.5 bg-gray-50 border-r border-gray-200 shrink-0">
               <span class="text-xs font-semibold text-gray-400 whitespace-nowrap">facebook.com/</span>
@@ -299,7 +300,7 @@ const saveChanges = async () => {
 
         <!-- Instagram -->
         <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide"> 📸 Instagram </label>
+          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide"> <Instagram /> </label>
           <div class="flex items-stretch rounded-xl overflow-hidden border border-gray-200 focus-within:border-orange-400 focus-within:ring-2 focus-within:ring-orange-400/20 transition-all">
             <div class="flex items-center px-3.5 bg-gray-50 border-r border-gray-200 shrink-0">
               <span class="text-xs font-semibold text-gray-400 whitespace-nowrap">instagram.com/</span>
@@ -310,7 +311,7 @@ const saveChanges = async () => {
 
         <!-- LinkedIn -->
         <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide"> 💼 LinkedIn </label>
+          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide"> <Linkedin /> </label>
           <div class="flex items-stretch rounded-xl overflow-hidden border border-gray-200 focus-within:border-orange-400 focus-within:ring-2 focus-within:ring-orange-400/20 transition-all">
             <div class="flex items-center px-3.5 bg-gray-50 border-r border-gray-200 shrink-0">
               <span class="text-xs font-semibold text-gray-400 whitespace-nowrap">linkedin.com/in/</span>
@@ -321,7 +322,7 @@ const saveChanges = async () => {
 
         <!-- X (Twitter) -->
         <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide"> 𝕏 X (Twitter) </label>
+          <label class="text-xs font-bold text-gray-500 uppercase tracking-wide"> <Twitter /> </label>
           <div class="flex items-stretch rounded-xl overflow-hidden border border-gray-200 focus-within:border-orange-400 focus-within:ring-2 focus-within:ring-orange-400/20 transition-all">
             <div class="flex items-center px-3.5 bg-gray-50 border-r border-gray-200 shrink-0">
               <span class="text-xs font-semibold text-gray-400 whitespace-nowrap">x.com/</span>
@@ -335,8 +336,7 @@ const saveChanges = async () => {
     <!-- <CustomUserEditProfileImageUpload /> -->
 
     <!-- ── Footer: Save button ── -->
-    <div class="px-6 sm:px-8 py-5 bg-gray-50 border-t border-gray-100 flex items-center justify-between gap-4">
-      <p class="text-xs text-gray-400">All fields are optional except your name.</p>
+    <div class="px-6 sm:px-8 py-5 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-4">
       <button
         type="submit"
         class="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm font-bold cursor-pointer shadow-[0_4px_14px_rgba(255,120,45,0.3)] hover:shadow-[0_6px_20px_rgba(255,120,45,0.4)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"

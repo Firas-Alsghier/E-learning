@@ -73,6 +73,24 @@ const toggleWishlist = async () => {
 };
 const isAddingToCart = ref(false);
 const addedToCart = ref(false);
+const checkIfCourseIsInCart = async () => {
+  try {
+    const token = useCookie('token').value;
+
+    if (!token || !course.value?.id) return;
+
+    const cart = await $fetch<{ items: any[] }>('http://localhost:3001/api/cart', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    addedToCart.value = cart.items.some((item: any) => String(item.course?._id) === String(course.value?.id));
+  } catch (err) {
+    console.error('Check cart failed:', err);
+  }
+};
+
 const addToCart = async () => {
   let loadingStartedAt = 0;
   try {
@@ -217,9 +235,10 @@ watch(
     if (val) {
       checkIfWishlisted();
       checkIfPurchased();
+      checkIfCourseIsInCart();
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>
 
@@ -391,17 +410,16 @@ watch(
                 </button>
                 <template v-else>
                   <button
+                    @click="addedToCart ? router.push('/cart') : addToCart()"
                     v-if="!purchased"
-                    @click="addToCart"
                     :disabled="isAddingToCart"
-                    class="w-full py-2.5 sm:py-3 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold text-sm sm:text-base cursor-pointer shadow-[0_4px_20px_rgba(255,120,45,0.35)] hover:shadow-[0_8px_30px_rgba(255,120,45,0.5)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+                    class="w-full py-2.5 sm:py-3 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold text-sm sm:text-base cursor-pointer disabled:cursor-not-allowed shadow-[0_4px_20px_rgba(255,120,45,0.35)] hover:shadow-[0_8px_30px_rgba(255,120,45,0.5)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
                   >
                     <template v-if="isAddingToCart">
                       <span class="inline-block h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
                     </template>
 
-                    <template v-else-if="addedToCart"> <a href="/cart">Go to Cart</a> </template>
-
+                    <template v-else-if="addedToCart"> Go to Cart </template>
                     <template v-else> Enroll Now </template>
                   </button>
 
@@ -497,7 +515,9 @@ watch(
 <style scoped>
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
 }
 .fade-enter-from {
   opacity: 0;
