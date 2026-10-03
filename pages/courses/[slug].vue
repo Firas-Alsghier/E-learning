@@ -24,11 +24,11 @@ const slug = computed(() => route.params.slug as string);
 const { isLoggedIn: isTeacherLoggedIn } = useTeacher(); // For teacher status
 
 const tabs = [
-  { id: 'overview', label: 'نظرة عامة' },
-  { id: 'curriculum', label: 'المنهج الدراسي' },
-  { id: 'instructor', label: 'المُدرّس' },
-  { id: 'faq', label: 'الأسئلة الشائعة' },
-  { id: 'contact', label: 'التواصل' },
+  { id: 'overview', label: t('tab-overview') },
+  { id: 'curriculum', label: t('tab-curriculum') },
+  { id: 'instructor', label: t('tab-instructor') },
+  { id: 'faq', label: t('tab-faq') },
+  { id: 'contact', label: t('tab-contact') },
 ];
 
 // 2. Create the filtered list
@@ -420,7 +420,7 @@ watch(
                     </template>
 
                     <template v-else-if="addedToCart"> Go to Cart </template>
-                    <template v-else> Enroll Now </template>
+                    <template v-else> {{ t('enroll-now') }} </template>
                   </button>
 
                   <button

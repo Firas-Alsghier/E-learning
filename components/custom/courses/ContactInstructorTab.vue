@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 const props = defineProps<{
   teacherId: string;
@@ -10,6 +11,7 @@ const message = ref('');
 const loading = ref(false);
 const success = ref(false);
 const selectedFile = ref<File | null>(null);
+const { t } = useI18n();
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 
@@ -68,24 +70,24 @@ const sendMessage = async () => {
   <div class="flex flex-col gap-5 sm:gap-6 w-full max-w-xl mx-auto" dir="ltr">
     <!-- Header -->
     <div class="text-center">
-      <h3 class="text-base sm:text-lg font-bold text-white">Contact Instructor</h3>
-      <p class="text-xs sm:text-sm text-zinc-500 mt-1">Send a message directly to the course instructor.</p>
+      <h3 class="text-base sm:text-lg font-bold text-white">{{ t('contact-instructor') }}</h3>
+      <p class="text-xs sm:text-sm text-zinc-500 mt-1">{{ t('contact-instructor-desc') }}</p>
     </div>
 
     <!-- Success banner -->
     <Transition name="fade-slide">
       <div v-if="success" class="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl px-4 py-3 text-sm">
         <span class="text-base shrink-0">✓</span>
-        <span>تم إرسال الرسالة بنجاح</span>
+        <span>{{ t('message-sent-success') }}</span>
       </div>
     </Transition>
 
     <!-- Message textarea -->
     <div class="flex flex-col gap-1.5">
-      <label class="text-xs font-semibold text-zinc-400 uppercase tracking-widest">رسالتك</label>
+      <label class="text-xs font-semibold text-zinc-400 uppercase tracking-widest">{{ t('your-message') }}</label>
       <textarea
         v-model="message"
-        placeholder="اكتب رسالتك للمدرس..."
+        :placeholder="t('write-message-placeholder')"
         rows="4"
         dir="rtl"
         class="w-full bg-white/5 border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder:text-zinc-600 resize-none focus:outline-none focus:border-orange-500/50 focus:bg-orange-500/[0.03] transition-colors duration-200"
@@ -94,7 +96,7 @@ const sendMessage = async () => {
 
     <!-- File upload -->
     <div class="flex flex-col gap-2">
-      <label class="text-xs font-semibold text-zinc-400 uppercase tracking-widest"> Attachment <span class="normal-case font-normal text-zinc-600">(optional)</span> </label>
+      <label class="text-xs font-semibold text-zinc-400 uppercase tracking-widest">{{ t('attachment') }} <span class="normal-case font-normal text-zinc-600">(optional)</span> </label>
 
       <!-- Drop zone / file input -->
       <label
@@ -102,8 +104,8 @@ const sendMessage = async () => {
       >
         <span class="text-2xl">📎</span>
         <span class="text-xs text-zinc-500 group-hover:text-zinc-400 transition-colors text-center">
-          Click to choose a file
-          <span class="block text-zinc-600 mt-0.5">Max 100MB</span>
+          {{ t('click-choose-file') }}
+          <span class="block text-zinc-600 mt-0.5">{{ t('max-file-size') }}</span>
         </span>
         <input type="file" @change="handleFile" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
       </label>
@@ -131,9 +133,9 @@ const sendMessage = async () => {
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
         </svg>
-        جاري الإرسال...
+        {{ t('sending') }}
       </span>
-      <span v-else>إرسال الرسالة</span>
+      <span v-else>{{ t('send-message') }}</span>
     </button>
   </div>
 </template>
@@ -141,7 +143,9 @@ const sendMessage = async () => {
 <style scoped>
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
 }
 .fade-slide-enter-from,
 .fade-slide-leave-to {

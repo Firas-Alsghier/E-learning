@@ -3,9 +3,11 @@ import { useRouter } from 'vue-router';
 import { useUser } from '~/composables/useUser';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { useI18n } from 'vue-i18n';
 
 const router = useRouter();
 const { setUser, user } = useUser();
+const { t } = useI18n();
 
 const handleLogout = () => {
   localStorage.removeItem('token');
@@ -43,35 +45,27 @@ const handleLogout = () => {
 
       <DropdownMenuGroup>
         <DropdownMenuItem class="cursor-pointer">
-          <NuxtLink to="/user/my-courses"> My Courses </NuxtLink>
-          <!-- <span>My Courses</span> -->
+          <NuxtLink to="/user/my-courses"> {{ t('my-courses') }} </NuxtLink>
         </DropdownMenuItem>
-        <!-- <DropdownMenuItem class="cursor-pointer">
-          <a href="/cart">My cart</a>
-        </DropdownMenuItem> -->
-        <!-- <DropdownMenuItem class="cursor-pointer">
-          <a href="/wishlist">Wishlist</a>
-        </DropdownMenuItem> -->
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
       <DropdownMenuGroup>
-        <!-- <DropdownMenuItem class="cursor-pointer">
-          <span>Notifications</span>
-        </DropdownMenuItem> -->
         <DropdownMenuItem class="cursor-pointer">
-          <NuxtLink to="/user/message"> Message </NuxtLink>
+          <NuxtLink to="/user/message"> {{ t('messages') }} </NuxtLink>
         </DropdownMenuItem>
       </DropdownMenuGroup>
 
       <DropdownMenuSeparator />
       <DropdownMenuItem class="cursor-pointer">
-        <span><a href="/user/edit-profile">Account setting</a></span>
+        <span
+          ><a href="/user/edit-profile"> {{ t('account-settings') }} </a></span
+        >
       </DropdownMenuItem>
       <DropdownMenuItem class="cursor-pointer">
-        <span>Support</span>
+        <span> {{ t('support') }} </span>
       </DropdownMenuItem>
       <DropdownMenuItem @click="handleLogout" class="cursor-pointer">
-        <span>Log out</span>
+        <span> {{ t('logout') }} </span>
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>

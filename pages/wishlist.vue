@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { Clock, UsersRound, Heart, ArrowRight } from 'lucide-vue-next';
 import { useWishlistStore } from '~/stores/wishlist';
+import { useI18n } from 'vue-i18n';
 
 definePageMeta({
   layout: false,
@@ -31,6 +32,8 @@ type ActiveTab = 'courses' | 'articles';
 const activeTab = ref<ActiveTab>('courses');
 
 const courses = ref<Course[]>([]);
+
+const { t } = useI18n();
 
 const loading = ref(true);
 
@@ -126,8 +129,8 @@ onMounted(() => {
     <div class="max-w-6xl mx-auto relative z-10">
       <!-- Page header -->
       <div class="mb-8 sm:mb-10">
-        <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Wishlist</h1>
-        <p class="text-sm text-zinc-500 mt-1">Courses you've saved for later</p>
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">{{ t('wishlist-title') }}</h1>
+        <p class="text-sm text-zinc-500 mt-1">{{ t('wishlist-subtitle') }}</p>
       </div>
 
       <!-- Tab nav -->
@@ -154,14 +157,14 @@ onMounted(() => {
             <Heart :size="28" class="text-zinc-600" />
           </div>
           <div>
-            <p class="text-lg font-bold text-white">Your wishlist is empty</p>
-            <p class="text-sm text-zinc-500 mt-1">Browse courses and hit the heart icon to save them here.</p>
+            <p class="text-lg font-bold text-white">{{ t('wishlist-empty-title') }}</p>
+            <p class="text-sm text-zinc-500 mt-1">{{ t('wishlist-empty-subtitle') }}</p>
           </div>
           <a
             href="/courses"
             class="mt-2 px-6 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold shadow-[0_4px_16px_rgba(255,120,45,0.3)] hover:shadow-[0_6px_22px_rgba(255,120,45,0.45)] hover:-translate-y-0.5 transition-all"
           >
-            Browse Courses
+            {{ t('browse-courses') }}
           </a>
         </div>
 
@@ -238,7 +241,7 @@ onMounted(() => {
                   target="_blank"
                   class="flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white shadow-[0_3px_12px_rgba(255,120,45,0.3)] hover:shadow-[0_5px_18px_rgba(255,120,45,0.45)] hover:-translate-y-0.5 active:translate-y-0 transition-all"
                 >
-                  View Course <ArrowRight :size="13" />
+                  {{ t('view-course') }} <ArrowRight :size="13" />
                 </a>
               </div>
             </div>

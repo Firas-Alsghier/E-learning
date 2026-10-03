@@ -17,8 +17,8 @@ const scrollToTop = () => {
       <div class="grid grid-cols-1 md:grid-cols-4 gap-8 text-text-custom rtl">
         <!-- About Section -->
         <div class="md:col-span-1">
-          <h2 class="text-xl font-bold mb-4">منصة راوِية</h2>
-          <p class="text-sm leading-relaxed">منصة "راوية" هي منصة تعليمية مبتكرة تهدف إلى تقديم محتوى تعليمي عالي الجودة في مختلف المجالات...</p>
+          <h2 class="text-xl font-bold mb-4">{{ t('rawya-platform') }}</h2>
+          <p class="text-sm leading-relaxed">{{ t('about-rawya-desc') }}</p>
         </div>
 
         <!-- Get Help Section -->

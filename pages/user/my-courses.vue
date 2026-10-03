@@ -2,6 +2,9 @@
 import { ref, computed } from 'vue';
 import { BookOpen, Clock, Play, CheckCircle, Search, LayoutGrid, List, Trophy, TrendingUp, Filter } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 definePageMeta({
   middleware: ['user-auth'],
@@ -163,33 +166,33 @@ onMounted(() => {
       <!-- ── Page header ── -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-10">
         <div>
-          <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">My Courses</h1>
-          <p class="text-sm text-zinc-500 mt-0.5">Track your learning progress</p>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">{{ t('my-courses-title') }}</h1>
+          <p class="text-sm text-zinc-500 mt-0.5">{{ t('my-courses-subtitle') }}</p>
         </div>
         <a
           href="/courses"
           class="self-start sm:self-auto flex items-center gap-2 px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold shadow-[0_4px_16px_rgba(255,120,45,0.3)] hover:shadow-[0_6px_22px_rgba(255,120,45,0.45)] hover:-translate-y-0.5 transition-all"
         >
-          <BookOpen :size="15" /> Browse More Courses
+          <BookOpen :size="15" /> {{ t('browse-more-courses') }}
         </a>
       </div>
 
       <!-- ── Stats row ── -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
         <div class="bg-[#161618] border border-white/[0.08] rounded-xl px-4 py-3 flex flex-col gap-1">
-          <p class="text-[11px] text-zinc-500 uppercase tracking-widest font-semibold">Total</p>
+          <p class="text-[11px] text-zinc-500 uppercase tracking-widest font-semibold">{{ t('stat-total') }}</p>
           <p class="text-2xl font-extrabold text-white">{{ stats.total }}</p>
         </div>
         <div class="bg-[#161618] border border-white/[0.08] rounded-xl px-4 py-3 flex flex-col gap-1">
-          <p class="text-[11px] text-zinc-500 uppercase tracking-widest font-semibold">In Progress</p>
+          <p class="text-[11px] text-zinc-500 uppercase tracking-widest font-semibold">{{ t('stat-in-progress') }}</p>
           <p class="text-2xl font-extrabold text-orange-400">{{ stats.inProgress }}</p>
         </div>
         <div class="bg-[#161618] border border-white/[0.08] rounded-xl px-4 py-3 flex flex-col gap-1">
-          <p class="text-[11px] text-zinc-500 uppercase tracking-widest font-semibold">Completed</p>
+          <p class="text-[11px] text-zinc-500 uppercase tracking-widest font-semibold">{{ t('stat-completed') }}</p>
           <p class="text-2xl font-extrabold text-emerald-400">{{ stats.completed }}</p>
         </div>
         <div class="bg-[#161618] border border-white/[0.08] rounded-xl px-4 py-3 flex flex-col gap-1">
-          <p class="text-[11px] text-zinc-500 uppercase tracking-widest font-semibold">Not Started</p>
+          <p class="text-[11px] text-zinc-500 uppercase tracking-widest font-semibold">{{ t('stat-not-started') }}</p>
           <p class="text-2xl font-extrabold text-zinc-500">{{ stats.notStarted }}</p>
         </div>
       </div>
@@ -239,9 +242,9 @@ onMounted(() => {
           <BookOpen :size="24" class="text-zinc-600" />
         </div>
         <div>
-          <p class="text-base font-bold text-white">No courses found</p>
+          <p class="text-base font-bold text-white">{{ t('no-courses-found') }}</p>
           <p class="text-sm text-zinc-500 mt-1">
-            {{ searchQuery ? 'Try a different search term.' : 'You have no courses in this category yet.' }}
+            {{ searchQuery ? t('no-courses-search-hint') : t('no-courses-empty-hint') }}
           </p>
         </div>
       </div>
@@ -266,14 +269,14 @@ onMounted(() => {
             <!-- Completed badge -->
             <div v-if="getStatus(course) === 'completed'" class="absolute top-3 right-3 flex items-center gap-1 bg-emerald-500/20 border border-emerald-500/40 rounded-full px-2.5 py-1">
               <CheckCircle :size="11" class="text-emerald-400" />
-              <span class="text-[10px] font-bold text-emerald-400">Done</span>
+              <span class="text-[10px] font-bold text-emerald-400">{{ t('status-done') }}</span>
             </div>
 
             <!-- Progress % overlay on bottom -->
             <div class="absolute bottom-3 left-3 right-3">
               <div class="flex items-center justify-between mb-1">
                 <span class="text-[11px] font-bold text-white/90">
-                  {{ getProgress(course) === 0 ? 'Not started' : `${getProgress(course)}% complete` }}
+                  {{ getProgress(course) === 0 ? t('not-started') : `${getProgress(course)}% ${t('complete-suffix')}` }}
                 </span>
                 <span class="text-[11px] text-white/60">{{ course.completedLessons }}/{{ course.totalLessons }}</span>
               </div>
@@ -308,13 +311,13 @@ onMounted(() => {
                 getStatus(course) === 'completed'
                   ? 'bg-emerald-500/15 border border-emerald-500/25 text-emerald-400 hover:bg-emerald-500/25'
                   : getStatus(course) === 'not-started'
-                  ? 'bg-orange-500 text-white shadow-[0_3px_12px_rgba(255,120,45,0.3)] hover:bg-orange-600 hover:shadow-[0_5px_18px_rgba(255,120,45,0.45)] hover:-translate-y-0.5 active:translate-y-0'
-                  : 'bg-orange-500 text-white shadow-[0_3px_12px_rgba(255,120,45,0.3)] hover:bg-orange-600 hover:shadow-[0_5px_18px_rgba(255,120,45,0.45)] hover:-translate-y-0.5 active:translate-y-0'
+                    ? 'bg-orange-500 text-white shadow-[0_3px_12px_rgba(255,120,45,0.3)] hover:bg-orange-600 hover:shadow-[0_5px_18px_rgba(255,120,45,0.45)] hover:-translate-y-0.5 active:translate-y-0'
+                    : 'bg-orange-500 text-white shadow-[0_3px_12px_rgba(255,120,45,0.3)] hover:bg-orange-600 hover:shadow-[0_5px_18px_rgba(255,120,45,0.45)] hover:-translate-y-0.5 active:translate-y-0'
               "
             >
-              <template v-if="getStatus(course) === 'completed'"> <CheckCircle :size="14" /> Review Course </template>
-              <template v-else-if="getStatus(course) === 'not-started'"> <Play :size="14" fill="currentColor" /> Start Learning </template>
-              <template v-else> <Play :size="14" fill="currentColor" /> Continue </template>
+              <template v-if="getStatus(course) === 'completed'"> <CheckCircle :size="14" /> {{ t('review-course') }} </template>
+              <template v-else-if="getStatus(course) === 'not-started'"> <Play :size="14" fill="currentColor" /> {{ t('start-learning') }} </template>
+              <template v-else> <Play :size="14" fill="currentColor" /> {{ t('continue-learning') }} </template>
             </a>
             <button
               v-if="getStatus(course) === 'completed'"
@@ -371,7 +374,7 @@ onMounted(() => {
           >
             <CheckCircle v-if="getStatus(course) === 'completed'" :size="12" />
             <Play v-else :size="12" fill="currentColor" />
-            {{ getStatus(course) === 'completed' ? 'Review' : getStatus(course) === 'not-started' ? 'Start' : 'Continue' }}
+            {{ getStatus(course) === 'completed' ? t('review-course') : getStatus(course) === 'not-started' ? t('start-learning') : t('continue-learning') }}
           </a>
         </div>
       </div>

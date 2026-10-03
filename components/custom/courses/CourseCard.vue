@@ -82,7 +82,7 @@ const goToCourse = () => {
           </div>
           <div class="flex items-center gap-1">
             <GraduationCap :size="20" color="#ff782d" />
-            {{ props.course.studentsCount }} Students
+            {{ props.course.studentsCount }} {{ t('students') }}
           </div>
           <div class="flex items-center gap-1">
             <Gauge :size="20" color="#ff782d" />
@@ -90,7 +90,7 @@ const goToCourse = () => {
           </div>
           <div class="flex items-center gap-1">
             <FileVideo2 :size="20" color="#ff782d" />
-            {{ props.course.lessons }} Lessons
+            {{ props.course.lessons }} {{ t('lessons') }}
           </div>
         </div>
       </div>

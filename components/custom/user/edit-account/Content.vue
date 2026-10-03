@@ -226,7 +226,7 @@ const changePassword = async () => {
     <div class="px-6 sm:px-8 py-7 border-b border-gray-100">
       <div class="flex items-center gap-2.5 mb-6" :class="auth.isEnglish ? 'flex-row' : 'flex-row-reverse'">
         <div class="w-1 h-5 rounded-full bg-orange-500 shrink-0"></div>
-        <h3 class="text-sm font-bold text-gray-800 uppercase tracking-widest">Change Password</h3>
+        <h3 class="text-sm font-bold text-gray-800 uppercase tracking-widest">{{ t('change-password') }}</h3>
       </div>
 
       <div class="flex flex-col gap-5 max-w-lg">

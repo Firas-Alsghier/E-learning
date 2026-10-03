@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue';
 import { Trash2, Tag, ShoppingCart, ArrowRight, BookOpen, Clock, Shield, RotateCcw } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
+import { useI18n } from 'vue-i18n';
 
 definePageMeta({
   layout: false,
@@ -22,6 +23,8 @@ interface CartItem {
 const token = useCookie('token');
 
 const cartItems = ref<CartItem[]>([]);
+
+const { t } = useI18n();
 
 const loadCart = async () => {
   try {
@@ -147,9 +150,9 @@ const checkout = async () => {
           <div class="w-9 h-9 rounded-xl bg-orange-500/15 border border-orange-500/25 flex items-center justify-center shrink-0">
             <ShoppingCart :size="17" class="text-orange-400" />
           </div>
-          Your Cart
+          {{ t('your-cart') }}
         </h1>
-        <p dir="ltr" class="text-sm text-right text-zinc-500 mt-1 ml-12">{{ cartItems.length }} {{ cartItems.length === 1 ? 'course' : 'courses' }} in your cart</p>
+        <p dir="ltr" class="text-sm text-right text-zinc-500 mt-1 ml-12">{{ cartItems.length }} {{ cartItems.length === 1 ? 'course' : 'courses' }} {{ t('in-your-cart') }}</p>
       </div>
 
       <!-- ── Empty cart ── -->
@@ -158,8 +161,8 @@ const checkout = async () => {
           <ShoppingCart :size="28" class="text-zinc-600" />
         </div>
         <div>
-          <p class="text-lg font-bold text-white">Your cart is empty</p>
-          <p class="text-sm text-zinc-500 mt-1">Browse our courses and add something you'd like to learn.</p>
+          <p class="text-lg font-bold text-white">{{ t('cart-empty-title') }}</p>
+          <p class="text-sm text-zinc-500 mt-1">{{ t('cart-empty-subtitle') }}</p>
         </div>
         <a
           href="/courses"
@@ -204,7 +207,7 @@ const checkout = async () => {
                 </span>
                 <span class="flex items-center gap-1">
                   <BookOpen :size="11" class="text-zinc-700" />
-                  Full lifetime access
+                  {{ t('full-lifetime-access') }}
                 </span>
               </div>
             </div>
@@ -226,7 +229,7 @@ const checkout = async () => {
           </div>
 
           <!-- Continue shopping link -->
-          <a href="/courses" class="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 hover:text-orange-400 transition-colors mt-1 w-fit"> ← Continue Shopping </a>
+          <a href="/courses" class="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 hover:text-orange-400 transition-colors mt-1 w-fit"> {{ t('continue-shopping') }} </a>
         </div>
 
         <!-- Right: Order summary -->
@@ -234,20 +237,20 @@ const checkout = async () => {
           <!-- Summary card -->
           <div class="bg-[#161618] border border-white/[0.08] rounded-2xl overflow-hidden">
             <div class="px-5 py-4 border-b border-white/[0.06]">
-              <h2 class="text-sm font-bold text-white">Order Summary</h2>
+              <h2 class="text-sm font-bold text-white">{{ t('order-summary') }}</h2>
             </div>
 
             <div class="px-5 py-4 flex flex-col gap-3">
               <!-- Original price -->
               <div class="flex items-center justify-between text-sm">
-                <span class="text-zinc-500">Original price</span>
+                <span class="text-zinc-500">{{ t('original-price') }}</span>
                 <span class="text-zinc-400 line-through">${{ originalTotal }}</span>
               </div>
 
               <!-- Savings -->
               <div class="flex items-center justify-between text-sm">
-                <span class="text-zinc-500">Savings</span>
-                <span class="text-emerald-400 font-semibold">-${{ totalSaved }}</span>
+                <span class="text-zinc-500">{{ t('savings') }}</span>
+                <span class="text-emerald-400 font-semibold">{{ t('currency') }}</span>
               </div>
 
               <!-- Coupon discount -->
@@ -256,7 +259,7 @@ const checkout = async () => {
                   <Tag :size="11" class="text-orange-400" />
                   Coupon ({{ Math.round(couponDiscount * 100) }}% off)
                 </span>
-                <span class="text-emerald-400 font-semibold">-${{ discountAmount }}</span>
+                <span class="text-emerald-400 font-semibold">{{ t('currency') }}</span>
               </div>
 
               <!-- Divider -->
@@ -264,7 +267,7 @@ const checkout = async () => {
 
               <!-- Total -->
               <div class="flex items-center justify-between">
-                <span class="text-sm font-bold text-white">Total</span>
+                <span class="text-sm font-bold text-white">{{ t('total') }}</span>
                 <span class="text-xl font-extrabold text-white">${{ total }}</span>
               </div>
             </div>
@@ -275,55 +278,23 @@ const checkout = async () => {
                 @click="checkout"
                 class="w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold text-sm shadow-[0_4px_20px_rgba(255,120,45,0.35)] hover:shadow-[0_8px_28px_rgba(255,120,45,0.5)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer flex items-center justify-center gap-2"
               >
-                Checkout <ArrowRight :size="15" />
+                {{ t('checkout') }} <ArrowRight :size="15" />
               </button>
             </div>
           </div>
-
-          <!-- Coupon code -->
-          <!-- <div class="bg-[#161618] border border-white/[0.08] rounded-2xl px-5 py-4">
-            <p class="text-xs font-bold text-zinc-400 uppercase tracking-wide mb-3">Have a coupon?</p>
-
-            <div v-if="couponApplied" class="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-2.5">
-              <div class="flex items-center gap-2">
-                <Tag :size="13" class="text-emerald-400" />
-                <span class="text-sm font-bold text-emerald-400">{{ couponCode.toUpperCase() }}</span>
-              </div>
-              <button @click="removeCoupon" class="text-xs text-zinc-500 hover:text-red-400 transition-colors cursor-pointer font-semibold">Remove</button>
-            </div>
-
-            <div v-else class="flex gap-2">
-              <input
-                v-model="couponCode"
-                type="text"
-                placeholder="Enter code..."
-                @keyup.enter="applyCoupon"
-                class="flex-1 min-w-0 bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-orange-500/50 transition-colors"
-              />
-              <button
-                @click="applyCoupon"
-                class="px-4 py-2.5 rounded-xl bg-orange-500/15 border border-orange-500/25 text-orange-400 text-sm font-bold hover:bg-orange-500/25 transition-all cursor-pointer whitespace-nowrap"
-              >
-                Apply
-              </button>
-            </div>
-
-            <p v-if="couponError" class="text-xs text-red-400 mt-2">{{ couponError }}</p>
-          </div> -->
-
           <!-- Trust badges -->
           <div class="bg-[#161618] border border-white/[0.08] rounded-2xl px-5 py-4 flex flex-col gap-3">
             <div class="flex items-center gap-3 text-xs text-zinc-500">
               <Shield :size="14" class="text-orange-400 shrink-0" />
-              <span>30-day money-back guarantee</span>
+              <span>{{ t('money-back-guarantee') }}</span>
             </div>
             <div class="flex items-center gap-3 text-xs text-zinc-500">
               <RotateCcw :size="14" class="text-orange-400 shrink-0" />
-              <span>Full lifetime access to all content</span>
+              <span>{{ t('full-lifetime-access') }}</span>
             </div>
             <div class="flex items-center gap-3 text-xs text-zinc-500">
               <BookOpen :size="14" class="text-orange-400 shrink-0" />
-              <span>Certificate of completion included</span>
+              <span>{{ t('certificate-included') }}</span>
             </div>
           </div>
         </div>

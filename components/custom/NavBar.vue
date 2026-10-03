@@ -120,7 +120,7 @@ const toggleMenu = (event: Event) => {
             'lg:static lg:w-auto lg:flex',
           ]"
         >
-          <NuxtLink to="/faqs" class="text-text-custom hover:text-hover-rose-gold" :class="auth.isEnglish ? 'text-left' : 'text-right'">FAQ</NuxtLink>
+          <NuxtLink to="/faqs" class="text-text-custom hover:text-hover-rose-gold" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('faq-nav') }}</NuxtLink>
           <NuxtLink to="/about" class="text-text-custom hover:text-hover-rose-gold" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('about-us') }}</NuxtLink>
           <!-- <NuxtLink to="/articles" class="text-text-custom hover:text-hover-rose-gold" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('articles') }}</NuxtLink> -->
           <NuxtLink to="/courses" class="text-text-custom hover:text-hover-rose-gold" :class="auth.isEnglish ? 'text-left' : 'text-right'">{{ t('courses') }}</NuxtLink>
@@ -128,7 +128,7 @@ const toggleMenu = (event: Event) => {
 
           <!-- Search Input -->
           <div class="relative w-full max-md:w-full lg:w-72 mx-auto">
-            <Input id="search" type="text" v-model="searchQuery" @keyup.enter="handleSearch" placeholder="Search" class="w-full text-center bg-[#F0F0F0] text-base rounded-2xl py-2 pr-10" />
+            <Input id="search" type="text" v-model="searchQuery" @keyup.enter="handleSearch" placeholder="Search..." class="w-full text-center bg-[#F0F0F0] text-base rounded-2xl py-2 pr-10" />
             <span class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
               <Search class="size-5 text-gray-500" />
             </span>
@@ -180,10 +180,10 @@ const toggleMenu = (event: Event) => {
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem as-child>
-                  <NuxtLink class="cursor-pointer" to="/login">Login as Student</NuxtLink>
+                  <NuxtLink class="cursor-pointer" to="/login">{{ t('login-as-student') }}</NuxtLink>
                 </DropdownMenuItem>
                 <DropdownMenuItem as-child>
-                  <NuxtLink class="cursor-pointer" to="/teacher/login">Login as Teacher</NuxtLink>
+                  <NuxtLink class="cursor-pointer" to="/teacher/login">{{ t('login-as-teacher') }}</NuxtLink>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -194,10 +194,10 @@ const toggleMenu = (event: Event) => {
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem as-child>
-                  <NuxtLink class="cursor-pointer" to="/signup">Register as Student</NuxtLink>
+                  <NuxtLink class="cursor-pointer" to="/signup">{{ t('register-as-student') }}</NuxtLink>
                 </DropdownMenuItem>
                 <DropdownMenuItem as-child>
-                  <NuxtLink class="cursor-pointer" to="/teacher/signup">Register as Teacher</NuxtLink>
+                  <NuxtLink class="cursor-pointer" to="/teacher/signup">{{ t('register-as-teacher') }}</NuxtLink>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
