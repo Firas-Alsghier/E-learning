@@ -149,7 +149,7 @@ const checkout = async () => {
           </div>
           Your Cart
         </h1>
-        <p class="text-sm text-zinc-500 mt-1 ml-12">{{ cartItems.length }} {{ cartItems.length === 1 ? 'course' : 'courses' }} in your cart</p>
+        <p dir="ltr" class="text-sm text-right text-zinc-500 mt-1 ml-12">{{ cartItems.length }} {{ cartItems.length === 1 ? 'course' : 'courses' }} in your cart</p>
       </div>
 
       <!-- ── Empty cart ── -->
