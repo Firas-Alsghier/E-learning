@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import { CheckCircle, BookOpen, DollarSign, Layers, Rocket } from 'lucide-vue-next';
-
+const config = useRuntimeConfig();
 const props = defineProps<{
   courseId: string;
 }>();
@@ -29,7 +29,7 @@ const fetchCourse = async () => {
   try {
     const token = useCookie('teacher_token').value;
 
-    const res = await axios.get(`http://localhost:3001/api/teacher/courses/${props.courseId}/full`, {
+    const res = await axios.get(`${config.public.apiBase}/api/teacher/courses/${props.courseId}/full`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -54,13 +54,13 @@ const publishCourse = async () => {
     const token = useCookie('teacher_token').value;
 
     await axios.patch(
-      `http://localhost:3001/api/teacher/courses/${props.courseId}/publish`,
+      `${config.public.apiBase}/api/teacher/courses/${props.courseId}/publish`,
       {},
       {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
 
     alert('The course was updated successfully and sent for review.');
@@ -142,7 +142,9 @@ onMounted(() => {
 /* Keeping transitions and animations in case you want to trigger the success state manually */
 .fade-scale-enter-active,
 .fade-scale-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
 }
 .fade-scale-enter-from,
 .fade-scale-leave-to {

@@ -13,7 +13,7 @@ const router = useRouter();
 const route = useRoute();
 const status = ref<'loading' | 'success' | 'error'>('loading');
 const message = ref('');
-
+const config = useRuntimeConfig();
 onMounted(async () => {
   const token = route.query.token as string;
 
@@ -24,7 +24,7 @@ onMounted(async () => {
   }
 
   try {
-    const res: any = await $fetch('http://localhost:3001/api/auth/verify-email', {
+    const res: any = await $fetch(`${config.public.apiBase}/api/auth/verify-email`, {
       method: 'POST',
       body: { token },
     });

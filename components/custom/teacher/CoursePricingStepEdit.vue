@@ -10,7 +10,7 @@ const props = defineProps<{
 
 // ✅ DEFINE EMIT
 const emit = defineEmits(['continue']);
-
+const config = useRuntimeConfig();
 // STATE
 const isFree = ref(true);
 const price = ref<number | null>(null);
@@ -29,7 +29,7 @@ const fetchPricing = async () => {
   try {
     const token = useCookie('teacher_token').value;
 
-    const res = await axios.get(`http://localhost:3001/api/teacher/courses/${props.courseId}/full`, {
+    const res = await axios.get(`${config.public.apiBase}/api/teacher/courses/${props.courseId}/full`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -56,7 +56,7 @@ const savePricing = async () => {
     }
 
     await axios.patch(
-      `http://localhost:3001/api/teacher/courses/${props.courseId}/price`,
+      `${config.public.apiBase}/api/teacher/courses/${props.courseId}/price`,
       {
         price: isFree.value ? 0 : price.value,
       },
@@ -64,7 +64,7 @@ const savePricing = async () => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
 
     emit('continue');

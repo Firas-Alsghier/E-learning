@@ -24,7 +24,7 @@ interface RecentSalesResponse {
 const purchases = ref<Purchase[]>([]);
 const salesThisMonth = ref(0);
 const total = ref(0);
-
+const config = useRuntimeConfig();
 const isLoading = ref(true);
 const error = ref('');
 
@@ -35,7 +35,7 @@ const fetchRecentSales = async () => {
 
     const token = useCookie('teacher_token').value;
 
-    const response = await axios.get<RecentSalesResponse>('http://localhost:3001/api/teacher/courses/stats/recent-sales', {
+    const response = await axios.get<RecentSalesResponse>(`${config.public.apiBase}/api/teacher/courses/stats/recent-sales`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

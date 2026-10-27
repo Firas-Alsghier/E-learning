@@ -23,12 +23,12 @@ const form = ref({
 
 const successMessage = ref('');
 const errorMessage = ref('');
-
+const config = useRuntimeConfig();
 /* ---------------- FETCH ADMINS ---------------- */
 const fetchAdmins = async () => {
   try {
     loading.value = true;
-    const { data } = await axios.get('http://localhost:3001/api/admin/management');
+    const { data } = await axios.get(`${config.public.apiBase}/api/admin/management`);
     admins.value = data;
   } catch (error) {
     errorMessage.value = 'Failed to load admins';
@@ -43,7 +43,7 @@ const addAdmin = async () => {
     successMessage.value = '';
     errorMessage.value = '';
 
-    await axios.post('http://localhost:3001/api/admin/management', form.value);
+    await axios.post(`${config.public.apiBase}/api/admin/management`, form.value);
 
     successMessage.value = 'Admin created successfully';
 
@@ -63,7 +63,7 @@ const addAdmin = async () => {
 /* ---------------- UPDATE ROLE ---------------- */
 const updateRole = async (admin: AdminUser) => {
   try {
-    await axios.put(`http://localhost:3001/api/admin/management/${admin._id}`, {
+    await axios.put(`${config.public.apiBase}/api/admin/management/${admin._id}`, {
       role: admin.role,
     });
 
@@ -78,7 +78,7 @@ const deleteAdmin = async (id: string) => {
   if (!confirm('Are you sure you want to delete this admin?')) return;
 
   try {
-    await axios.delete(`http://localhost:3001/api/admin/management/${id}`);
+    await axios.delete(`${config.public.apiBase}/api/admin/management/${id}`);
     successMessage.value = 'Admin deleted successfully';
     fetchAdmins();
   } catch (error) {

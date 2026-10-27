@@ -12,7 +12,7 @@ const loading = ref(false);
 const success = ref(false);
 const selectedFile = ref<File | null>(null);
 const { t } = useI18n();
-
+const config = useRuntimeConfig();
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 
 function handleFile(event: Event) {
@@ -47,7 +47,7 @@ const sendMessage = async () => {
       formData.append('attachment', selectedFile.value);
     }
 
-    await $fetch('http://localhost:3001/api/messages/contact-teacher', {
+    await $fetch(`${config.public.apiBase}/api/messages/contact-teacher`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,

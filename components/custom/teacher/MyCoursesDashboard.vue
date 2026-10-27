@@ -14,7 +14,7 @@ interface Course {
   category?: string;
   level?: string;
 }
-
+const config = useRuntimeConfig();
 /* ── State ── */
 const activeTab = ref<Course['status'] | 'all'>('all');
 const searchTerm = ref('');
@@ -106,7 +106,7 @@ const fetchCourses = async () => {
 
     const token = useCookie('teacher_token').value;
 
-    const res = await axios.get('http://localhost:3001/api/teacher/courses', {
+    const res = await axios.get(`${config.public.apiBase}/api/teacher/courses`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -176,7 +176,7 @@ const deleteCourse = async (id: string) => {
 
     const token = useCookie('teacher_token').value;
 
-    await axios.delete(`http://localhost:3001/api/teacher/courses/${id}`, {
+    await axios.delete(`${config.public.apiBase}/api/teacher/courses/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -195,11 +195,11 @@ const publishCourse = async (id: string) => {
     const token = useCookie('teacher_token').value;
 
     const res = await axios.patch(
-      `http://localhost:3001/api/teacher/courses/${id}/publish`,
+      `${config.public.apiBase}/api/teacher/courses/${id}/publish`,
       {},
       {
         headers: { Authorization: `Bearer ${token}` },
-      }
+      },
     );
 
     // ✅ Update UI instantly (no refetch)
@@ -209,7 +209,7 @@ const publishCourse = async (id: string) => {
             ...course,
             status: res.data.isPublished ? 'published' : 'draft',
           }
-        : course
+        : course,
     );
   } catch (err) {
     console.error(err);
@@ -531,7 +531,9 @@ const tabs = [
 <style scoped>
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
 }
 .fade-slide-enter-from,
 .fade-slide-leave-to {

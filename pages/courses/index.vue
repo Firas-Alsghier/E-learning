@@ -23,7 +23,7 @@ const courses = ref<any[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
 const searchQuery = ref(typeof route.query.search === 'string' ? route.query.search : '');
-
+const config = useRuntimeConfig();
 // ✅ FIX: Added missing mobile filter state
 const showMobileFilter = ref(false);
 
@@ -44,7 +44,7 @@ const getUserWishlist = async (): Promise<string[]> => {
     const token = useCookie('token').value;
     if (!token) return [];
 
-    const res = await fetch('http://localhost:3001/api/user/wishlist', {
+    const res = await fetch(`${config.public.apiBase}/api/user/wishlist`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     const data = await res.json();
@@ -57,7 +57,7 @@ const getUserWishlist = async (): Promise<string[]> => {
 
 const fetchCourses = async () => {
   try {
-    const res = await fetch('http://localhost:3001/api/courses');
+    const res = await fetch(`${config.public.apiBase}/api/courses`);
     if (!res.ok) throw new Error('Failed to fetch courses');
 
     const data: Index[] = await res.json();
@@ -100,7 +100,7 @@ const toggleWishlist = async (id: string) => {
       return;
     }
 
-    const res = await fetch(`http://localhost:3001/api/user/wishlist/${id}`, {
+    const res = await fetch(`${config.public.apiBase}/api/user/wishlist/${id}`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -189,7 +189,7 @@ watch(
     activeFilters.value.ratings = query.ratings ? String(query.ratings).split(',').map(Number) : [];
     activeFilters.value.hours = query.hours ? String(query.hours).split(',') : [];
     currentPage.value = query.page ? Number(query.page) : 1;
-  }
+  },
 );
 
 watch(currentPage, (page) => {

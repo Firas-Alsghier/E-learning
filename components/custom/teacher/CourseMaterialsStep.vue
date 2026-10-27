@@ -23,7 +23,7 @@ interface Section {
   title: string;
   lessons: Lesson[];
 }
-
+const config = useRuntimeConfig();
 const sections = ref<Section[]>([]);
 const coverInputRef = ref<HTMLInputElement | null>(null);
 const videoInputRef = ref<HTMLInputElement | null>(null);
@@ -48,7 +48,7 @@ const handleCoverSelected = async (event: Event) => {
   formData.append('cover', file);
 
   try {
-    await axios.patch(`http://localhost:3001/api/teacher/courses/${props.courseId}/cover`, formData, { headers: { Authorization: `Bearer ${token}` } });
+    await axios.patch(`${config.public.apiBase}/api/teacher/courses/${props.courseId}/cover`, formData, { headers: { Authorization: `Bearer ${token}` } });
     coverUploaded.value = true;
   } catch (err) {
     console.error(err);
@@ -65,9 +65,9 @@ const addSection = async () => {
   if (!props.courseId || !token) return;
   try {
     const res = await axios.post(
-      `http://localhost:3001/api/teacher/courses/${props.courseId}/sections`,
+      `${config.public.apiBase}/api/teacher/courses/${props.courseId}/sections`,
       { title: `Section ${sections.value.length + 1}` },
-      { headers: { Authorization: `Bearer ${token}` } }
+      { headers: { Authorization: `Bearer ${token}` } },
     );
     sections.value.push({ _id: res.data._id, title: res.data.title, lessons: [] });
   } catch (err) {
@@ -83,9 +83,9 @@ const addLesson = async (sectionIndex: number) => {
   if (!section._id || !token) return;
   try {
     const res = await axios.post(
-      `http://localhost:3001/api/teacher/courses/${section._id}/lessons`,
+      `${config.public.apiBase}/api/teacher/courses/${section._id}/lessons`,
       { title: `Lesson ${section.lessons.length + 1}` },
-      { headers: { Authorization: `Bearer ${token}` } }
+      { headers: { Authorization: `Bearer ${token}` } },
     );
     section.lessons.push({
       _id: res.data._id,
@@ -147,11 +147,11 @@ const handleVideoSelected = async (event: Event) => {
 
     // 🔥 STEP 2: Save URL to your backend
     await axios.patch(
-      `http://localhost:3001/api/teacher/courses/lessons/${lessonId}/video-url`,
+      `${config.public.apiBase}/api/teacher/courses/lessons/${lessonId}/video-url`,
       { videoUrl },
       {
         headers: { Authorization: `Bearer ${token}` },
-      }
+      },
     );
 
     lesson.videoUploaded = true;
@@ -178,7 +178,7 @@ const handleBeforeUnload = (event: BeforeUnloadEvent) => {
 onMounted(async () => {
   if (!props.courseId || !token) return;
   try {
-    const res = await axios.get(`http://localhost:3001/api/teacher/courses/${props.courseId}/full`, { headers: { Authorization: `Bearer ${token}` } });
+    const res = await axios.get(`${config.public.apiBase}/api/teacher/courses/${props.courseId}/full`, { headers: { Authorization: `Bearer ${token}` } });
     sections.value = (res.data.sections || []).map((s: any) => ({
       ...s,
       lessons: (s.lessons || []).map((l: any) => ({
@@ -198,7 +198,7 @@ const saveCurriculum = async () => {
 
   try {
     await axios.patch(
-      `http://localhost:3001/api/teacher/courses/${props.courseId}/curriculum`,
+      `${config.public.apiBase}/api/teacher/courses/${props.courseId}/curriculum`,
       {
         sections: sections.value,
       },
@@ -206,7 +206,7 @@ const saveCurriculum = async () => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
   } catch (err) {
     console.error('Failed to save curriculum', err);
@@ -242,7 +242,7 @@ const saveAndContinue = async () => {
 
   try {
     await axios.patch(
-      `http://localhost:3001/api/teacher/courses/${props.courseId}/curriculum`,
+      `${config.public.apiBase}/api/teacher/courses/${props.courseId}/curriculum`,
       {
         sections: sections.value,
       },
@@ -250,7 +250,7 @@ const saveAndContinue = async () => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
 
     emit('continue'); // ✅ go next ONLY after save
@@ -436,7 +436,9 @@ const saveAndContinue = async () => {
 <style scoped>
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
 }
 .fade-slide-enter-from,
 .fade-slide-leave-to {

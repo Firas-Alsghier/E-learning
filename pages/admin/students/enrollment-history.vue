@@ -31,9 +31,9 @@ interface Enrollment {
 const enrollments = ref<Enrollment[]>([]);
 const search = ref<string>('');
 const loading = ref<boolean>(false);
-
+const config = useRuntimeConfig();
 const api = axios.create({
-  baseURL: 'http://localhost:3001/api/admin/students',
+  baseURL: `${config.public.apiBase}/api/admin/students`,
 });
 
 const fetchEnrollments = async () => {

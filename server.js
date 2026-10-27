@@ -1,6 +1,7 @@
 // server.js
 import dotenv from 'dotenv';
 dotenv.config(); // 👈 MUST be before any other imports
+const PORT = process.env.PORT || 3001;
 
 import express from 'express';
 import cors from 'cors';
@@ -68,6 +69,11 @@ mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log('MongoDB Connected');
-    app.listen(3001, () => console.log('Server running on http://localhost:3001'));
+
+    const PORT = process.env.PORT || 3001;
+
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
   })
   .catch((err) => console.error('MongoDB connection error:', err));

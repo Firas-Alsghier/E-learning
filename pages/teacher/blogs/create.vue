@@ -16,7 +16,7 @@ const success = ref('');
 const error = ref('');
 const showModal = ref(false);
 const isPublishing = ref(true);
-
+const config = useRuntimeConfig();
 definePageMeta({ layout: false });
 
 // ✅ Format commands
@@ -98,7 +98,7 @@ const handleSubmit = async () => {
     if (image.value) formData.append('image', image.value);
     if (tags.value.length) formData.append('tags', JSON.stringify(tags.value));
 
-    const res = await fetch('http://localhost:3001/api/blogs', {
+    const res = await fetch(`${config.public.apiBase}/api/blogs`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
       body: formData,

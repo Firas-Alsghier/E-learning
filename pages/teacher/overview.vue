@@ -10,7 +10,7 @@ definePageMeta({
 const route = useRoute();
 const x = false;
 const auth = useAuthStore();
-
+const config = useRuntimeConfig();
 const coursesCount = ref(0);
 const studentsCount = ref(0);
 const revenue = ref(0);
@@ -23,7 +23,7 @@ const fetchCoursesCount = async () => {
       return;
     }
 
-    const courses = await $fetch<any[]>('http://localhost:3001/api/teacher/courses', {
+    const courses = await $fetch<any[]>(`${config.public.apiBase}/api/teacher/courses`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -45,7 +45,7 @@ const fetchStudentsCount = async () => {
       return;
     }
 
-    const response = await $fetch<{ totalStudents: number }>('http://localhost:3001/api/teacher/courses/stats/students', {
+    const response = await $fetch<{ totalStudents: number }>(`${config.public.apiBase}/api/teacher/courses/stats/students`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -67,7 +67,7 @@ const fetchRevenue = async () => {
       return;
     }
 
-    const response = await $fetch<{ totalRevenue: number }>('http://localhost:3001/api/teacher/courses/stats/revenue', {
+    const response = await $fetch<{ totalRevenue: number }>(`${config.public.apiBase}/api/teacher/courses/stats/revenue`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -91,7 +91,7 @@ const fetchCourseStatus = async (period = 'this-month') => {
       return;
     }
 
-    const response = await $fetch<any[]>(`http://localhost:3001/api/teacher/courses/status?period=${period}`, {
+    const response = await $fetch<any[]>(`${config.public.apiBase}/api/teacher/courses/status?period=${period}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

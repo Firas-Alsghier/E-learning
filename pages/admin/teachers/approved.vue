@@ -11,7 +11,7 @@ const expandedId = ref(null);
 const teachers = ref([]);
 const loading = ref(false);
 const error = ref('');
-
+const config = useRuntimeConfig();
 const toggleDetails = (id) => {
   expandedId.value = expandedId.value === id ? null : id;
 };
@@ -22,7 +22,7 @@ onMounted(async () => {
   loading.value = true;
   error.value = '';
   try {
-    const data = await $api('http://localhost:3001/api/admin/teachers/approved');
+    const data = await $api(`${config.public.apiBase}/api/admin/teachers/approved`);
     teachers.value = data.map((t) => ({
       id: t._id,
       firstName: t.firstName,
@@ -48,7 +48,7 @@ onMounted(async () => {
 const blockTeacher = async (id) => {
   if (!confirm('Block this teacher?')) return;
   try {
-    await $api(`http://localhost:3001/api/admin/teachers/${id}/block`, { method: 'PATCH' });
+    await $api(`${config.public.apiBase}/api/admin/teachers/${id}/block`, { method: 'PATCH' });
     teachers.value = teachers.value.filter((t) => t.id !== id);
   } catch (err) {
     console.error(err);
@@ -59,7 +59,7 @@ const blockTeacher = async (id) => {
 const revokeTeacher = async (id) => {
   if (!confirm('Revoke approval for this teacher?')) return;
   try {
-    await $api(`http://localhost:3001/api/admin/teachers/${id}/revoke`, { method: 'PATCH' });
+    await $api(`${config.public.apiBase}/api/admin/teachers/${id}/revoke`, { method: 'PATCH' });
     teachers.value = teachers.value.filter((t) => t.id !== id);
   } catch (err) {
     console.error(err);
@@ -221,7 +221,9 @@ const revokeTeacher = async (id) => {
 <style scoped>
 .expand-enter-active,
 .expand-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 .expand-enter-from,
 .expand-leave-to {

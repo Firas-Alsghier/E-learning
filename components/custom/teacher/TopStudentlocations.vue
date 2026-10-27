@@ -10,6 +10,7 @@ interface LocationData {
 }
 
 const isMenuOpen = ref(false);
+const config = useRuntimeConfig();
 
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
@@ -58,7 +59,7 @@ async function fetchStudentLocations() {
   try {
     const token = useCookie('teacher_token').value;
 
-    const response = await axios.get('http://localhost:3001/api/teacher/courses/stats/student-locations', {
+    const response = await axios.get(`${config.public.apiBase}/api/teacher/courses/stats/student-locations`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -155,7 +156,9 @@ onMounted(() => {
 <style scoped>
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
 }
 .fade-slide-enter-from,
 .fade-slide-leave-to {

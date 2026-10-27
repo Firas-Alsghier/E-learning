@@ -10,7 +10,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'published'): void;
 }>();
-
+const config = useRuntimeConfig();
 const isPublishing = ref(false);
 const isPublished = ref(false);
 
@@ -30,7 +30,7 @@ const publishCourse = async () => {
       return;
     }
 
-    await axios.patch(`http://localhost:3001/api/teacher/courses/${props.courseId}/publish`, {}, { headers: { Authorization: `Bearer ${token}` } });
+    await axios.patch(`${config.public.apiBase}/api/teacher/courses/${props.courseId}/publish`, {}, { headers: { Authorization: `Bearer ${token}` } });
 
     isPublished.value = true;
     emit('published');
@@ -122,7 +122,9 @@ const checklist = [
 <style scoped>
 .fade-scale-enter-active,
 .fade-scale-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
 }
 .fade-scale-enter-from,
 .fade-scale-leave-to {

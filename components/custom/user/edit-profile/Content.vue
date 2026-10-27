@@ -6,7 +6,7 @@ import { Facebook, Instagram, Twitter, Linkedin, Earth } from 'lucide-vue-next';
 
 const auth = useAuthStore();
 const { t } = useI18n();
-
+const config = useRuntimeConfig();
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: currentYear - 1950 + 1 }, (_, i) => currentYear - i);
 
@@ -32,7 +32,7 @@ onMounted(async () => {
   if (!token && import.meta.client) token = localStorage.getItem('token');
   if (!token) return;
   try {
-    const user = await $fetch<Profile>('http://localhost:3001/api/auth/me', {
+    const user = await $fetch<Profile>(`${config.public.apiBase}/api/auth/me`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     auth.user = user;
@@ -62,7 +62,7 @@ const saveChanges = async () => {
   if (!token && import.meta.client) token = localStorage.getItem('token');
   if (!token) return alert('You are not logged in.');
   try {
-    const response = await $fetch('http://localhost:3001/api/auth/edit-profile', {
+    const response = await $fetch(`${config.public.apiBase}/api/auth/edit-profile`, {
       method: 'PUT',
       headers: {
         Authorization: `Bearer ${token}`,

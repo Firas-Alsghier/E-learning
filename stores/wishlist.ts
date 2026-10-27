@@ -4,7 +4,7 @@ import { defineStore } from 'pinia';
 
 export const useWishlistStore = defineStore('wishlist', () => {
   const count = ref(0);
-
+  const config = useRuntimeConfig();
   const setCount = (value: number) => {
     count.value = value;
   };
@@ -18,7 +18,7 @@ export const useWishlistStore = defineStore('wishlist', () => {
         return;
       }
 
-      const wishlist = await $fetch<any[]>('http://localhost:3001/api/user/wishlist', {
+      const wishlist = await $fetch<any[]>(`${config.public.apiBase}/api/user/wishlist`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

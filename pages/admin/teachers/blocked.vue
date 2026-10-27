@@ -22,11 +22,11 @@ interface Teacher {
 const teachers = ref<Teacher[]>([]);
 const expandedId = ref<string | null>(null);
 const loading = ref(false);
-
+const config = useRuntimeConfig();
 const token = import.meta.client ? localStorage.getItem('adminToken') : null;
 
 const api = axios.create({
-  baseURL: 'http://localhost:3001/api/admin',
+  baseURL: `${config.public.apiBase}/api/admin`,
   headers: {
     Authorization: `Bearer ${token}`,
   },

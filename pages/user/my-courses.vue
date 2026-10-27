@@ -29,10 +29,10 @@ const token = useCookie('token');
 // ── Hardcoded test data ──────────────────────────────────────────────────────
 // Replace with your real API call when ready
 const courses = ref<EnrolledCourse[]>([]);
-
+const config = useRuntimeConfig();
 const loadCourses = async () => {
   try {
-    const data: any = await $fetch('http://localhost:3001/api/purchases/my-courses', {
+    const data: any = await $fetch(`${config.public.apiBase}/api/purchases/my-courses`, {
       headers: {
         Authorization: `Bearer ${token.value}`,
       },
@@ -59,7 +59,7 @@ const loadCourses = async () => {
 
 const downloadCertificate = async (courseId: string) => {
   try {
-    const response = await fetch(`http://localhost:3001/api/certificates/${courseId}`, {
+    const response = await fetch(`${config.public.apiBase}/api/certificates/${courseId}`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token.value}`,

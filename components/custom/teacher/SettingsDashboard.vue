@@ -2,6 +2,7 @@
 import { useAuthStore } from '~/stores/auth';
 
 const auth = useAuthStore();
+const config = useRuntimeConfig();
 
 const form = ref({
   firstName: '',
@@ -29,7 +30,7 @@ onMounted(async () => {
   if (!token) return;
 
   try {
-    const teacher = await $fetch('http://localhost:3001/api/teacher/me', {
+    const teacher = await $fetch(`${config.public.apiBase}/api/teacher/me`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -68,7 +69,7 @@ const saveChanges = async () => {
   }
 
   try {
-    const response = await $fetch('http://localhost:3001/api/teacher/edit-profile', {
+    const response = await $fetch(`${config.public.apiBase}/api/teacher/edit-profile`, {
       method: 'PUT',
       headers: {
         Authorization: `Bearer ${token}`,

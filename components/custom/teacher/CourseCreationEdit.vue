@@ -6,7 +6,7 @@ import { ChevronRight, Plus, X, Check, BookOpen, Layers, DollarSign, Rocket } fr
 const props = defineProps<{
   courseId: string;
 }>();
-
+const config = useRuntimeConfig();
 const course = ref<any>(null);
 const isLoading = ref(false);
 const isSaving = ref(false);
@@ -57,7 +57,7 @@ const fetchCourse = async () => {
   try {
     isLoading.value = true;
     const token = useCookie('teacher_token').value;
-    const res = await axios.get(`http://localhost:3001/api/teacher/courses/${props.courseId}/full`, {
+    const res = await axios.get(`${config.public.apiBase}/api/teacher/courses/${props.courseId}/full`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -84,7 +84,7 @@ const updateCourse = async () => {
     const token = useCookie('teacher_token').value;
 
     await axios.patch(
-      `http://localhost:3001/api/teacher/courses/${props.courseId}`,
+      `${config.public.apiBase}/api/teacher/courses/${props.courseId}`,
       {
         ...form.value,
         levelCheck: {
@@ -92,7 +92,7 @@ const updateCourse = async () => {
           questions: levelCheckEnabled.value ? levelCheckQuestions.value : [],
         },
       },
-      { headers: { Authorization: `Bearer ${token}` } }
+      { headers: { Authorization: `Bearer ${token}` } },
     );
 
     goToNextStep();

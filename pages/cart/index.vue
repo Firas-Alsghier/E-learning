@@ -22,13 +22,15 @@ interface CartItem {
 
 const token = useCookie('token');
 
+const config = useRuntimeConfig();
+
 const cartItems = ref<CartItem[]>([]);
 
 const { t } = useI18n();
 
 const loadCart = async () => {
   try {
-    const data: any = await $fetch('http://localhost:3001/api/cart', {
+    const data: any = await $fetch(`${config.public.apiBase}/api/cart`, {
       headers: {
         Authorization: `Bearer ${token.value}`,
       },
@@ -70,7 +72,7 @@ const total = computed(() => subtotal.value - discountAmount.value);
 // ── Actions ──────────────────────────────────────────────────────────────────
 const removeItem = async (courseId: string) => {
   try {
-    await $fetch(`http://localhost:3001/api/cart/${courseId}`, {
+    await $fetch(`${config.public.apiBase}/api/cart/${courseId}`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${token.value}`,
@@ -112,7 +114,7 @@ const removeCoupon = () => {
 
 const checkout = async () => {
   try {
-    const res: any = await $fetch('http://localhost:3001/api/cart/checkout', {
+    const res: any = await $fetch(`${config.public.apiBase}/api/cart/checkout`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token.value}`,

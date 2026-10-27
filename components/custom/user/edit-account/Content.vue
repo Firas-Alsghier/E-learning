@@ -7,6 +7,7 @@ const router = useRouter();
 const { setUser } = useUser();
 const { t } = useI18n();
 const auth = useAuthStore();
+const config = useRuntimeConfig();
 
 // --- Token MUST be loaded only on client
 const token = ref<string | null>(null);
@@ -35,7 +36,7 @@ const changeEmail = async () => {
   }
 
   try {
-    await $fetch('http://localhost:3001/api/auth/change-email', {
+    await $fetch(`${config.public.apiBase}/api/auth/change-email`, {
       method: 'PUT',
       body: {
         newEmail: newEmail.value,
@@ -71,7 +72,7 @@ const changePassword = async () => {
   }
 
   try {
-    await $fetch('http://localhost:3001/api/auth/edit-account', {
+    await $fetch(`${config.public.apiBase}/api/auth/edit-account`, {
       method: 'PUT',
       body: {
         currentPassword: currentPassword.value,

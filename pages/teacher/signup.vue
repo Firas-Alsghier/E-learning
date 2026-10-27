@@ -6,7 +6,7 @@ definePageMeta({
   layout: false,
   middleware: ['signup'],
 });
-
+const config = useRuntimeConfig();
 const router = useRouter();
 const { setUser } = useUser();
 const { t } = useI18n();
@@ -133,7 +133,7 @@ const handleSubmit = async () => {
   error.value = '';
 
   try {
-    await $fetch('http://localhost:3001/api/teacher/signup', {
+    await $fetch(`${config.public.apiBase}/api/teacher/signup`, {
       method: 'POST',
       body: {
         firstName: firstName.value,

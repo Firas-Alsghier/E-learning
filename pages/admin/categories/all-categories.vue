@@ -17,7 +17,7 @@ const categories = ref<Category[]>([]);
 const search = ref('');
 const loading = ref(false);
 const editingId = ref<string | null>(null);
-
+const config = useRuntimeConfig();
 const editName = ref('');
 const editDescription = ref('');
 const editActive = ref(true);
@@ -25,7 +25,7 @@ const editActive = ref(true);
 const fetchCategories = async () => {
   try {
     loading.value = true;
-    const { data } = await axios.get('http://localhost:3001/api/admin/categories', {
+    const { data } = await axios.get(`${config.public.apiBase}/api/admin/categories`, {
       params: { search: search.value },
     });
     categories.value = data.categories;
@@ -49,7 +49,7 @@ const cancelEdit = () => {
 
 const updateCategory = async (id: string) => {
   try {
-    await axios.put(`http://localhost:3001/api/admin/categories/${id}`, {
+    await axios.put(`${config.public.apiBase}/api/admin/categories/${id}`, {
       name: editName.value,
       description: editDescription.value,
       isActive: editActive.value,
@@ -67,7 +67,7 @@ const deleteCategory = async (id: string) => {
   if (!confirmDelete) return;
 
   try {
-    await axios.delete(`http://localhost:3001/api/admin/categories/${id}`);
+    await axios.delete(`${config.public.apiBase}/api/admin/categories/${id}`);
     categories.value = categories.value.filter((c) => c._id !== id);
   } catch (error) {
     console.error('Delete category error:', error);

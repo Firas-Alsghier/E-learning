@@ -23,9 +23,9 @@ interface Course {
 const courses = ref<Course[]>([]);
 const expandedId = ref<string | null>(null);
 const loading = ref(false);
-
+const config = useRuntimeConfig();
 const api = axios.create({
-  baseURL: 'http://localhost:3001/api/admin',
+  baseURL: `${config.public.apiBase}/api/admin`,
 });
 
 const fetchBlockedCourses = async () => {

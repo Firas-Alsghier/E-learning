@@ -3,7 +3,7 @@
 import { ref, computed } from 'vue';
 import axios from 'axios';
 import { Tag, DollarSign, CheckCircle } from 'lucide-vue-next';
-
+const config = useRuntimeConfig();
 const emit = defineEmits<{
   (e: 'continue'): void;
 }>();
@@ -39,7 +39,7 @@ const handleContinue = async () => {
 
   try {
     isSaving.value = true;
-    await axios.patch(`http://localhost:3001/api/teacher/courses/${props.courseId}/price`, { price: isFree.value ? 0 : price.value }, { headers: { Authorization: `Bearer ${token}` } });
+    await axios.patch(`${config.public.apiBase}/api/teacher/courses/${props.courseId}/price`, { price: isFree.value ? 0 : price.value }, { headers: { Authorization: `Bearer ${token}` } });
     emit('continue');
   } catch (err) {
     console.error(err);

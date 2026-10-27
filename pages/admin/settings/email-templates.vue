@@ -19,12 +19,12 @@ const form = ref<EmailTemplates>({
 const loading = ref(false);
 const successMessage = ref('');
 const errorMessage = ref('');
-
+const config = useRuntimeConfig();
 /* ---------------- FETCH ---------------- */
 const fetchTemplates = async () => {
   try {
     loading.value = true;
-    const { data } = await axios.get('http://localhost:3001/api/admin/settings/emails');
+    const { data } = await axios.get(`${config.public.apiBase}/api/admin/settings/emails`);
     form.value = data;
   } catch (error) {
     errorMessage.value = 'Failed to load email templates';

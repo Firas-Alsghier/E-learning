@@ -8,7 +8,7 @@ definePageMeta({
 });
 
 const router = useRouter();
-
+const config = useRuntimeConfig();
 const email = ref('');
 const password = ref('');
 const loading = ref(false);
@@ -23,7 +23,7 @@ const handleLogin = async () => {
   loading.value = true;
 
   try {
-    const res = await $fetch('http://localhost:3001/api/admin/auth/login', {
+    const res = await $fetch(`${config.public.apiBase}/api/admin/auth/login`, {
       method: 'POST',
       body: {
         email: email.value,

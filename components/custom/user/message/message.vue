@@ -32,7 +32,7 @@ interface FileItem {
   icon: any; // Lucide icon component
   url: string;
 }
-
+const config = useRuntimeConfig();
 const conversations = ref<Conversation[]>([]);
 const chatMessages = ref<Message[]>([]);
 const activeConversationId = ref<string | null>(null);
@@ -107,7 +107,7 @@ const loadMessages = async (conversationId: string) => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    const res = await axios.get(`http://localhost:3001/api/messages/user/conversation/${conversationId}`, {
+    const res = await axios.get(`${config.public.apiBase}/api/messages/user/conversation/${conversationId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -136,7 +136,7 @@ const loadConversations = async () => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    const res = await $fetch('http://localhost:3001/api/messages/user/conversations', {
+    const res = await $fetch(`${config.public.apiBase}/api/messages/user/conversations`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -174,7 +174,7 @@ const sendMessage = async () => {
       formData.append('attachment', selectedFile.value);
     }
 
-    const res = await axios.post('http://localhost:3001/api/messages/contact-teacher', formData, {
+    const res = await axios.post(`${config.public.apiBase}/api/messages/contact-teacher`, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -415,14 +415,14 @@ onMounted(() => {
                 <!-- Image attachment -->
                 <a
                   v-if="msg.attachment && /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(msg.attachment)"
-                  :href="`http://localhost:3001/uploads/messages/${encodeURIComponent(msg.attachment)}`"
+                  :href="`${config.public.apiBase}/uploads/messages/${encodeURIComponent(msg.attachment)}`"
                   :download="msg.attachment"
                   target="_blank"
                   rel="noopener noreferrer"
                   class="block mb-2"
                 >
                   <img
-                    :src="`http://localhost:3001/uploads/messages/${encodeURIComponent(msg.attachment)}`"
+                    :src="`${config.public.apiBase}/uploads/messages/${encodeURIComponent(msg.attachment)}`"
                     :alt="msg.attachment"
                     class="max-w-[200px] max-h-[240px] object-contain rounded-lg cursor-pointer hover:opacity-90"
                     loading="lazy"
@@ -433,7 +433,7 @@ onMounted(() => {
                 <!-- Other file attachments -->
                 <a
                   v-else-if="msg.attachment"
-                  :href="`http://localhost:3001/uploads/messages/${encodeURIComponent(msg.attachment)}`"
+                  :href="`${config.public.apiBase}/uploads/messages/${encodeURIComponent(msg.attachment)}`"
                   :download="msg.attachment"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -445,7 +445,7 @@ onMounted(() => {
                 <!-- File attachment -->
                 <a
                   v-if="msg.attachment && !msg.attachment.match(/\.(jpg|jpeg|png|gif|webp)$/i)"
-                  :href="`http://localhost:3001/uploads/${msg.attachment}`"
+                  :href="`${config.public.apiBase}/uploads/${msg.attachment}`"
                   target="_blank"
                   class="text-sm underline text-blue-500"
                 >

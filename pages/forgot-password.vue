@@ -11,7 +11,7 @@ const loading = ref(false);
 const success = ref('');
 const error = ref('');
 const emailError = ref('');
-
+const config = useRuntimeConfig();
 // ✅ Email validation function
 const validateEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
@@ -42,7 +42,7 @@ const handleForgotPassword = async () => {
   loading.value = true;
 
   try {
-    await $fetch('http://localhost:3001/api/auth/forgot-password', {
+    await $fetch(`${config.public.apiBase}/api/auth/forgot-password`, {
       method: 'POST',
       body: { email: email.value },
     });

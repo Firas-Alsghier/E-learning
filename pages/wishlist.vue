@@ -29,6 +29,8 @@ interface Course {
 
 type ActiveTab = 'courses' | 'articles';
 
+const config = useRuntimeConfig();
+
 const activeTab = ref<ActiveTab>('courses');
 
 const courses = ref<Course[]>([]);
@@ -50,7 +52,7 @@ const fetchWishlist = async () => {
       return;
     }
 
-    const res = await fetch('http://localhost:3001/api/user/wishlist', {
+    const res = await fetch(`${config.public.apiBase}/api/user/wishlist`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -94,7 +96,7 @@ const toggleCourseWishlist = async (courseId: string) => {
       return;
     }
 
-    const res = await fetch(`http://localhost:3001/api/user/wishlist/${courseId}`, {
+    const res = await fetch(`${config.public.apiBase}/api/user/wishlist/${courseId}`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,

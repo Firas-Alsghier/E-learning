@@ -6,6 +6,7 @@ import axios from 'axios';
 const props = defineProps<{
   courseId: string;
 }>();
+const config = useRuntimeConfig();
 const emit = defineEmits(['continue']);
 const sections = ref<any[]>([]);
 const isLoading = ref(false);
@@ -39,7 +40,7 @@ const fetchCurriculum = async () => {
     const token = useCookie('teacher_token').value;
 
     // ✅ fetch the full course
-    const res = await axios.get(`http://localhost:3001/api/teacher/courses/${props.courseId}/full`, {
+    const res = await axios.get(`${config.public.apiBase}/api/teacher/courses/${props.courseId}/full`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -89,7 +90,7 @@ const fetchSections = async () => {
 
     const token = useCookie('teacher_token').value;
 
-    const res = await axios.get(`http://localhost:3001/api/teacher/courses/${props.courseId}/full`, {
+    const res = await axios.get(`${config.public.apiBase}/api/teacher/courses/${props.courseId}/full`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -126,7 +127,7 @@ const handleCoverSelected = async (event: Event) => {
   formData.append('cover', file);
 
   try {
-    await axios.patch(`http://localhost:3001/api/teacher/courses/${props.courseId}/cover`, formData, {
+    await axios.patch(`${config.public.apiBase}/api/teacher/courses/${props.courseId}/cover`, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -151,7 +152,7 @@ const addSection = async () => {
     const token = useCookie('teacher_token').value;
 
     const res = await axios.post(
-      `http://localhost:3001/api/teacher/courses/${props.courseId}/sections`,
+      `${config.public.apiBase}/api/teacher/courses/${props.courseId}/sections`,
       {
         title: 'New Section',
         order: sections.value.length,
@@ -160,7 +161,7 @@ const addSection = async () => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
 
     // 🔥 instantly update UI
@@ -181,7 +182,7 @@ const addLesson = async (sectionId: string, sectionIndex: number) => {
     const token = useCookie('teacher_token').value;
 
     const res = await axios.post(
-      `http://localhost:3001/api/teacher/courses/${sectionId}/lessons`,
+      `${config.public.apiBase}/api/teacher/courses/${sectionId}/lessons`,
       {
         title: 'New Lesson',
         order: sections.value[sectionIndex].lessons.length,
@@ -190,7 +191,7 @@ const addLesson = async (sectionId: string, sectionIndex: number) => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
 
     // 🔥 update UI instantly
@@ -212,7 +213,7 @@ const deleteSection = async (sectionId: string, index: number) => {
   try {
     const token = useCookie('teacher_token').value;
 
-    await axios.delete(`http://localhost:3001/api/teacher/courses/sections/${sectionId}`, {
+    await axios.delete(`${config.public.apiBase}/api/teacher/courses/sections/${sectionId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -230,7 +231,7 @@ const deleteLesson = async (lessonId: string, sectionIndex: number, lessonIndex:
   try {
     const token = useCookie('teacher_token').value;
 
-    await axios.delete(`http://localhost:3001/api/teacher/courses/lessons/${lessonId}`, {
+    await axios.delete(`${config.public.apiBase}/api/teacher/courses/lessons/${lessonId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -249,7 +250,7 @@ const updateSection = async (section: any) => {
     const token = useCookie('teacher_token').value;
 
     await axios.patch(
-      `http://localhost:3001/api/teacher/courses/sections/${section._id}`,
+      `${config.public.apiBase}/api/teacher/courses/sections/${section._id}`,
       {
         title: section.title,
       },
@@ -257,7 +258,7 @@ const updateSection = async (section: any) => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
   } catch (err) {
     console.error(err);
@@ -269,7 +270,7 @@ const updateLesson = async (lesson: any) => {
     const token = useCookie('teacher_token').value;
 
     await axios.patch(
-      `http://localhost:3001/api/teacher/courses/lessons/${lesson._id}`,
+      `${config.public.apiBase}/api/teacher/courses/lessons/${lesson._id}`,
       {
         title: lesson.title,
       },
@@ -277,7 +278,7 @@ const updateLesson = async (lesson: any) => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
   } catch (err) {
     console.error(err);
@@ -331,11 +332,11 @@ const handleVideoSelected = async (event: Event) => {
 
     // 2️⃣ Save to backend
     await axios.patch(
-      `http://localhost:3001/api/teacher/courses/lessons/${lessonId}/video-url`,
+      `${config.public.apiBase}/api/teacher/courses/lessons/${lessonId}/video-url`,
       { videoUrl },
       {
         headers: { Authorization: `Bearer ${token}` },
-      }
+      },
     );
 
     lesson.videoUrl = videoUrl;
@@ -356,7 +357,7 @@ const saveAndContinue = async () => {
     const token = useCookie('teacher_token').value;
 
     await axios.patch(
-      `http://localhost:3001/api/teacher/courses/${props.courseId}/curriculum`,
+      `${config.public.apiBase}/api/teacher/courses/${props.courseId}/curriculum`,
       {
         sections: sections.value,
       },
@@ -364,7 +365,7 @@ const saveAndContinue = async () => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
 
     emit('continue'); // 🔥 VERY IMPORTANT
@@ -521,7 +522,9 @@ onBeforeUnmount(() => {
 /* Animations kept for the progress bars */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
 }
 .fade-slide-enter-from,
 .fade-slide-leave-to {

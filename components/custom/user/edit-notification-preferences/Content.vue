@@ -3,6 +3,7 @@ import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '~/stores/auth';
 const auth = useAuthStore();
 const { t } = useI18n();
+const config = useRuntimeConfig();
 type Offers = {
   productUpdates: boolean;
   promotions: boolean;
@@ -42,7 +43,7 @@ const loadPreferences = async () => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    const me = await $fetch<NotificationResponse>('http://localhost:3001/api/auth/me', {
+    const me = await $fetch<NotificationResponse>(`${config.public.apiBase}/api/auth/me`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -74,7 +75,7 @@ const savePreferences = async () => {
 
     isSaving.value = true;
 
-    const res = await $fetch<{ success: boolean; data: { offers: Offers; learning: Learning } }>('http://localhost:3001/api/auth/notifications', {
+    const res = await $fetch<{ success: boolean; data: { offers: Offers; learning: Learning } }>(`${config.public.apiBase}/api/auth/notifications`, {
       method: 'PUT',
       headers: { Authorization: `Bearer ${token}` },
       body: {

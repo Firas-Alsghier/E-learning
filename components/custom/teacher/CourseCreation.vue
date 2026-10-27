@@ -4,7 +4,7 @@ import { ref, computed, onMounted } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import axios from 'axios';
 import { ChevronRight, Upload, Plus, X, Check } from 'lucide-vue-next';
-
+const config = useRuntimeConfig();
 const courseId = ref<string | null>(null);
 const isSaving = ref(false);
 const isAnyUploading = ref(false);
@@ -74,7 +74,7 @@ const onCoverSelected = async (e: Event) => {
   formData.append('cover', file);
 
   try {
-    await axios.patch(`http://localhost:3001/api/teacher/courses/${courseId.value}/cover`, formData, {
+    await axios.patch(`${config.public.apiBase}/api/teacher/courses/${courseId.value}/cover`, formData, {
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' },
     });
     alert('Cover image uploaded ✅');
@@ -95,7 +95,7 @@ const createCourse = async () => {
     }
 
     const res = await axios.post(
-      'http://localhost:3001/api/teacher/courses',
+      `${config.public.apiBase}/api/teacher/courses`,
       {
         title: courseData.value.title,
         description: courseData.value.description,
@@ -104,7 +104,7 @@ const createCourse = async () => {
         faqs: courseData.value.faqs,
         levelCheck: levelCheckEnabled.value ? { enabled: true, questions: levelCheckQuestions.value } : { enabled: false, questions: [] },
       },
-      { headers: { Authorization: `Bearer ${token}` } }
+      { headers: { Authorization: `Bearer ${token}` } },
     );
 
     courseId.value = res.data._id;
@@ -123,7 +123,7 @@ const levels = ['All levels', 'Basic', 'Intermediate', 'Advanced'];
 
 const fetchCategories = async () => {
   try {
-    const res = await axios.get('http://localhost:3001/api/categories');
+    const res = await axios.get(`${config.public.apiBase}/api/categories`);
     categories.value = res.data.map((cat: any) => cat.name);
   } catch (err) {
     console.error('Fetch categories error:', err);
@@ -158,7 +158,7 @@ const updateCourse = async () => {
     }
 
     await axios.patch(
-      `http://localhost:3001/api/teacher/courses/${courseId.value}`,
+      `${config.public.apiBase}/api/teacher/courses/${courseId.value}`,
       {
         title: courseData.value.title,
         description: courseData.value.description,
@@ -169,7 +169,7 @@ const updateCourse = async () => {
       },
       {
         headers: { Authorization: `Bearer ${token}` },
-      }
+      },
     );
 
     goToNextStep();

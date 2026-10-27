@@ -11,7 +11,7 @@ const router = useRouter();
 const { setUser } = useUser();
 const { t } = useI18n();
 const auth = useAuthStore();
-
+const config = useRuntimeConfig();
 // ------------------------------
 // Form fields
 // ------------------------------
@@ -133,7 +133,7 @@ const handleSubmit = async () => {
   error.value = '';
 
   try {
-    await $fetch('http://localhost:3001/api/auth/signup', {
+    await $fetch(`${config.public.apiBase}/api/auth/signup`, {
       method: 'POST',
       body: {
         firstName: firstName.value,

@@ -18,13 +18,13 @@ interface Course {
     email: string;
   };
 }
-
+const config = useRuntimeConfig();
 const courses = ref<Course[]>([]);
 const expandedId = ref<string | null>(null);
 const loading = ref(false);
 const actionLoading = ref<string | null>(null);
 const api = axios.create({
-  baseURL: 'http://localhost:3001/api/admin',
+  baseURL: `${config.public.apiBase}/api/admin`,
 });
 
 const fetchPendingCourses = async () => {
@@ -47,7 +47,7 @@ const approveCourse = async (id: string) => {
   try {
     actionLoading.value = id; // 🔥 start loading
 
-    await api.patch(`http://localhost:3001/api/admin/courses/${id}/approve`);
+    await api.patch(`${config.public.apiBase}/api/admin/courses/${id}/approve`);
 
     courses.value = courses.value.filter((course) => course._id !== id);
   } catch (error) {
@@ -64,7 +64,7 @@ const rejectCourse = async (id: string) => {
   try {
     actionLoading.value = id; // 🔥 start loading
 
-    await api.patch(`http://localhost:3001/api/admin/courses/${id}/reject`);
+    await api.patch(`${config.public.apiBase}/api/admin/courses/${id}/reject`);
 
     courses.value = courses.value.filter((course) => course._id !== id);
   } catch (error) {

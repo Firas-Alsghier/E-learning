@@ -9,7 +9,7 @@ definePageMeta({
 
 const route = useRoute();
 const courseId = route.params.id as string;
-
+const config = useRuntimeConfig();
 // ── State ──
 const course = ref<any>(null);
 const curriculum = ref<any[]>([]);
@@ -110,7 +110,7 @@ onMounted(async () => {
     let data: any;
 
     // ✅ ALWAYS use working public endpoint
-    data = await $fetch(`http://localhost:3001/api/courses/id/${courseId}`);
+    data = await $fetch(`${config.public.apiBase}/api/courses/id/${courseId}`);
 
     course.value = data;
     curriculum.value = data.sections || [];

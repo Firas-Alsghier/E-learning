@@ -7,6 +7,7 @@ import { useI18n } from 'vue-i18n';
 import { Search, MenuIcon, Heart, ShoppingCart, Bell, Facebook, Instagram } from 'lucide-vue-next';
 import { useUser } from '~/composables/useUser'; // Retained for real-world functionality
 import { useTeacher } from '~/composables/useTeacher';
+const config = useRuntimeConfig();
 const { user } = useUser();
 const { teacher } = useTeacher(); // 👈 Add this line
 const cartStore = useCartStore();
@@ -46,7 +47,7 @@ const fetchCartCount = async () => {
       return;
     }
 
-    const cart: any = await $fetch('http://localhost:3001/api/cart', {
+    const cart: any = await $fetch(`${config.public.apiBase}/api/cart`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

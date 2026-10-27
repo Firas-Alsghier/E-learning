@@ -11,13 +11,13 @@ const blogs = ref<any[]>([]);
 const loading = ref(false);
 const error = ref('');
 const router = useRouter();
-
+const config = useRuntimeConfig();
 const fetchBlogs = async () => {
   try {
     loading.value = true;
     const token = localStorage.getItem('token');
 
-    const data: any = await $fetch('http://localhost:3001/api/blogs/my-blogs', {
+    const data: any = await $fetch(`${config.public.apiBase}/api/blogs/my-blogs`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -37,7 +37,7 @@ const handlePublish = async (id: string) => {
 
   try {
     const token = localStorage.getItem('token');
-    const res: any = await $fetch(`http://localhost:3001/api/blogs/${id}`, {
+    const res: any = await $fetch(`${config.public.apiBase}/api/blogs/${id}`, {
       method: 'PUT',
       headers: { Authorization: `Bearer ${token}` },
       body: { isPublished: true },
@@ -59,7 +59,7 @@ const handleDelete = async (id: string) => {
 
   try {
     const token = localStorage.getItem('token');
-    await $fetch(`http://localhost:3001/api/blogs/${id}`, {
+    await $fetch(`${config.public.apiBase}/api/blogs/${id}`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${token}`,

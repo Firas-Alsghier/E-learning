@@ -8,7 +8,7 @@ const expandedId = ref(null);
 const teachers = ref([]);
 const loading = ref(false);
 const error = ref('');
-
+const config = useRuntimeConfig();
 const adminToken = () => localStorage.getItem('admin_token');
 
 const toggleDetails = (id) => {
@@ -18,7 +18,7 @@ const toggleDetails = (id) => {
 const approveTeacher = async (id) => {
   if (!confirm('Approve this teacher?')) return;
   try {
-    await $fetch(`http://localhost:3001/api/admin/teachers/${id}/approve`, {
+    await $fetch(`${config.public.apiBase}/api/admin/teachers/${id}/approve`, {
       method: 'PATCH',
       headers: { Authorization: `Bearer ${adminToken()}` },
     });
@@ -32,7 +32,7 @@ const approveTeacher = async (id) => {
 const rejectTeacher = async (id) => {
   if (!confirm('Reject and delete this teacher?')) return;
   try {
-    await $fetch(`http://localhost:3001/api/admin/teachers/${id}/reject`, {
+    await $fetch(`${config.public.apiBase}/api/admin/teachers/${id}/reject`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${adminToken()}` },
     });
@@ -48,7 +48,7 @@ const getInitials = (first, last) => `${first?.[0] ?? ''}${last?.[0] ?? ''}`.toU
 onMounted(async () => {
   loading.value = true;
   try {
-    const data = await $fetch('http://localhost:3001/api/admin/teachers/pending', {
+    const data = await $fetch(`${config.public.apiBase}/api/admin/teachers/pending`, {
       headers: { Authorization: `Bearer ${adminToken()}` },
     });
     teachers.value = data.map((t) => ({
@@ -242,7 +242,9 @@ onMounted(async () => {
 <style scoped>
 .expand-enter-active,
 .expand-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 .expand-enter-from,
 .expand-leave-to {

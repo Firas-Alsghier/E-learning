@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 
 export const useCartStore = defineStore('cart', () => {
   const count = ref(0);
-
+  const config = useRuntimeConfig();
   const setCount = (value: number) => {
     count.value = value;
   };
@@ -16,7 +16,7 @@ export const useCartStore = defineStore('cart', () => {
         return;
       }
 
-      const cart: any = await $fetch('http://localhost:3001/api/cart', {
+      const cart: any = await $fetch(`${config.public.apiBase}/api/cart`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

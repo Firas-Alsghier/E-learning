@@ -19,12 +19,12 @@ const form = ref<CommissionSettings>({
 const loading = ref(false);
 const successMessage = ref('');
 const errorMessage = ref('');
-
+const config = useRuntimeConfig();
 /* ---------------- FETCH ---------------- */
 const fetchCommission = async () => {
   try {
     loading.value = true;
-    const { data } = await axios.get('http://localhost:3001/api/admin/settings/commission');
+    const { data } = await axios.get(`${config.public.apiBase}/api/admin/settings/commission`);
     form.value = data;
   } catch (error) {
     errorMessage.value = 'Failed to load commission settings';

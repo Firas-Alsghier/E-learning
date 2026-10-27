@@ -17,6 +17,7 @@ const purchased = ref(false);
 const userRating = ref(0);
 const hoverRating = ref(0);
 const ratingSaving = ref(false);
+const config = useRuntimeConfig();
 const route = useRoute();
 const router = useRouter();
 const { t } = useI18n();
@@ -52,7 +53,7 @@ const toggleWishlist = async () => {
 
     if (!course.value?.id) return;
 
-    const res = await fetch(`http://localhost:3001/api/user/wishlist/${course.value.id}`, {
+    const res = await fetch(`${config.public.apiBase}/api/user/wishlist/${course.value.id}`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -79,7 +80,7 @@ const checkIfCourseIsInCart = async () => {
 
     if (!token || !course.value?.id) return;
 
-    const cart = await $fetch<{ items: any[] }>('http://localhost:3001/api/cart', {
+    const cart = await $fetch<{ items: any[] }>(`${config.public.apiBase}/api/cart`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -107,7 +108,7 @@ const addToCart = async () => {
 
     if (!course.value?.id) return;
 
-    const res = await fetch(`http://localhost:3001/api/cart/${course.value.id}`, {
+    const res = await fetch(`${config.public.apiBase}/api/cart/${course.value.id}`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -152,7 +153,7 @@ const checkIfWishlisted = async () => {
 
     if (!token || !course.value?.id) return;
 
-    const res = await fetch('http://localhost:3001/api/user/wishlist', {
+    const res = await fetch(`${config.public.apiBase}/api/user/wishlist`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -175,7 +176,7 @@ const checkIfPurchased = async () => {
       return;
     }
 
-    const data: any = await $fetch(`http://localhost:3001/api/purchases/check/${course.value.id}`, {
+    const data: any = await $fetch(`${config.public.apiBase}/api/purchases/check/${course.value.id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -194,7 +195,7 @@ const submitRating = async (rating: number) => {
 
     if (!token || !course.value?.id) return;
     ratingSaving.value = true;
-    const res = await fetch(`http://localhost:3001/api/course-ratings/${course.value.id}`, {
+    const res = await fetch(`${config.public.apiBase}/api/course-ratings/${course.value.id}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -226,7 +227,7 @@ const submitRating = async (rating: number) => {
 /* ----------------------------------
      DATA FETCH (SSR SAFE)
   ---------------------------------- */
-const { data, error } = await useAsyncData<Course>(`course-${slug.value}`, () => $fetch<any>(`http://localhost:3001/api/courses/${slug.value}` as string));
+const { data, error } = await useAsyncData<Course>(`course-${slug.value}`, () => $fetch<any>(`${config.public.apiBase}/api/courses/${slug.value}` as string));
 const editCourse = () => navigateTo(`/teacher/courses/${data?.value?.id}/edit`);
 const course = computed(() => data.value);
 watch(

@@ -6,7 +6,7 @@ import { vite as vidstack } from 'vidstack/plugins';
 export default defineNuxtConfig({
   runtimeConfig: {
     public: {
-      API_BASE_URL: process.env.API_BASE_URL,
+      apiBase: process.env.NUXT_PUBLIC_API_BASE,
     },
   },
   compatibilityDate: '2024-11-01',

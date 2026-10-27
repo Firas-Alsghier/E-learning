@@ -8,6 +8,7 @@ import { useAuthStore } from '~/stores/auth';
 const { t } = useI18n();
 const { setUser } = useUser();
 const auth = useAuthStore();
+const config = useRuntimeConfig();
 
 const router = useRouter();
 
@@ -15,7 +16,7 @@ const closeAccount = async () => {
   try {
     const token = localStorage.getItem('token');
 
-    const { error } = await useFetch('http://localhost:3001/api/auth/close-account', {
+    const { error } = await useFetch(`${config.public.apiBase}/api/auth/close-account`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${token}`,

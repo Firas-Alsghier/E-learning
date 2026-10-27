@@ -11,7 +11,7 @@ const { t } = useI18n();
 const auth = useAuthStore();
 const router = useRouter();
 const { setUser } = useUser();
-
+const config = useRuntimeConfig();
 const email = ref('');
 const password = ref('');
 const loading = ref(false);
@@ -65,7 +65,7 @@ const handleLogin = async () => {
   error.value = '';
 
   try {
-    const res = await $fetch<LoginResponse>('http://localhost:3001/api/auth/login', {
+    const res = await $fetch<LoginResponse>(`${config.public.apiBase}/api/auth/login`, {
       method: 'POST',
       body: { email: email.value, password: password.value },
     });

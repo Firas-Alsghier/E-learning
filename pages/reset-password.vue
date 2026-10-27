@@ -16,7 +16,7 @@ const confirmPassword = ref('');
 const loading = ref(false);
 const message = ref('');
 const error = ref('');
-
+const config = useRuntimeConfig();
 onMounted(() => {
   token.value = (route.query.token as string) || '';
   if (!token.value) {
@@ -57,7 +57,7 @@ const handleReset = async () => {
   loading.value = true;
 
   try {
-    await $fetch('http://localhost:3001/api/auth/reset-password', {
+    await $fetch(`${config.public.apiBase}/api/auth/reset-password`, {
       method: 'POST',
       body: { token: token.value, newPassword: newPassword.value },
     });

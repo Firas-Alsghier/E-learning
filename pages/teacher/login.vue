@@ -16,7 +16,7 @@ const email = ref('');
 const password = ref('');
 const error = ref('');
 const loading = ref(false);
-
+const config = useRuntimeConfig();
 const emailError = ref('');
 const passwordError = ref('');
 
@@ -24,7 +24,7 @@ const handleLogin = async () => {
   // ... your existing validation code ...
 
   try {
-    const res: any = await $fetch('http://localhost:3001/api/teacher/login', {
+    const res: any = await $fetch(`${config.public.apiBase}/api/teacher/login`, {
       method: 'POST',
       body: { email: email.value, password: password.value },
     });

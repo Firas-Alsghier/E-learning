@@ -72,7 +72,7 @@ const completedCount = computed(() => allLessons.value.filter((x) => x.lesson.co
 const overallProgress = computed(() => (totalLessons.value ? Math.round((completedCount.value / totalLessons.value) * 100) : 0));
 
 const currentFlatIdx = computed(() => allLessons.value.findIndex((x) => x.si === activeSectionIdx.value && x.li === activeLessonIdx.value));
-
+const config = useRuntimeConfig();
 const canGoPrev = computed(() => currentFlatIdx.value > 0);
 const canGoNext = computed(() => currentFlatIdx.value < allLessons.value.length - 1);
 
@@ -121,7 +121,7 @@ async function toggleLessonComplete(lesson: Lesson, section: Section, index: num
     const next = section.lessons[index + 1];
     if (next) next.locked = false;
 
-    await $fetch('http://localhost:3001/api/progress/complete-lesson', {
+    await $fetch(`${config.public.apiBase}/api/progress/complete-lesson`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -142,7 +142,7 @@ async function toggleLessonComplete(lesson: Lesson, section: Section, index: num
     if (next) next.locked = true;
 
     // 3. Save to backend
-    await $fetch('http://localhost:3001/api/progress/remove-lesson', {
+    await $fetch(`${config.public.apiBase}/api/progress/remove-lesson`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -168,7 +168,7 @@ function nextLesson() {
   next.locked = false;
 
   // ✅ 3. Save progress to backend
-  $fetch('http://localhost:3001/api/progress/complete-lesson', {
+  $fetch(`${config.public.apiBase}/api/progress/complete-lesson`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -216,7 +216,7 @@ async function onVideoEnded() {
     nextLessonItem.locked = false;
   }
 
-  await $fetch('http://localhost:3001/api/progress/complete-lesson', {
+  await $fetch(`${config.public.apiBase}/api/progress/complete-lesson`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -264,7 +264,7 @@ function goBackToCourse() {
 }
 
 onMounted(async () => {
-  const course: any = await $fetch(`http://localhost:3001/api/learn/${courseId}`, {
+  const course: any = await $fetch(`${config.public.apiBase}/api/learn/${courseId}`, {
     headers: {
       Authorization: `Bearer ${localStorage.getItem('token')}`,
     },
@@ -272,7 +272,7 @@ onMounted(async () => {
   curriculum.value = course.sections;
   courseSlug.value = course.slug;
   courseTeacherId.value = course.teacherId; // ✅ ADD THIS
-  const progress = await $fetch<{ completedLessons: string[] }>(`http://localhost:3001/api/progress/${courseId}`, {
+  const progress = await $fetch<{ completedLessons: string[] }>(`${config.public.apiBase}/api/progress/${courseId}`, {
     headers: {
       Authorization: `Bearer ${localStorage.getItem('token')}`,
     },

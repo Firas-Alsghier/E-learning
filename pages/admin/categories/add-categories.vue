@@ -9,7 +9,7 @@ const description = ref('');
 const loading = ref(false);
 const errorMessage = ref('');
 const successMessage = ref('');
-
+const config = useRuntimeConfig();
 const submitCategory = async () => {
   if (!name.value.trim()) {
     errorMessage.value = 'Category name is required';
@@ -21,7 +21,7 @@ const submitCategory = async () => {
     errorMessage.value = '';
     successMessage.value = '';
 
-    await axios.post('http://localhost:3001/api/admin/categories', {
+    await axios.post(`${config.public.apiBase}/api/admin/categories`, {
       name: name.value.toUpperCase(),
       description: description.value,
     });

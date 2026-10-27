@@ -14,6 +14,7 @@ type MeResponse = {
 const showProfile = ref<boolean>(false);
 const showReviews = ref<boolean>(false);
 const allowMessages = ref<boolean>(false);
+const config = useRuntimeConfig();
 const isSaving = ref(false);
 const auth = useAuthStore();
 const { t } = useI18n();
@@ -23,7 +24,7 @@ const loadPrivacy = async () => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    const me = await $fetch<MeResponse>('http://localhost:3001/api/auth/me', {
+    const me = await $fetch<MeResponse>(`${config.public.apiBase}/api/auth/me`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -47,7 +48,7 @@ const savePrivacy = async () => {
 
     isSaving.value = true;
 
-    const res = await $fetch<{ message: string; privacySettings?: Privacy }>('http://localhost:3001/api/auth/edit-privacy', {
+    const res = await $fetch<{ message: string; privacySettings?: Privacy }>(`${config.public.apiBase}/api/auth/edit-privacy`, {
       method: 'PUT',
       headers: { Authorization: `Bearer ${token}` },
       body: {

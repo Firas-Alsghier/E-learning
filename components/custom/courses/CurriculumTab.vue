@@ -4,6 +4,7 @@ import { ChevronDown, Lock, Check } from 'lucide-vue-next';
 import { useTeacher } from '~/composables/useTeacher';
 import { useTeacherStore } from '~/stores/teacher';
 import { toast } from 'vue-sonner';
+const config = useRuntimeConfig();
 const currentLesson = ref<any>(null);
 const showPlayer = ref(false);
 const teacherToken = useCookie<string | null>('teacher_token');
@@ -16,8 +17,6 @@ const props = defineProps<{
   courseTeacherId: string;
   purchased: boolean;
 }>();
-
-console.log('Purchased:', props.purchased);
 
 const courseId = props.courseId;
 console.log('courseId:', props.courseId);
@@ -34,7 +33,7 @@ const curriculum = ref(
       locked: !props.purchased ? true : i !== 0 || (teacherToken.value && !isCourseOwner.value),
       completed: false,
     })),
-  }))
+  })),
 );
 
 function openLesson(section: any, lesson: any) {
@@ -105,7 +104,7 @@ async function completeLesson() {
 
   currentLesson.value.completed = true;
 
-  await $fetch('http://localhost:3001/api/progress/complete-lesson', {
+  await $fetch(`${config.public.apiBase}/api/progress/complete-lesson`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -154,7 +153,7 @@ function prevLesson() {
 }
 
 async function fetchProgress() {
-  const progress = await $fetch<{ completedLessons: string[] }>(`http://localhost:3001/api/progress/${courseId}`, {
+  const progress = await $fetch<{ completedLessons: string[] }>(`${config.public.apiBase}/api/progress/${courseId}`, {
     headers: {
       Authorization: `Bearer ${localStorage.getItem('token')}`,
     },
