@@ -22,6 +22,7 @@ interface Conversation {
   isOnline: boolean;
   image: string;
   teacherId: string;
+  courseId: string;
 }
 
 interface FileItem {
@@ -101,13 +102,15 @@ const getUserId = () => {
   }
 };
 
-const loadMessages = async (teacherId: string) => {
+const loadMessages = async (conversationId: string) => {
   try {
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    const res = await axios.get(`http://localhost:3001/api/messages/user/${teacherId}`, {
-      headers: { Authorization: `Bearer ${token}` },
+    const res = await axios.get(`http://localhost:3001/api/messages/user/conversation/${conversationId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     const currentUserId = getUserId();
@@ -124,7 +127,7 @@ const loadMessages = async (teacherId: string) => {
       status: 'read',
     }));
   } catch (err) {
-    console.error('Load messages error', err);
+    console.error('Load messages error:', err);
   }
 };
 
@@ -145,54 +148,78 @@ const loadConversations = async () => {
 
 const sendMessage = async () => {
   if (!activeConversationId.value) return;
-  if (newMessageText.value.trim() === '' && !selectedFile.value) return;
+
+  if (newMessageText.value.trim() === '' && !selectedFile.value) {
+    return;
+  }
 
   try {
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    // --- Prepare form data for backend ---
-    const formData = new FormData();
-    formData.append('receiverId', activeConversationId.value);
-    formData.append('text', newMessageText.value);
-    if (selectedFile.value) formData.append('attachment', selectedFile.value);
+    const conversation = conversations.value.find((c) => c.id === activeConversationId.value);
 
-    // --- Send message to backend ---
-    const res = await axios.post('http://localhost:3001/api/messages', formData, {
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' },
+    if (!conversation) {
+      console.error('Active conversation not found');
+      return;
+    }
+
+    const formData = new FormData();
+
+    formData.append('teacherId', conversation.teacherId);
+    formData.append('courseId', conversation.courseId);
+    formData.append('text', newMessageText.value);
+
+    if (selectedFile.value) {
+      formData.append('attachment', selectedFile.value);
+    }
+
+    const res = await axios.post('http://localhost:3001/api/messages/contact-teacher', formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
 
-    // --- Push the message to chat UI immediately ---
+    const msg = res.data.message;
+
     chatMessages.value.push({
-      id: res.data._id,
-      text: res.data.text,
-      attachment: res.data.attachment,
+      id: msg._id,
+      text: msg.text,
+      attachment: msg.attachment,
       isUser: true,
-      time: new Date(res.data.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      time: new Date(msg.createdAt).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
       status: 'sent',
     });
 
-    // --- Update conversation preview in sidebar ---
     const conv = conversations.value.find((c) => c.id === activeConversationId.value);
+
     if (conv) {
       conv.lastMessage = newMessageText.value || (selectedFile.value ? 'Attachment' : '');
-      conv.time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-      // Move conversation to top like WhatsApp
+      conv.time = new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+
       conversations.value = [conv, ...conversations.value.filter((c) => c.id !== conv.id)];
     }
 
-    // --- Clear input and file selection ---
     newMessageText.value = '';
     selectedFile.value = null;
-    if (fileInput.value) fileInput.value.value = '';
 
-    // --- Scroll chat to bottom ---
+    if (fileInput.value) {
+      fileInput.value.value = '';
+    }
+
     setTimeout(scrollToBottom, 100);
   } catch (err) {
     console.error('Send message error:', err);
   }
 };
+
 // --- Status Icon Helper ---
 const getStatusIcon = (status: 'sent' | 'delivered' | 'read') => {
   switch (status) {
@@ -220,11 +247,7 @@ const openConversation = async (conversationId: string, teacherId?: string) => {
     conv.unreadCount = 0;
   }
 
-  if (teacherId) {
-    await loadMessages(teacherId);
-  } else {
-    await loadMessages(conversationId); // fallback for teacher
-  }
+  await loadMessages(conversationId);
 
   setTimeout(scrollToBottom, 100);
 };
@@ -390,7 +413,34 @@ onMounted(() => {
                 </p>
 
                 <!-- Image attachment -->
-                <img v-if="msg.attachment && msg.attachment.match(/\.(jpg|jpeg|png|gif|webp)$/i)" :src="`http://localhost:3001/uploads/${msg.attachment}`" class="max-w-[200px] rounded-lg mb-2" />
+                <a
+                  v-if="msg.attachment && /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(msg.attachment)"
+                  :href="`http://localhost:3001/uploads/messages/${encodeURIComponent(msg.attachment)}`"
+                  :download="msg.attachment"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="block mb-2"
+                >
+                  <img
+                    :src="`http://localhost:3001/uploads/messages/${encodeURIComponent(msg.attachment)}`"
+                    :alt="msg.attachment"
+                    class="max-w-[200px] max-h-[240px] object-contain rounded-lg cursor-pointer hover:opacity-90"
+                    loading="lazy"
+                  />
+                  <span class="text-xs underline">Open or download image</span>
+                </a>
+
+                <!-- Other file attachments -->
+                <a
+                  v-else-if="msg.attachment"
+                  :href="`http://localhost:3001/uploads/messages/${encodeURIComponent(msg.attachment)}`"
+                  :download="msg.attachment"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-sm underline text-blue-500"
+                >
+                  Download attachment
+                </a>
 
                 <!-- File attachment -->
                 <a

@@ -17,7 +17,9 @@ interface Message {
 }
 
 interface Conversation {
-  id: string;
+  id: string; // Student ID
+  conversationId: string; // Specific conversation ID
+  courseId: string; // Course associated with this conversation
   name: string;
   lastMessage: string;
   time: string;
@@ -90,9 +92,7 @@ const scrollToBottom = () => {
   });
 };
 
-const activeConversation = computed(() => {
-  return conversations.value.find((c) => c.id === activeConversationId.value);
-});
+const activeConversation = computed(() => conversations.value.find((c) => c.conversationId === activeConversationId.value));
 
 const goToNextMatch = async () => {
   if (matchedMessageIds.value.length === 0) return;
@@ -118,25 +118,23 @@ const goToNextMatch = async () => {
   }
 };
 
-const loadMessages = async (userId: string) => {
+const loadMessages = async (conversationId: string) => {
   try {
     const token = useCookie('teacher_token').value;
-    type TeacherData = {
-      id: string;
-    };
 
-    const teacherData = useCookie<string | TeacherData | null>('teacher_data').value;
+    const teacherData = useCookie<string | { id: string } | null>('teacher_data').value;
 
     let teacherId: string | null = null;
 
     if (teacherData) {
       if (typeof teacherData === 'string') {
-        teacherId = (JSON.parse(teacherData) as TeacherData).id;
+        teacherId = JSON.parse(teacherData).id;
       } else {
         teacherId = teacherData.id;
       }
     }
-    const res = await axios.get(`http://localhost:3001/api/messages/${userId}`, {
+
+    const res = await axios.get(`http://localhost:3001/api/messages/conversation/${conversationId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -154,7 +152,7 @@ const loadMessages = async (userId: string) => {
       status: 'read',
     }));
   } catch (err) {
-    console.error('Load messages error', err);
+    console.error('Load messages error:', err);
   }
 };
 
@@ -175,14 +173,20 @@ const loadConversations = async () => {
 };
 
 const sendMessage = async () => {
-  if (!activeConversationId.value) return;
-  if (newMessageText.value.trim() === '' && !selectedFile.value) return;
+  const conversation = activeConversation.value;
+
+  if (!conversation) return;
+
+  if (newMessageText.value.trim() === '' && !selectedFile.value) {
+    return;
+  }
 
   try {
     const token = useCookie('teacher_token').value;
-
     const formData = new FormData();
-    formData.append('receiverId', activeConversationId.value);
+
+    formData.append('receiver', conversation.id);
+    formData.append('courseId', conversation.courseId);
     formData.append('text', newMessageText.value);
 
     if (selectedFile.value) {
@@ -192,31 +196,30 @@ const sendMessage = async () => {
     const res = await axios.post('http://localhost:3001/api/messages', formData, {
       headers: {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
       },
     });
 
-    // Add message instantly to UI
+    const msg = res.data.message;
+
     chatMessages.value.push({
-      id: res.data._id,
-      text: res.data.text,
-      attachment: res.data.attachment,
+      id: msg._id,
+      text: msg.text,
+      attachment: msg.attachment,
       isUser: true,
-      time: new Date(res.data.createdAt).toLocaleTimeString([], {
+      time: new Date(msg.createdAt).toLocaleTimeString([], {
         hour: '2-digit',
         minute: '2-digit',
       }),
       status: 'sent',
     });
 
-    // Reset inputs
     newMessageText.value = '';
     selectedFile.value = null;
+
     if (fileInput.value) {
       fileInput.value.value = '';
     }
 
-    // Scroll to newest message
     setTimeout(scrollToBottom, 100);
   } catch (err) {
     console.error('Send message error:', err);
@@ -236,15 +239,21 @@ const getStatusIcon = (status: 'sent' | 'delivered' | 'read') => {
 };
 
 const openConversation = async (conversationId: string) => {
+  const conversation = conversations.value.find((conv) => conv.conversationId === conversationId);
+
+  if (!conversation) {
+    console.error('Conversation not found:', conversationId);
+    return;
+  }
+
   isOpend.value = true;
   activeConversationId.value = conversationId;
-
   messageSearch.value = '';
   matchedMessageIds.value = [];
   highlightedMessageId.value = null;
   currentMatchIndex.value = 0;
 
-  await loadMessages(conversationId);
+  await loadMessages(conversation.conversationId);
 
   setTimeout(scrollToBottom, 100);
 };
@@ -326,7 +335,7 @@ onMounted(() => {
           <div
             v-for="conv in filteredConversations"
             :key="conv.id"
-            @click="openConversation(conv.id)"
+            @click="openConversation(conv.conversationId)"
             :class="[
               'flex items-center p-3 cursor-pointer border-l-4 transition duration-150',
               conv.id === activeConversationId ? 'bg-violet-50 border-violet-600' : 'hover:bg-gray-50 border-transparent',
@@ -419,7 +428,36 @@ onMounted(() => {
                 </p>
 
                 <!-- Image attachment -->
-                <img v-if="msg.attachment && msg.attachment.match(/\.(jpg|jpeg|png|gif|webp)$/i)" :src="`http://localhost:3001/uploads/${msg.attachment}`" class="max-w-[200px] rounded-lg mb-2" />
+
+                <!-- Image attachment -->
+                <a
+                  v-if="msg.attachment && /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(msg.attachment)"
+                  :href="`http://localhost:3001/uploads/messages/${encodeURIComponent(msg.attachment)}`"
+                  :download="msg.attachment"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="block mb-2"
+                >
+                  <img
+                    :src="`http://localhost:3001/uploads/messages/${encodeURIComponent(msg.attachment)}`"
+                    :alt="msg.attachment"
+                    class="max-w-[200px] max-h-[240px] object-contain rounded-lg cursor-pointer hover:opacity-90"
+                    loading="lazy"
+                  />
+                  <span class="text-xs underline">Open or download image</span>
+                </a>
+
+                <!-- Other file attachments -->
+                <a
+                  v-else-if="msg.attachment"
+                  :href="`http://localhost:3001/uploads/messages/${encodeURIComponent(msg.attachment)}`"
+                  :download="msg.attachment"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-sm underline text-blue-500"
+                >
+                  Download attachment
+                </a>
 
                 <!-- File attachment -->
                 <a

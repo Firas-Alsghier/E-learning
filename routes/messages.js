@@ -138,13 +138,14 @@ router.get('/conversations', teacherAuth, async (req, res) => {
 
     const mapped = conversations.map((conv) => ({
       id: conv.studentId._id,
+      conversationId: conv._id,
+      courseId: conv.courseId,
       name: `${conv.studentId.firstName} ${conv.studentId.lastName}`,
       image: conv.studentId.avatar || '',
       lastMessage: conv.lastMessage,
       time: conv.lastMessageAt,
-      unreadCount: 0, // can calculate later
+      unreadCount: 0,
       isOnline: false,
-      conversationId: conv._id,
     }));
 
     res.json(mapped);
@@ -179,6 +180,28 @@ router.get('/:userId', teacherAuth, async (req, res) => {
   }
 });
 
+router.get('/conversation/:conversationId', teacherAuth, async (req, res) => {
+  try {
+    const conversation = await Conversation.findOne({
+      _id: req.params.conversationId,
+      teacherId: req.teacher._id,
+    });
+
+    if (!conversation) {
+      return res.status(404).json({ message: 'Conversation not found' });
+    }
+
+    const messages = await Message.find({
+      conversationId: conversation._id,
+    }).sort({ createdAt: 1 });
+
+    res.json(messages);
+  } catch (err) {
+    console.error('Fetch conversation messages error:', err);
+    res.status(500).json({ message: 'Failed to fetch messages' });
+  }
+});
+
 /* -----------------------------
    GET USER CONVERSATIONS (Student Inbox)
 ----------------------------- */
@@ -199,6 +222,7 @@ router.get('/user/conversations', userAuth, async (req, res) => {
         return {
           id: conv._id,
           teacherId: conv.teacherId._id,
+          courseId: conv.courseId,
           name: `${conv.teacherId.firstName} ${conv.teacherId.lastName}`,
           image: conv.teacherId.avatar || '',
           lastMessage: conv.lastMessage,
@@ -206,7 +230,7 @@ router.get('/user/conversations', userAuth, async (req, res) => {
           unreadCount,
           isOnline: false,
         };
-      })
+      }),
     );
 
     res.json(result);
@@ -219,6 +243,39 @@ router.get('/user/conversations', userAuth, async (req, res) => {
 /* -----------------------------
    GET MESSAGES (Student View)
 ----------------------------- */
+
+router.get('/user/conversation/:conversationId', userAuth, async (req, res) => {
+  try {
+    const conversation = await Conversation.findOne({
+      _id: req.params.conversationId,
+      studentId: req.user._id,
+    });
+
+    if (!conversation) {
+      return res.status(404).json({ message: 'Conversation not found' });
+    }
+
+    const messages = await Message.find({
+      conversationId: conversation._id,
+    }).sort({ createdAt: 1 });
+
+    await Message.updateMany(
+      {
+        conversationId: conversation._id,
+        receiver: req.user._id,
+        senderType: 'Teacher',
+        isRead: false,
+      },
+      { $set: { isRead: true } },
+    );
+
+    res.json(messages);
+  } catch (err) {
+    console.error('Fetch student conversation messages error:', err);
+    res.status(500).json({ message: 'Failed to fetch messages' });
+  }
+});
+
 router.get('/user/:teacherId', userAuth, async (req, res) => {
   try {
     const studentId = req.user._id;
@@ -240,7 +297,7 @@ router.get('/user/:teacherId', userAuth, async (req, res) => {
       },
       {
         $set: { isRead: true },
-      }
+      },
     );
 
     const messages = await Message.find({
