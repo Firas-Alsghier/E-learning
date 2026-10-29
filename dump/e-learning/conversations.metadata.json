@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"},{"v":{"$numberInt":"2"},"key":{"teacherId":{"$numberInt":"1"},"studentId":{"$numberInt":"1"},"courseId":{"$numberInt":"1"}},"name":"teacherId_1_studentId_1_courseId_1","background":true,"unique":true}],"uuid":"b6f6fe6e64f84ad2bed735a7f87c4c8c","collectionName":"conversations","type":"collection"}

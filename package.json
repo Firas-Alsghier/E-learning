@@ -5,7 +5,7 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev --port 3000",
-    "start": "nodemon server.js",
+    "start": "node server.js",
     "test": "createUser.js",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
