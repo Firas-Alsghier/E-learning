@@ -22,6 +22,42 @@ router.get('/', async (req, res) => {
   }
 });
 
+// UPDATE COURSE ACCESS DURATION (Admin)
+router.patch('/:id/duration', async (req, res) => {
+  try {
+    const { accessDuration } = req.body;
+
+    if (!Number.isInteger(accessDuration) || accessDuration < 1 || accessDuration > 3650) {
+      return res.status(400).json({
+        message: 'Duration must be between 1 and 3650 days',
+      });
+    }
+
+    const course = await Course.findById(req.params.id);
+
+    if (!course) {
+      return res.status(404).json({
+        message: 'Course not found',
+      });
+    }
+
+    course.accessDuration = accessDuration;
+    await course.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Course duration updated successfully',
+      accessDuration: course.accessDuration,
+    });
+  } catch (error) {
+    console.error('UPDATE COURSE DURATION ERROR:', error);
+
+    res.status(500).json({
+      message: 'Failed to update course duration',
+    });
+  }
+});
+
 // BLOCK COURSE
 router.patch('/:id/block', async (req, res) => {
   try {

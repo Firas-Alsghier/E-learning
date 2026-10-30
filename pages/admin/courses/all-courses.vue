@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
-
+import { toast } from 'vue-sonner';
 definePageMeta({
   layout: false,
 });
@@ -12,6 +12,7 @@ interface Course {
   category: string;
   price: number;
   createdAt: string;
+  accessDuration?: number;
   teacher: {
     firstName: string;
     lastName: string;
@@ -26,6 +27,9 @@ onMounted(() => {
 
 const courses = ref<Course[]>([]);
 const expandedId = ref<string | null>(null);
+const durationCourse = ref<Course | null>(null);
+const durationInput = ref(90);
+const isSavingDuration = ref(false);
 const loading = ref(false);
 const config = useRuntimeConfig();
 const token = import.meta.client ? localStorage.getItem('adminToken') : null;
@@ -36,6 +40,34 @@ const api = axios.create({
     Authorization: `Bearer ${token}`,
   },
 });
+
+const openDurationDialog = (course: Course) => {
+  durationCourse.value = course;
+  durationInput.value = course.accessDuration ?? 90;
+};
+
+const closeDurationDialog = () => {
+  durationCourse.value = null;
+};
+
+const saveDuration = async () => {
+  if (!durationCourse.value) return;
+
+  try {
+    isSavingDuration.value = true;
+
+    const { data } = await api.patch(`/courses/${durationCourse.value._id}/duration`, { accessDuration: Number(durationInput.value) });
+
+    courses.value = courses.value.map((course) => (course._id === durationCourse.value!._id ? { ...course, accessDuration: data.accessDuration } : course));
+
+    closeDurationDialog();
+    toast.success('Course access duration updated successfully!');
+  } catch (error) {
+    console.error('Save course duration error:', error);
+  } finally {
+    isSavingDuration.value = false;
+  }
+};
 
 const fetchCourses = async () => {
   try {
@@ -138,6 +170,7 @@ const deleteCourse = async (id: string) => {
                 </Button>
 
                 <Button class="cursor-pointer" size="sm" variant="destructive" @click="deleteCourse(course._id)"> Delete </Button>
+                <Button class="cursor-pointer" size="sm" variant="outline" @click="openDurationDialog(course)"> Duration </Button>
               </td>
             </tr>
 
@@ -163,6 +196,45 @@ const deleteCourse = async (id: string) => {
           </tr>
         </tbody>
       </table>
+    </div>
+    <!-- Course Duration Dialog -->
+    <div v-if="durationCourse" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click.self="closeDurationDialog">
+      <div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl space-y-5">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-semibold">Course Access Duration</h2>
+
+          <button type="button" class="text-gray-500 hover:text-gray-800 text-xl" @click="closeDurationDialog">&times;</button>
+        </div>
+
+        <p class="text-sm text-left text-gray-600">
+          Set how many days students can access
+          <strong>{{ durationCourse.title }}</strong>
+          after purchasing it.
+        </p>
+
+        <div>
+          <label class="mb-2 block text-left text-sm font-medium"> Duration (days) </label>
+
+          <input
+            v-model.number="durationInput"
+            type="number"
+            min="1"
+            max="3650"
+            class="w-full rounded-md border px-3 py-2 outline-none focus:ring-2 focus:ring-primary"
+            placeholder="Enter number of days"
+          />
+
+          <p class="mt-2 text-xs text-left text-gray-500">For example, 90 days is approximately 3 months.</p>
+        </div>
+
+        <div class="flex justify-end gap-2">
+          <Button class="cursor-pointer" variant="outline" :disabled="isSavingDuration" @click="closeDurationDialog"> Cancel </Button>
+
+          <Button class="cursor-pointer" :disabled="isSavingDuration || !Number.isInteger(durationInput) || durationInput < 1 || durationInput > 3650" @click="saveDuration">
+            {{ isSavingDuration ? 'Saving...' : 'Save Duration' }}
+          </Button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
