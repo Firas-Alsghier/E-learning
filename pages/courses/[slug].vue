@@ -345,12 +345,12 @@ watch(
 
               <!-- Stats pills -->
               <div class="flex flex-wrap gap-2 sm:gap-2.5">
-                <div
+                <!-- <div
                   class="flex items-center gap-1.5 sm:gap-2 bg-white/5 border border-white/[0.08] rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-xs text-zinc-400 transition-colors duration-200 hover:border-orange-500/40 hover:text-orange-300"
                 >
                   <Clock :size="12" class="shrink-0" />
                   <span>{{ course.duration }}</span>
-                </div>
+                </div> -->
                 <div
                   class="flex items-center gap-1.5 sm:gap-2 bg-white/5 border border-white/[0.08] rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-xs text-zinc-400 transition-colors duration-200 hover:border-orange-500/40 hover:text-orange-300"
                 >
