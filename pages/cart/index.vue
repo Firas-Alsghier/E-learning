@@ -42,7 +42,7 @@ const loadCart = async () => {
       author: `${item.course.teacher.firstName} ${item.course.teacher.lastName}`,
       image: item.course.coverImage,
       category: item.course.category,
-      duration: '2 Weeks', // we'll replace this later with real duration
+      // duration: '2 Weeks', // we'll replace this later with real duration
       originalPrice: item.course.price,
       price: item.course.price,
     }));

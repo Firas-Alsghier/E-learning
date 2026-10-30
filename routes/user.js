@@ -50,7 +50,7 @@ router.get('/wishlist', userAuth, async (req, res) => {
       price: course.price,
       oldPrice: 0,
       category: course.category,
-      duration: '2 Weeks',
+      // duration: '2 Weeks',
       students: 0,
       level: course.level,
       lessons: course.sections?.length || 0,
