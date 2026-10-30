@@ -271,5 +271,13 @@
   "messages": "Messages",
   "account-settings": "Account settings",
   "support": "Support",
-  "logout": "Log out"
+  "logout": "Log out",
+  "learn-every-day-title": "Learn Something New Every Day",
+  "learn-every-day-subtitle": "Discover new opportunities, develop your skills, and make progress toward your goals.",
+  "benefit-1-title": "Improve Your Communication",
+  "benefit-1-desc": "Build confidence and express yourself more effectively in everyday life.",
+  "benefit-2-title": "Build Practical Skills",
+  "benefit-2-desc": "Gain useful knowledge and develop skills you can apply in the real world.",
+  "benefit-3-title": "Learn at Your Own Pace",
+  "benefit-3-desc": "Enjoy flexible learning that fits your schedule, lifestyle, and goals."
 }
