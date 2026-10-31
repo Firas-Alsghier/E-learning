@@ -344,7 +344,7 @@ onMounted(() => {
             ]"
           >
             <div class="relative flex-shrink-0">
-              <img :src="conv.image" :alt="conv.name" class="w-10 h-10 rounded-full object-cover" />
+              <!-- <img :src="conv.image" :alt="conv.name" class="w-10 h-10 rounded-full object-cover" /> -->
               <!-- Online status indicator -->
               <span v-if="conv.isOnline" class="absolute right-0 bottom-0 h-2.5 w-2.5 bg-green-500 rounded-full border-2 border-white"></span>
             </div>
@@ -372,7 +372,7 @@ onMounted(() => {
         <div class="flex flex-col h-full" v-if="isOpend">
           <div class="p-4 flex items-center justify-between border-b border-gray-200 flex-shrink-0">
             <div v-if="activeConversation" class="flex items-center space-x-3">
-              <img :src="activeConversation.image" :alt="activeConversation.name" class="w-10 h-10 rounded-full object-cover" />
+              <!-- <img :src="activeConversation.image" :alt="activeConversation.name" class="w-10 h-10 rounded-full object-cover" /> -->
 
               <div>
                 <p class="font-semibold text-sm">

@@ -3,9 +3,13 @@
 import type { SidebarProps } from '@/components/ui/sidebar';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
+import { useTeacher } from '~/composables/useTeacher';
+
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from '@/components/ui/sidebar';
 
-import { AudioWaveform, BookOpen, Bot, Command, Frame, GalleryVerticalEnd, Map, PieChart, Settings2, SquareTerminal } from 'lucide-vue-next';
+import { LayoutGrid, Video, Clapperboard, Mail, Settings2 } from 'lucide-vue-next';
+
+const { teacher } = useTeacher();
 
 const props = withDefaults(defineProps<SidebarProps>(), {
   collapsible: 'icon',
@@ -17,49 +21,24 @@ const data = {
     {
       title: 'عام',
       url: 'overview',
-      icon: SquareTerminal,
+      icon: LayoutGrid,
       isActive: true,
     },
     {
       title: 'كورساتي',
       url: 'my-courses',
-      icon: Bot,
+      icon: Clapperboard,
     },
     {
       title: 'انشاء كورس',
       url: 'create-course',
-      icon: BookOpen,
+      icon: Video,
     },
     {
       title: 'الرسائل',
       url: 'messages',
-      icon: BookOpen,
+      icon: Mail,
     },
-    // {
-    //   title: 'المقالات',
-    //   url: 'blogs',
-    //   icon: Settings2,
-    // },
-    // {
-    //   title: 'كتابة مقالة',
-    //   url: 'blogs/create',
-    //   icon: Settings2,
-    // },
-    // {
-    //   title: 'تعديل المقالات',
-    //   url: '#',
-    //   icon: Settings2,
-    // },
-    // {
-    //   title: 'الرسائل',
-    //   url: 'messages',
-    //   icon: Settings2,
-    // },
-    // {
-    //   title: 'الأرباح',
-    //   url: 'profits',
-    //   icon: Settings2,
-    // },
     {
       title: 'الاعدادات',
       url: 'settings',
@@ -72,7 +51,7 @@ const data = {
 <template>
   <Sidebar v-bind="props">
     <SidebarHeader>
-      <NavUser />
+      <NavUser :firstName="teacher?.firstName" :lastName="teacher?.lastName" :email="teacher?.email" />
     </SidebarHeader>
     <SidebarContent>
       <NavMain :items="data.navMain" />

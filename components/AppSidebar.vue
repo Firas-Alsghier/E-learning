@@ -3,12 +3,15 @@
 import type { SidebarProps } from '@/components/ui/sidebar';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
+import { useUser } from '~/composables/useUser';
+
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from '@/components/ui/sidebar';
 import { useI18n } from 'vue-i18n';
 
 import { UserRoundPen, KeyRound, Mail, Video, UserRoundX, Settings2, SquareTerminal } from 'lucide-vue-next';
 
 const { t } = useI18n();
+const { user } = useUser();
 
 const props = withDefaults(defineProps<SidebarProps>(), {
   collapsible: 'icon',
@@ -63,7 +66,7 @@ const data = computed(() => ({
 <template>
   <Sidebar v-bind="props">
     <SidebarHeader>
-      <NavUser />
+      <NavUser :firstName="user?.firstName" :lastName="user?.lastName" :email="user?.email" />
     </SidebarHeader>
     <SidebarContent>
       <NavMain :items="data.navMain" />
