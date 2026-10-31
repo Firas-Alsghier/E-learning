@@ -103,7 +103,7 @@ const savePreferences = async () => {
 <template>
   <form class="space-y-8 bg-[#f9f9f9] p-6 rounded-xl" @submit.prevent="savePreferences">
     <!-- Section 1: Offers & Updates -->
-    <div class="border rounded-lg overflow-hidden">
+    <!-- <div class="border rounded-lg overflow-hidden">
       <div class="flex items-center justify-center p-4 border-b">
         <h2 class="text-lg font-semibold">{{ t('updates-offers-title') }}</h2>
       </div>
@@ -118,7 +118,7 @@ const savePreferences = async () => {
           <label>{{ t('promotions-label') }}</label>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <!-- Section 2: Your Learning -->
     <div class="border rounded-lg overflow-hidden">

@@ -6,7 +6,7 @@ import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from '@/components/ui/sidebar';
 import { useI18n } from 'vue-i18n';
 
-import { BookOpen, Bot, Settings2, SquareTerminal } from 'lucide-vue-next';
+import { UserRoundPen, KeyRound, Mail, Video, UserRoundX, Settings2, SquareTerminal } from 'lucide-vue-next';
 
 const { t } = useI18n();
 
@@ -22,13 +22,13 @@ const data = computed(() => ({
     {
       title: t('profile'),
       url: 'edit-profile',
-      icon: SquareTerminal,
+      icon: UserRoundPen,
       isActive: true,
     },
     {
       title: t('account-security'),
       url: 'edit-account',
-      icon: BookOpen,
+      icon: KeyRound,
     },
     // {
     //   title: t('privacy'),
@@ -44,17 +44,17 @@ const data = computed(() => ({
     {
       title: 'Messages',
       url: 'message',
-      icon: Settings2,
+      icon: Mail,
     },
     {
       title: 'My Courses',
       url: 'my-courses',
-      icon: Settings2,
+      icon: Video,
     },
     {
       title: t('close-account'),
       url: 'close-account',
-      icon: Settings2,
+      icon: UserRoundX,
     },
   ],
 }));
