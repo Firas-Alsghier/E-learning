@@ -49,10 +49,8 @@ router.get('/my-courses', userAuth, async (req, res) => {
           totalLessons,
           completedLessons,
         };
-      })
+      }),
     );
-
-    console.log('it comes from here:', JSON.stringify(coursesWithProgress, null, 2));
 
     res.json(coursesWithProgress);
   } catch (err) {

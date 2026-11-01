@@ -2,6 +2,7 @@ import express from 'express';
 import Cart from '../models/Cart.js';
 import Course from '../models/Course.js';
 import Purchase from '../models/Purchase.js';
+import Notification from '../models/Notification.js';
 import userAuth from '../middleware/authMiddleware.js';
 const router = express.Router();
 
@@ -56,6 +57,17 @@ router.post('/checkout', userAuth, async (req, res) => {
         purchaseDate: new Date(),
         expiresAt,
       });
+      // Create course purchase notification
+      if (req.user.notificationPreferences?.coursePurchase !== false) {
+        await Notification.create({
+          recipientId: req.user._id,
+          recipientRole: 'user',
+          type: 'course_purchase',
+          title: 'Course purchased successfully!',
+          message: `You have successfully enrolled in ${course.title}. Happy learning!`,
+          link: '/user/my-courses',
+        });
+      }
       course.studentsCount += 1;
       await course.save();
     }

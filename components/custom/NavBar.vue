@@ -40,9 +40,14 @@ const searchQuery = ref('');
 
 const router = useRouter();
 
-const toggleNotifications = (event: Event) => {
+const toggleNotifications = async (event: Event) => {
   event.stopPropagation();
+
   isNotificationOpen.value = !isNotificationOpen.value;
+
+  if (isNotificationOpen.value) {
+    await fetchNotifications();
+  }
 };
 
 // Fetch notifications from the backend
