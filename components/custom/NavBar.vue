@@ -4,7 +4,7 @@ import { useAuthStore } from '~/stores/auth';
 import { useCartStore } from '~/stores/cart';
 import { useWishlistStore } from '~/stores/wishlist';
 import { useI18n } from 'vue-i18n';
-import { Search, MenuIcon, Heart, ShoppingCart, Bell, Facebook, Instagram } from 'lucide-vue-next';
+import { Search, MenuIcon, Heart, ShoppingCart, Bell, Trash2, Facebook, Instagram } from 'lucide-vue-next';
 import { useUser } from '~/composables/useUser'; // Retained for real-world functionality
 import { useTeacher } from '~/composables/useTeacher';
 
@@ -99,6 +99,28 @@ const markNotificationAsRead = async (notification: NotificationItem) => {
     notificationCount.value = Math.max(0, notificationCount.value - 1);
   } catch (error) {
     console.error('Failed to mark notification as read:', error);
+  }
+};
+
+const deleteNotification = async (notification: NotificationItem) => {
+  try {
+    const token = useCookie('token').value;
+    if (!token) return;
+
+    await $fetch(`${config.public.apiBase}/api/notifications/${notification._id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    notifications.value = notifications.value.filter((item) => item._id !== notification._id);
+
+    if (!notification.isRead) {
+      notificationCount.value = Math.max(0, notificationCount.value - 1);
+    }
+  } catch (error) {
+    console.error('Failed to delete notification:', error);
   }
 };
 
@@ -249,7 +271,7 @@ const toggleMenu = (event: Event) => {
               </button>
 
               <!-- Notification Panel -->
-              <div v-if="isNotificationOpen" class="absolute left-0 top-10 z-50 w-[min(24rem,calc(100vw-2rem))] bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden">
+              <div v-if="isNotificationOpen" class="absolute left-0 top-10 z-100 w-[min(24rem,calc(100vw-2rem))] bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden">
                 <div class="flex items-center justify-between p-4 border-b">
                   <h3 class="font-semibold text-gray-800">Notifications</h3>
                   <button type="button" @click="isNotificationOpen = false" class="text-sm text-gray-500 hover:text-gray-800">Close</button>
@@ -267,14 +289,15 @@ const toggleMenu = (event: Event) => {
 
                 <!-- Notification list -->
                 <div v-else class="max-h-96 overflow-y-auto divide-y">
-                  <div v-for="notification in notifications" :key="notification._id" class="p-4 hover:bg-gray-50 transition" :class="{ 'bg-blue-50': !notification.isRead }">
+                  <div v-for="notification in notifications" :key="notification._id" class="p-4 hover:bg-gray-50 transition flex items-start gap-2" :class="{ 'bg-blue-50': !notification.isRead }">
+                    <!-- Notification content -->
                     <NuxtLink
                       :to="notification.link || '/courses'"
                       @click="
                         markNotificationAsRead(notification);
                         isNotificationOpen = false;
                       "
-                      class="block"
+                      class="flex-1 min-w-0"
                     >
                       <div class="flex items-start gap-3">
                         <span v-if="!notification.isRead" class="mt-2 size-2 rounded-full bg-blue-500 shrink-0"></span>
@@ -294,6 +317,17 @@ const toggleMenu = (event: Event) => {
                         </div>
                       </div>
                     </NuxtLink>
+
+                    <!-- Delete button -->
+                    <button
+                      type="button"
+                      @click.stop="deleteNotification(notification)"
+                      aria-label="Delete notification"
+                      title="Delete notification"
+                      class="p-2 rounded-md cursor-pointer text-gray-400 hover:text-red-600 hover:bg-red-50 transition shrink-0"
+                    >
+                      <Trash2 class="size-4" />
+                    </button>
                   </div>
                 </div>
               </div>

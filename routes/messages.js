@@ -1,6 +1,7 @@
 import express from 'express';
 import Message from '../models/Message.js';
-// import User from '../models/User.js';
+import User from '../models/User.js';
+import Notification from '../models/Notification.js';
 import Conversation from '../models/Conversation.js';
 import { teacherAuth } from '../middleware/teacherAuth.js';
 import userAuth from '../middleware/authMiddleware.js';
@@ -61,6 +62,23 @@ router.post('/', teacherAuth, upload.single('attachment'), async (req, res) => {
       attachment: req.file ? req.file.filename : null,
     });
     await message.save();
+    // Notify the student about the teacher's message
+    try {
+      const student = await User.findById(finalReceiver).select('notificationPreferences');
+
+      if (student?.notificationPreferences?.teacherNotifications !== false) {
+        await Notification.create({
+          recipientId: finalReceiver,
+          recipientRole: 'user',
+          type: 'teacher_notification',
+          title: 'New message from your teacher',
+          message: text ? `Your teacher sent you a message: ${text}` : 'Your teacher sent you an attachment.',
+          link: '/user/message',
+        });
+      }
+    } catch (notificationError) {
+      console.error('Failed to create teacher message notification:', notificationError);
+    }
 
     // Update conversation
     conversation.lastMessage = text;

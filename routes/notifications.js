@@ -77,4 +77,33 @@ router.patch('/read-all', authMiddleware, async (req, res) => {
   }
 });
 
+// DELETE ONE NOTIFICATION
+router.delete('/:id', authMiddleware, async (req, res) => {
+  try {
+    const notification = await Notification.findOneAndDelete({
+      _id: req.params.id,
+      recipientId: req.user._id,
+      recipientRole: 'user',
+    });
+
+    if (!notification) {
+      return res.status(404).json({
+        success: false,
+        message: 'Notification not found',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Notification deleted successfully',
+    });
+  } catch (error) {
+    console.error('DELETE NOTIFICATION ERROR:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete notification',
+    });
+  }
+});
+
 export default router;

@@ -1,7 +1,10 @@
 import express from 'express';
 import UserProgress from '../models/UserProgress.js';
 import userAuth from '../middleware/authMiddleware.js';
-
+import Course from '../models/Course.js';
+import Section from '../models/Section.js';
+import Lesson from '../models/Lesson.js';
+import Notification from '../models/Notification.js';
 const router = express.Router();
 
 router.post('/complete-lesson', userAuth, async (req, res) => {
@@ -27,6 +30,43 @@ router.post('/complete-lesson', userAuth, async (req, res) => {
     }
 
     await progress.save();
+
+    // Get the course and all its lessons
+    const course = await Course.findById(courseId).populate({
+      path: 'sections',
+      populate: {
+        path: 'lessons',
+      },
+    });
+
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    const totalLessons = course.sections.reduce((total, section) => total + section.lessons.length, 0);
+
+    const completedCount = new Set(progress.completedLessons.map((id) => id.toString())).size;
+
+    // Check whether the entire course is completed
+    if (totalLessons > 0 && completedCount >= totalLessons) {
+      const existingNotification = await Notification.findOne({
+        recipientId: userId,
+        recipientRole: 'user',
+        type: 'course_completion',
+        link: `/courses/${course.slug}`,
+      });
+
+      if (!existingNotification && req.user.notificationPreferences?.courseCompletion !== false) {
+        await Notification.create({
+          recipientId: userId,
+          recipientRole: 'user',
+          type: 'course_completion',
+          title: 'Congratulations! Course completed!',
+          message: `You have successfully completed ${course.title}. Well done!`,
+          link: `/courses/${course.slug}`,
+        });
+      }
+    }
 
     res.json(progress);
   } catch (err) {
