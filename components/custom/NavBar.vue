@@ -7,6 +7,18 @@ import { useI18n } from 'vue-i18n';
 import { Search, MenuIcon, Heart, ShoppingCart, Bell, Facebook, Instagram } from 'lucide-vue-next';
 import { useUser } from '~/composables/useUser'; // Retained for real-world functionality
 import { useTeacher } from '~/composables/useTeacher';
+
+// Notification data
+interface NotificationItem {
+  _id: string;
+  type: string;
+  title: string;
+  message: string;
+  link: string | null;
+  isRead: boolean;
+  createdAt: string;
+}
+
 const config = useRuntimeConfig();
 const { user } = useUser();
 const { teacher } = useTeacher(); // 👈 Add this line
@@ -19,11 +31,71 @@ const { t } = useI18n();
 // Initialize your mock counts here. In a real app, these would come from a store or API.
 const wishlistCount = computed(() => wishlistStore.count); // Items in wishlist
 const cartCount = computed(() => cartStore.count);
-const notificationCount = ref(9); // Unread notifications
+const notificationCount = ref(0);
+const isNotificationOpen = ref(false);
+const notifications = ref<NotificationItem[]>([]);
+const isLoadingNotifications = ref(false);
 const auth = useAuthStore();
 const searchQuery = ref('');
 
 const router = useRouter();
+
+const toggleNotifications = (event: Event) => {
+  event.stopPropagation();
+  isNotificationOpen.value = !isNotificationOpen.value;
+};
+
+// Fetch notifications from the backend
+const fetchNotifications = async () => {
+  try {
+    const token = useCookie('token').value;
+
+    if (!token) {
+      notifications.value = [];
+      notificationCount.value = 0;
+      return;
+    }
+
+    isLoadingNotifications.value = true;
+
+    const response = await $fetch<{
+      notifications: NotificationItem[];
+      unreadCount: number;
+    }>(`${config.public.apiBase}/api/notifications`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    notifications.value = response.notifications;
+    notificationCount.value = response.unreadCount;
+  } catch (error) {
+    console.error('Notification fetch error:', error);
+  } finally {
+    isLoadingNotifications.value = false;
+  }
+};
+
+const markNotificationAsRead = async (notification: NotificationItem) => {
+  if (notification.isRead) return;
+
+  try {
+    const token = useCookie('token').value;
+    if (!token) return;
+
+    await $fetch(`${config.public.apiBase}/api/notifications/${notification._id}/read`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    notification.isRead = true;
+    notificationCount.value = Math.max(0, notificationCount.value - 1);
+  } catch (error) {
+    console.error('Failed to mark notification as read:', error);
+  }
+};
 
 const handleSearch = () => {
   const query = searchQuery.value.trim();
@@ -62,7 +134,11 @@ const fetchCartCount = async () => {
 // Wait for client-side rehydration
 onMounted(async () => {
   isHydrated.value = true;
-  await Promise.all([wishlistStore.refresh(), fetchCartCount()]); // Click outside to close menu
+  await Promise.all([wishlistStore.refresh(), fetchCartCount()]);
+
+  if (user.value) {
+    await fetchNotifications();
+  }
   window.addEventListener('click', (event: any) => {
     if (!event.target.closest('.mobile-menu') && !event.target.closest('button')) {
       isMenuOpen.value = false;
@@ -154,8 +230,68 @@ const toggleMenu = (event: Event) => {
               </span>
             </NuxtLink>
 
-            <div class="relative cursor-pointer text-text-secondary-custom hover:text-hover-rose-gold">
-              <Bell class="size-6" />
+            <div class="relative">
+              <!-- Notification Bell -->
+              <button type="button" @click="toggleNotifications" class="relative cursor-pointer text-text-secondary-custom hover:text-hover-rose-gold" aria-label="Notifications">
+                <Bell class="size-6" />
+
+                <span
+                  v-if="notificationCount > 0"
+                  class="absolute top-[-8px] right-[-8px] h-4 w-4 flex items-center justify-center rounded-full bg-red-600 text-white text-[10px] font-bold border border-white"
+                >
+                  {{ notificationCount > 9 ? '9+' : notificationCount }}
+                </span>
+              </button>
+
+              <!-- Notification Panel -->
+              <div v-if="isNotificationOpen" class="absolute left-0 top-10 z-50 w-[min(24rem,calc(100vw-2rem))] bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden">
+                <div class="flex items-center justify-between p-4 border-b">
+                  <h3 class="font-semibold text-gray-800">Notifications</h3>
+                  <button type="button" @click="isNotificationOpen = false" class="text-sm text-gray-500 hover:text-gray-800">Close</button>
+                </div>
+
+                <!-- Loading state -->
+                <div v-if="isLoadingNotifications" class="p-6 text-center text-gray-500">Loading notifications...</div>
+
+                <!-- Empty state -->
+                <div v-else-if="notifications.length === 0" class="p-8 text-center text-gray-500">
+                  <Bell class="size-8 mx-auto mb-3 text-gray-400" />
+                  <p class="font-medium">You're all caught up!</p>
+                  <p class="text-sm mt-1">New notifications will appear here.</p>
+                </div>
+
+                <!-- Notification list -->
+                <div v-else class="max-h-96 overflow-y-auto divide-y">
+                  <div v-for="notification in notifications" :key="notification._id" class="p-4 hover:bg-gray-50 transition" :class="{ 'bg-blue-50': !notification.isRead }">
+                    <NuxtLink
+                      :to="notification.link || '/courses'"
+                      @click="
+                        markNotificationAsRead(notification);
+                        isNotificationOpen = false;
+                      "
+                      class="block"
+                    >
+                      <div class="flex items-start gap-3">
+                        <span v-if="!notification.isRead" class="mt-2 size-2 rounded-full bg-blue-500 shrink-0"></span>
+
+                        <div class="min-w-0">
+                          <p class="font-semibold text-sm text-gray-800">
+                            {{ notification.title }}
+                          </p>
+
+                          <p class="text-sm text-gray-600 mt-1">
+                            {{ notification.message }}
+                          </p>
+
+                          <p class="text-xs text-gray-400 mt-2">
+                            {{ new Date(notification.createdAt).toLocaleString() }}
+                          </p>
+                        </div>
+                      </div>
+                    </NuxtLink>
+                  </div>
+                </div>
+              </div>
             </div>
             <CustomUserDropMenu />
           </template>

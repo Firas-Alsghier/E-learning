@@ -30,6 +30,7 @@ import purchaseRoutes from './routes/purchase.js';
 import courseRatingsRoutes from './routes/courseRatings.js';
 import certificateRoutes from './routes/certificates.js';
 import learnRoutes from './routes/learn.js';
+import notificationRoutes from './routes/notifications.js';
 // import verifyEmailRoute from './routes/verifyEmail.js';
 
 const app = express();
@@ -57,6 +58,7 @@ app.use('/api/admin/management', adminManagementRoutes);
 app.use('/api/admin/categories', adminCategories);
 app.use('/api/admin', adminTeachersRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/notifications', notificationRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/purchases', purchaseRoutes);

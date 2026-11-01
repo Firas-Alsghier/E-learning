@@ -2,6 +2,7 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import Notification from '../models/Notification.js';
 import { sendEmail } from '../utils/sendEmail.js';
 import crypto from 'crypto';
 import authMiddleware from '../middleware/authMiddleware.js';
@@ -85,6 +86,17 @@ router.post('/signup', async (req, res) => {
     });
 
     await user.save();
+
+    if (user.notificationPreferences?.welcome !== false) {
+      await Notification.create({
+        recipientId: user._id,
+        recipientRole: 'user',
+        type: 'welcome',
+        title: 'Welcome to our learning platform!',
+        message: `Hello ${user.firstName}, welcome aboard! We're glad to have you with us.`,
+        link: '/courses',
+      });
+    }
 
     const verifyLink = `http://localhost:3000/verify-email?token=${verificationToken}`;
     const emailContent = `
@@ -198,7 +210,7 @@ router.post('/login', async (req, res) => {
         role: user.role,
       },
       process.env.JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: '7d' },
     );
 
     // ✅ Send response
@@ -350,7 +362,7 @@ router.put('/edit-privacy', authMiddleware, async (req, res) => {
           'privacySettings.allowMessages': allowMessages,
         },
       },
-      { new: true }
+      { new: true },
     );
 
     if (!user) return res.status(404).json({ message: 'User not found' });
@@ -382,14 +394,52 @@ router.delete('/close-account', authMiddleware, async (req, res) => {
 router.put('/notifications', authMiddleware, async (req, res) => {
   try {
     const userId = req.user._id;
-    const { offers, learning } = req.body;
 
-    const updatedUser = await User.findByIdAndUpdate(userId, { notificationPreferences: { offers, learning } }, { new: true });
+    const { teacherNotifications, coursePurchase, welcome, courseCompletion } = req.body;
 
-    res.json({ success: true, data: updatedUser.notificationPreferences });
+    // Make sure all four values are booleans
+    const preferences = {
+      teacherNotifications,
+      coursePurchase,
+      welcome,
+      courseCompletion,
+    };
+
+    if (Object.values(preferences).some((value) => typeof value !== 'boolean')) {
+      return res.status(400).json({
+        success: false,
+        message: 'All notification preferences must be true or false',
+      });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        $set: {
+          notificationPreferences: preferences,
+        },
+      },
+      { new: true, runValidators: true },
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    res.json({
+      success: true,
+      data: updatedUser.notificationPreferences,
+    });
   } catch (err) {
     console.error('Error updating notifications:', err);
-    res.status(500).json({ success: false, message: 'Server error' });
+
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+    });
   }
 });
 

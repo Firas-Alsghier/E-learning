@@ -61,16 +61,10 @@ const userSchema = new mongoose.Schema(
     },
 
     notificationPreferences: {
-      offers: {
-        productUpdates: { type: Boolean, default: false },
-        promotions: { type: Boolean, default: false },
-      },
-      learning: {
-        stats: { type: Boolean, default: false },
-        inspiration: { type: Boolean, default: false },
-        courseRecs: { type: Boolean, default: false },
-        lecturerNotifs: { type: Boolean, default: false },
-      },
+      teacherNotifications: { type: Boolean, default: true },
+      coursePurchase: { type: Boolean, default: true },
+      welcome: { type: Boolean, default: true },
+      courseCompletion: { type: Boolean, default: true },
     },
     isBlocked: { type: Boolean, default: false },
 
@@ -86,7 +80,7 @@ const userSchema = new mongoose.Schema(
       default: 'student',
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default mongoose.model('User', userSchema);
