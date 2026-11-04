@@ -75,7 +75,7 @@ router.post('/checkout', userAuth, async (req, res) => {
         type: 'new_course_purchase',
         title: 'New Course Purchase!',
         message: `A student has purchased your course: ${course.title}.`,
-        link: '/teacher/dashboard',
+        link: '/teacher/overview',
       });
       course.studentsCount += 1;
       await course.save();

@@ -3,6 +3,7 @@ import Course from '../models/Course.js';
 import CourseRating from '../models/CourseRating.js';
 import Purchase from '../models/Purchase.js';
 import userAuth from '../middleware/authMiddleware.js';
+import Notification from '../models/Notification.js';
 import { getCourseCompletion } from '../utils/courseCompletion.js';
 const router = express.Router();
 
@@ -57,6 +58,20 @@ router.post('/:courseId', userAuth, async (req, res) => {
         course: courseId,
         rating,
       });
+    }
+
+    // Notify the teacher about the new or updated review
+    try {
+      await Notification.create({
+        recipientId: course.teacher,
+        recipientRole: 'teacher',
+        type: 'new_course_review',
+        title: 'Course Review Updated!',
+        message: `A student has submitted or updated their review for your course: ${course.title}.`,
+        link: '/teacher/overview',
+      });
+    } catch (notificationError) {
+      console.error('Failed to create teacher review notification:', notificationError);
     }
 
     // Get all ratings for this course

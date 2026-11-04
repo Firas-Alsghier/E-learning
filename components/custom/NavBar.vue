@@ -253,6 +253,8 @@ const fetchCartCount = async () => {
     cartStore.setCount(0);
   }
 };
+
+let teacherNotificationInterval: ReturnType<typeof setInterval> | null = null;
 // Wait for client-side rehydration
 onMounted(async () => {
   isHydrated.value = true;
@@ -260,6 +262,14 @@ onMounted(async () => {
 
   if (user.value) {
     await fetchNotifications();
+  }
+
+  if (teacher.value) {
+    await fetchTeacherNotifications();
+
+    teacherNotificationInterval = setInterval(() => {
+      fetchTeacherNotifications();
+    }, 10000);
   }
   window.addEventListener('click', (event: any) => {
     if (!event.target.closest('.mobile-menu') && !event.target.closest('button')) {
@@ -276,6 +286,10 @@ onMounted(async () => {
   window.addEventListener('resize', handleResize);
   onUnmounted(() => {
     window.removeEventListener('resize', handleResize);
+
+    if (teacherNotificationInterval) {
+      clearInterval(teacherNotificationInterval);
+    }
   });
 });
 
@@ -431,14 +445,86 @@ const toggleMenu = (event: Event) => {
           </template>
 
           <template v-else-if="teacher">
-            <div class="relative cursor-pointer text-text-secondary-custom hover:text-hover-rose-gold">
-              <Bell class="size-6" />
-              <span
-                v-if="notificationCount > 0"
-                class="absolute top-[-8px] right-[-8px] h-4 w-4 flex items-center justify-center rounded-full bg-red-600 text-white text-[10px] font-bold border border-white"
-              >
-                {{ notificationCount > 9 ? '9+' : notificationCount }}
-              </span>
+            <div class="relative">
+              <!-- Teacher Notification Bell -->
+              <button type="button" @click="toggleTeacherNotifications" class="relative cursor-pointer text-text-secondary-custom hover:text-hover-rose-gold" aria-label="Teacher notifications">
+                <Bell class="size-6" />
+
+                <span
+                  v-if="teacherNotificationCount > 0"
+                  class="absolute top-[-8px] right-[-8px] h-4 w-4 flex items-center justify-center rounded-full bg-red-600 text-white text-[10px] font-bold border border-white"
+                >
+                  {{ teacherNotificationCount > 9 ? '9+' : teacherNotificationCount }}
+                </span>
+              </button>
+
+              <!-- Teacher Notification Panel -->
+              <div v-if="isTeacherNotificationOpen" class="absolute left-0 top-10 z-100 w-[min(24rem,calc(100vw-2rem))] bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden">
+                <div class="flex items-center justify-between p-4 border-b">
+                  <h3 class="font-semibold text-gray-800">Notifications</h3>
+
+                  <button type="button" @click="isTeacherNotificationOpen = false" class="text-sm text-gray-500 hover:text-gray-800">Close</button>
+                </div>
+
+                <!-- Loading state -->
+                <div v-if="isLoadingTeacherNotifications" class="p-6 text-center text-gray-500">Loading notifications...</div>
+
+                <!-- Empty state -->
+                <div v-else-if="teacherNotifications.length === 0" class="p-8 text-center text-gray-500">
+                  <Bell class="size-8 mx-auto mb-3 text-gray-400" />
+                  <p class="font-medium">You're all caught up!</p>
+                  <p class="text-sm mt-1">New notifications will appear here.</p>
+                </div>
+
+                <!-- Notification list -->
+                <div v-else class="max-h-96 overflow-y-auto divide-y">
+                  <div
+                    v-for="notification in teacherNotifications"
+                    :key="notification._id"
+                    class="p-4 hover:bg-gray-50 transition flex items-start gap-2"
+                    :class="{ 'bg-blue-50': !notification.isRead }"
+                  >
+                    <!-- Notification content -->
+                    <NuxtLink
+                      :to="notification.link || '/teacher/overview'"
+                      @click="
+                        markTeacherNotificationAsRead(notification);
+                        isTeacherNotificationOpen = false;
+                      "
+                      class="flex-1 min-w-0"
+                    >
+                      <div class="flex items-start gap-3">
+                        <span v-if="!notification.isRead" class="mt-2 size-2 rounded-full bg-blue-500 shrink-0"></span>
+
+                        <div class="min-w-0">
+                          <p class="font-semibold text-sm text-gray-800">
+                            {{ notification.title }}
+                          </p>
+
+                          <p class="text-sm text-gray-600 mt-1">
+                            {{ notification.message }}
+                          </p>
+
+                          <p class="text-xs text-gray-400 mt-2">
+                            {{ new Date(notification.createdAt).toLocaleString() }}
+                          </p>
+                        </div>
+                      </div>
+                    </NuxtLink>
+
+                    <!-- Delete button -->
+                    <button
+                      type="button"
+                      @click.stop="deleteTeacherNotification(notification)"
+                      aria-label="Delete notification"
+                      title="Delete notification"
+                      class="p-2 rounded-md cursor-pointer text-gray-400 hover:text-red-600 hover:bg-red-50 transition shrink-0"
+                    >
+                      <Trash2 class="size-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <CustomTeacherDropMenu />

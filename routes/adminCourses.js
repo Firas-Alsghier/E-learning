@@ -1,7 +1,7 @@
 // routes/adminCourses.js
 import express from 'express';
 import Course from '../models/Course.js';
-
+import Notification from '../models/Notification.js';
 const router = express.Router();
 
 // GET ALL COURSES (Admin)
@@ -135,7 +135,19 @@ router.patch('/:id/approve', async (req, res) => {
     course.isPublished = true;
 
     await course.save();
-
+    // Notify teacher that their course was approved
+    try {
+      await Notification.create({
+        recipientId: course.teacher,
+        recipientRole: 'teacher',
+        type: 'course_approval',
+        title: 'Course Approved!',
+        message: `Congratulations! Your course "${course.title}" has been approved and published.`,
+        link: '/teacher/my-courses',
+      });
+    } catch (notificationError) {
+      console.error('Failed to create course approval notification:', notificationError);
+    }
     res.status(200).json({
       message: 'Course approved and published',
     });
@@ -159,7 +171,19 @@ router.patch('/:id/reject', async (req, res) => {
     course.isPublished = false;
 
     await course.save();
-
+    // Notify teacher that their course was rejected
+    try {
+      await Notification.create({
+        recipientId: course.teacher,
+        recipientRole: 'teacher',
+        type: 'course_approval',
+        title: 'Course Rejected',
+        message: `Unfortunately, your course "${course.title}" has been rejected by the admin.`,
+        link: '/teacher/my-courses',
+      });
+    } catch (notificationError) {
+      console.error('Failed to create course rejection notification:', notificationError);
+    }
     res.status(200).json({
       message: 'Course rejected',
     });

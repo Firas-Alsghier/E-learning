@@ -16,7 +16,7 @@ const notificationSchema = new mongoose.Schema(
 
     type: {
       type: String,
-      enum: ['teacher_notification', 'course_purchase', 'welcome', 'course_completion', 'new_message', 'new_course_purchase'],
+      enum: ['teacher_notification', 'course_purchase', 'welcome', 'course_completion', 'new_message', 'new_course_purchase', 'new_course_review', 'course_approval'],
       required: true,
     },
 

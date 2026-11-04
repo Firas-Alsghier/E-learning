@@ -132,6 +132,19 @@ router.post('/contact-teacher', userAuth, upload.single('attachment'), async (re
       attachment: req.file ? req.file.filename : null,
     });
     await message.save();
+    // Notify the teacher about the student's message
+    try {
+      await Notification.create({
+        recipientId: teacherId,
+        recipientRole: 'teacher',
+        type: 'new_message',
+        title: 'New Message!',
+        message: text ? `A student sent you a message: ${text}` : 'A student sent you an attachment.',
+        link: '/teacher/messages',
+      });
+    } catch (notificationError) {
+      console.error('Failed to create teacher message notification:', notificationError);
+    }
 
     // Update conversation
     conversation.lastMessage = text;
