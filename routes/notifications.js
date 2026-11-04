@@ -1,6 +1,7 @@
 import express from 'express';
 import Notification from '../models/Notification.js';
 import authMiddleware from '../middleware/authMiddleware.js';
+import { teacherAuth } from '../middleware/teacherAuth.js';
 const router = express.Router();
 
 // GET USER NOTIFICATIONS
@@ -25,6 +26,33 @@ router.get('/', authMiddleware, async (req, res) => {
   } catch (error) {
     console.error('FETCH NOTIFICATIONS ERROR:', error);
     res.status(500).json({ message: 'Failed to fetch notifications' });
+  }
+});
+
+// GET TEACHER NOTIFICATIONS
+router.get('/teacher', teacherAuth, async (req, res) => {
+  try {
+    const notifications = await Notification.find({
+      recipientId: req.teacher._id,
+      recipientRole: 'teacher',
+    }).sort({ createdAt: -1 });
+
+    const unreadCount = await Notification.countDocuments({
+      recipientId: req.teacher._id,
+      recipientRole: 'teacher',
+      isRead: false,
+    });
+
+    res.status(200).json({
+      success: true,
+      notifications,
+      unreadCount,
+    });
+  } catch (error) {
+    console.error('FETCH TEACHER NOTIFICATIONS ERROR:', error);
+    res.status(500).json({
+      message: 'Failed to fetch teacher notifications',
+    });
   }
 });
 
@@ -55,6 +83,37 @@ router.patch('/:id/read', authMiddleware, async (req, res) => {
   }
 });
 
+// MARK TEACHER NOTIFICATION AS READ
+router.patch('/teacher/:id/read', teacherAuth, async (req, res) => {
+  try {
+    const notification = await Notification.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        recipientId: req.teacher._id,
+        recipientRole: 'teacher',
+      },
+      { isRead: true },
+      { new: true },
+    );
+
+    if (!notification) {
+      return res.status(404).json({
+        message: 'Notification not found',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      notification,
+    });
+  } catch (error) {
+    console.error('MARK TEACHER NOTIFICATION READ ERROR:', error);
+    res.status(500).json({
+      message: 'Failed to update teacher notification',
+    });
+  }
+});
+
 // MARK ALL NOTIFICATIONS AS READ
 router.patch('/read-all', authMiddleware, async (req, res) => {
   try {
@@ -74,6 +133,35 @@ router.patch('/read-all', authMiddleware, async (req, res) => {
   } catch (error) {
     console.error('MARK ALL NOTIFICATIONS READ ERROR:', error);
     res.status(500).json({ message: 'Failed to update notifications' });
+  }
+});
+
+// DELETE ONE TEACHER NOTIFICATION
+router.delete('/teacher/:id', teacherAuth, async (req, res) => {
+  try {
+    const notification = await Notification.findOneAndDelete({
+      _id: req.params.id,
+      recipientId: req.teacher._id,
+      recipientRole: 'teacher',
+    });
+
+    if (!notification) {
+      return res.status(404).json({
+        success: false,
+        message: 'Notification not found',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Notification deleted successfully',
+    });
+  } catch (error) {
+    console.error('DELETE TEACHER NOTIFICATION ERROR:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete notification',
+    });
   }
 });
 

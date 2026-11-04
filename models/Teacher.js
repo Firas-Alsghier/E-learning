@@ -77,6 +77,13 @@ const teacherSchema = new mongoose.Schema(
       default: false,
     },
 
+    // notificationPreferences: {
+    //   newCoursePurchase: { type: Boolean, default: true },
+    //   newMessage: { type: Boolean, default: true },
+    //   newCourseReview: { type: Boolean, default: true },
+    //   courseApproval: { type: Boolean, default: true },
+    // },
+
     social: {
       website: { type: String, default: '' },
       facebook: { type: String, default: '' },
@@ -121,7 +128,7 @@ const teacherSchema = new mongoose.Schema(
   },
   {
     timestamps: true, // createdAt & updatedAt
-  }
+  },
 );
 
 export default mongoose.model('Teacher', teacherSchema);

@@ -34,6 +34,11 @@ const cartCount = computed(() => cartStore.count);
 const notificationCount = ref(0);
 const isNotificationOpen = ref(false);
 const notifications = ref<NotificationItem[]>([]);
+// Teacher notification data
+const teacherNotificationCount = ref(0);
+const isTeacherNotificationOpen = ref(false);
+const teacherNotifications = ref<NotificationItem[]>([]);
+const isLoadingTeacherNotifications = ref(false);
 const isLoadingNotifications = ref(false);
 const auth = useAuthStore();
 const searchQuery = ref('');
@@ -47,6 +52,17 @@ const toggleNotifications = async (event: Event) => {
 
   if (isNotificationOpen.value) {
     await fetchNotifications();
+  }
+};
+
+// Toggle teacher notifications dropdown
+const toggleTeacherNotifications = async (event: Event) => {
+  event.stopPropagation();
+
+  isTeacherNotificationOpen.value = !isTeacherNotificationOpen.value;
+
+  if (isTeacherNotificationOpen.value) {
+    await fetchTeacherNotifications();
   }
 };
 
@@ -81,6 +97,37 @@ const fetchNotifications = async () => {
   }
 };
 
+// Fetch teacher notifications
+const fetchTeacherNotifications = async () => {
+  try {
+    const token = useCookie('teacher_token').value;
+
+    if (!token) {
+      teacherNotifications.value = [];
+      teacherNotificationCount.value = 0;
+      return;
+    }
+
+    isLoadingTeacherNotifications.value = true;
+
+    const response = await $fetch<{
+      notifications: NotificationItem[];
+      unreadCount: number;
+    }>(`${config.public.apiBase}/api/notifications/teacher`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    teacherNotifications.value = response.notifications;
+    teacherNotificationCount.value = response.unreadCount;
+  } catch (error) {
+    console.error('Teacher notification fetch error:', error);
+  } finally {
+    isLoadingTeacherNotifications.value = false;
+  }
+};
+
 const markNotificationAsRead = async (notification: NotificationItem) => {
   if (notification.isRead) return;
 
@@ -99,6 +146,30 @@ const markNotificationAsRead = async (notification: NotificationItem) => {
     notificationCount.value = Math.max(0, notificationCount.value - 1);
   } catch (error) {
     console.error('Failed to mark notification as read:', error);
+  }
+};
+
+// Mark teacher notification as read
+const markTeacherNotificationAsRead = async (notification: NotificationItem) => {
+  if (notification.isRead) return;
+
+  try {
+    const token = useCookie('teacher_token').value;
+
+    if (!token) return;
+
+    await $fetch(`${config.public.apiBase}/api/notifications/teacher/${notification._id}/read`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    notification.isRead = true;
+
+    teacherNotificationCount.value = Math.max(0, teacherNotificationCount.value - 1);
+  } catch (error) {
+    console.error('Failed to mark teacher notification as read:', error);
   }
 };
 
@@ -121,6 +192,30 @@ const deleteNotification = async (notification: NotificationItem) => {
     }
   } catch (error) {
     console.error('Failed to delete notification:', error);
+  }
+};
+
+// Delete teacher notification
+const deleteTeacherNotification = async (notification: NotificationItem) => {
+  try {
+    const token = useCookie('teacher_token').value;
+
+    if (!token) return;
+
+    await $fetch(`${config.public.apiBase}/api/notifications/teacher/${notification._id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    teacherNotifications.value = teacherNotifications.value.filter((item) => item._id !== notification._id);
+
+    if (!notification.isRead) {
+      teacherNotificationCount.value = Math.max(0, teacherNotificationCount.value - 1);
+    }
+  } catch (error) {
+    console.error('Failed to delete teacher notification:', error);
   }
 };
 

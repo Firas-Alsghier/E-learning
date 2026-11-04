@@ -68,6 +68,15 @@ router.post('/checkout', userAuth, async (req, res) => {
           link: '/user/my-courses',
         });
       }
+      // Notify the teacher about the new course purchase
+      await Notification.create({
+        recipientId: course.teacher._id,
+        recipientRole: 'teacher',
+        type: 'new_course_purchase',
+        title: 'New Course Purchase!',
+        message: `A student has purchased your course: ${course.title}.`,
+        link: '/teacher/dashboard',
+      });
       course.studentsCount += 1;
       await course.save();
     }
